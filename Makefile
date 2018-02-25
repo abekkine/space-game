@@ -4,7 +4,7 @@ OBJS=$(SRCS:%.cpp=%.o)
 FLAGS =-g
 FLAGS += --std=c++11
 FLAGS += -Wall -Wextra -Werror -Wfatal-errors
-CXXLIBS=
+CXXLIBS= -lglfw -lGL
 
 all: $(OBJS)
 	$(CXX) $(FLAGS) -o $(TARGET) $(OBJS) $(CXXLIBS)
