@@ -1,10 +1,22 @@
 #include <iostream>
 
-int main() {
+#include "game.h"
 
-    // TODO Game initialization  +game id:0 gh:1 ic:gh
-    // - Add Game initialization.
-    // - Also test, imdone integration.
+int main(int argc, char * argv[]) {
+
+    Game* game = new Game();
+
+    try {
+
+        game->Init(argc, argv);
+        game->Run();
+    }
+    catch (std::string & errorMessage) {
+        std::cerr << "Game Error : " << errorMessage << '\n';
+    }
+    catch (std::exception & e) {
+        std::cerr << "System Error : " << e.what() << '\n';
+    }
 
     return 0;
 }

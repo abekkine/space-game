@@ -8,6 +8,11 @@ class Game {
 public:
     Game() {}
     ~Game() {}
+    void Init(int argc, char * argv[]) {
+        (void)argc;
+        (void)argv;
+    }
+    void Run() {}
 };
 
 #endif  // GAME_H_
