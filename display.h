@@ -3,12 +3,19 @@
 
 #include <GLFW/glfw3.h>
 
+#include <iostream>
 #include <string>
+#include <functional>
 
-class Display {
+#include "singleton.h"
+
+static void key_callback(GLFWwindow * window, int key, int scancode, int action, int mods);
+
+class Display : public Singleton<Display> {
 public:
-    Display()
+    explicit Display(token)
     : window_(0)
+    , key_cb_([](int k) { (void)k; })
     {}
     ~Display() {}
     void Init() {
@@ -16,13 +23,17 @@ public:
             throw std::string("Unable to initialize GLFW.");
         }
 
-        window_ = glfwCreateWindow(200, 200, "Testing", NULL, NULL);
+        window_ = glfwCreateWindow(1024, 576, "Testing", NULL, NULL);
         if (!window_) {
             Quit();
             throw std::string("Unable to create window.");
         }
 
+        glfwSetWindowPos(window_, 10, 10);
+
         glfwMakeContextCurrent(window_);
+
+        glfwSetKeyCallback(window_, key_callback);
     }
     bool QuitRequested() {
         bool quit_request;
@@ -38,11 +49,32 @@ public:
         glfwSwapBuffers(window_);
         glfwPollEvents();
     }
+    void RequestQuit() {
+        std::cout << "Display::RequestQuit()\n";
+        glfwSetWindowShouldClose(window_, GLFW_TRUE);
+    }
     void Quit() {
         glfwTerminate();
     }
+    void RegisterKeyCallback(std::function<void(int)> cb) {
+        key_cb_ = cb;
+    }
+    void KeyCallback(int key) {
+        key_cb_(key);
+    }
 private:
     GLFWwindow * window_;
+    std::function<void(int)> key_cb_;
 };
+
+#define DISPLAY Display::Instance()
+
+static void key_callback(GLFWwindow * window, int key, int scancode, int action, int mods) {
+    (void)window;
+    (void)scancode;
+    (void)action;
+    (void)mods;
+    DISPLAY.KeyCallback(key);
+}
 
 #endif  // DISPLAY_H_

@@ -2,6 +2,7 @@
 #define GAME_H_
 
 #include "display.h"
+#include "input.h"
 
 // TODO Implement game class +game +states id:2 gh:4 ic:gh
 // - Add required methods to call within main.cpp
@@ -9,30 +10,33 @@
 class Game {
 public:
     Game()
-    : display_(0)
+    : input_(0)
     {}
     ~Game() {
-        delete display_;
+        delete input_;
     }
     void Init(int argc, char * argv[]) {
         (void)argc;
         (void)argv;
 
-        display_ = new Display();
-        display_->Init();
+        {
+            using namespace std::placeholders;
+            DISPLAY.RegisterKeyCallback(std::bind(&Input::ProcessKey, input_, _1));
+        }
+        DISPLAY.Init();
     }
     void Run() {
 
-        while (! display_->QuitRequested()) {
-            display_->PreRender();
+        while (! DISPLAY.QuitRequested()) {
+            DISPLAY.PreRender();
             // [TODO]
-            display_->PostRender();
+            DISPLAY.PostRender();
         }
 
-        display_->Quit();
+        DISPLAY.Quit();
     }
 private:
-    Display * display_;
+    Input * input_;
 };
 
 #endif  // GAME_H_

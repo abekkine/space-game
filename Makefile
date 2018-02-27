@@ -16,4 +16,4 @@ run:
 	./$(TARGET) $(ARGS)
 
 clean:
-	$(RM) $(TARGET) *.o *~ core*
+	$(RM) $(TARGET) *.o *.gch *~ core*
