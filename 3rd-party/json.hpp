@@ -5942,7 +5942,7 @@ class binary_reader
     {
         if (get_char)
         {
-            get();  // TODO: may we ignore N here?
+            get();  // TODO: may we ignore N here? id:21 gh:26 ic:gh
         }
 
         unexpect_eof();
