@@ -7,6 +7,8 @@
 #include <string>
 #include <functional>
 
+#include "config.h"
+#include "game_exception.h"
 #include "singleton.h"
 
 static void key_callback(GLFWwindow * window, int key, int scancode, int action, int mods);
@@ -20,13 +22,24 @@ public:
     ~Display() {}
     void Init() {
         if (! glfwInit()) {
-            throw std::string("Unable to initialize GLFW.");
+            std::string message = std::string("Unable to initialize GLFW.");
+            throw GameException(GameException::eGLFWError, message);
         }
 
-        window_ = glfwCreateWindow(1024, 576, "Testing", NULL, NULL);
+        int width = CONFIG.GetParam<int>( {"display", "width"}, 1024 );
+        int height = CONFIG.GetParam<int>( {"display", "height"}, 576 );
+        bool fullscreen = CONFIG.GetParam<bool>( {"display", "fullscreen"}, false );
+
+        if (fullscreen) {
+            window_ = glfwCreateWindow(width, height, "Testing", glfwGetPrimaryMonitor(), NULL);
+        }
+        else {
+            window_ = glfwCreateWindow(width, height, "Testing", NULL, NULL);
+        }
         if (!window_) {
             Quit();
-            throw std::string("Unable to create window.");
+            std::string message = std::string("Unable to create window.");
+            throw GameException(GameException::eGLFWError, message);
         }
 
         glfwSetWindowPos(window_, 10, 10);

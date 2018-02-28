@@ -2,3 +2,5 @@ spaceGame
 .imdone/
 *.o
 *.gch
+*.json
+

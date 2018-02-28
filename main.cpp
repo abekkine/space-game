@@ -11,11 +11,8 @@ int main(int argc, char * argv[]) {
         game->Init(argc, argv);
         game->Run();
     }
-    catch (std::string & errorMessage) {
-        std::cerr << "Game Error : " << errorMessage << '\n';
-    }
     catch (std::exception & e) {
-        std::cerr << "System Error : " << e.what() << '\n';
+        std::cerr << "Error : " << e.what() << '\n';
     }
 
     return 0;
