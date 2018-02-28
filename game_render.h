@@ -14,18 +14,18 @@ public:
             TestFonts();
         }
         else {
-            // TODO Render game content +render +game
+            // TODO Render game content +render +game id:17 gh:20 ic:gh
             // - Implement methods required to render game content.
         }
     }
 private:
-    // TODO Testing primitives +render +test
+    // TODO Testing primitives +render +test id:18 gh:21 ic:gh
     // - Implement test code to render primitives
     void TestPrimitives() {}
-    // TODO Testing textures +render +texture +test
+    // TODO Testing textures +render +texture +test id:20 gh:23 ic:gh
     // Implement test code to render textures
     void TestTextures() {}
-    // TODO Testing fonts +render +font +test
+    // TODO Testing fonts +render +font +test id:19 gh:22 ic:gh
     // Implement test code to render fonts & text.
     void TestFonts() {}
 private:
