@@ -2,6 +2,7 @@ TARGET=spaceGame
 SRCS=$(wildcard *.cpp)
 OBJS=$(SRCS:%.cpp=%.o)
 FLAGS =-g
+FLAGS += -I./3rd-party
 FLAGS += --std=c++11
 FLAGS += -Wall -Wextra -Werror -Wfatal-errors
 CXXLIBS= -lglfw -lGL
