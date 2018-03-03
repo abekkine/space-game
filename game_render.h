@@ -1,35 +1,70 @@
 #ifndef GAME_RENDER_H_
 #define GAME_RENDER_H_
 
+#include <GLFW/glfw3.h>
+
+#include <iostream>
+
+#include "texture.h"
+
 class GameRender {
-public:
+ public:
     explicit GameRender(bool test_mode)
-    : test_mode_(test_mode) {}
-    ~GameRender() {}
-    void Init() {}
+    : test_mode_(test_mode)
+    , test_texture_(0) {
+    }
+
+    ~GameRender() {
+        delete test_texture_;
+    }
+
+    void Init() {
+        if (test_texture_ != 0) {
+            delete test_texture_;
+        }
+
+        test_texture_ = new Texture("test.png");
+    }
     void Render() {
         if (test_mode_) {
             TestPrimitives();
             TestTextures();
             TestFonts();
-        }
-        else {
+        } else {
             // TODO Render game content +render +game id:17 gh:20 ic:gh
             // - Implement methods required to render game content.
         }
     }
-private:
-    // TODO Testing primitives +render +test id:18 gh:21 ic:gh
-    // - Implement test code to render primitives
-    void TestPrimitives() {}
-    // TODO Testing textures +render +texture +test id:20 gh:23 ic:gh
-    // Implement test code to render textures
-    void TestTextures() {}
+
+ private:
+    void TestPrimitives() {
+        glLoadIdentity();
+        glTranslated(-5.0, -5.0, 0.0);
+        glBegin(GL_QUADS);
+            glColor3f(1.0, 0.0, 0.0);
+            glVertex2d(-1.0, -1.0);
+            glColor3f(0.0, 1.0, 0.0);
+            glVertex2d(1.0, -1.0);
+            glColor3f(0.0, 0.0, 1.0);
+            glVertex2d(1.0,  1.0);
+            glColor3f(1.0, 0.0, 1.0);
+            glVertex2d(-1.0,  1.0);
+        glEnd();
+    }
+
+    void TestTextures() {
+        glLoadIdentity();
+        glTranslated(-5.0, 5.0, 0.0);
+        glScaled(5.0, 5.0, 1.0);
+        test_texture_->Render();
+    }
     // TODO Testing fonts +render +font +test id:19 gh:22 ic:gh
     // Implement test code to render fonts & text.
     void TestFonts() {}
-private:
+
+ private:
     const bool test_mode_;
+    Texture * test_texture_;
 };
 
 #endif  // GAME_RENDER_H_

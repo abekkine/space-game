@@ -4,7 +4,7 @@
 // TODO Implement States class +states +game +menu id:7 gh:9 ic:gh
 // - Handles game states.
 class States {
-public:
+ public:
     States() {}
     ~States() {}
 };

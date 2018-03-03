@@ -3,5 +3,8 @@
         "width" : 1024,
         "height" : 576,
         "fullscreen" : false
+    },
+    "world" : {
+        "size" : 1000.0
     }
 }

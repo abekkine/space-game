@@ -4,7 +4,7 @@
 // TODO Implement File class +file id:11 gh:13 ic:gh
 // - Handles file I/O.
 class File {
-public:
+ public:
     File() {}
     ~File() {}
 };

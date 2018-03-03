@@ -4,7 +4,7 @@
 // TODO Implement Menu class +ui +input id:9 gh:11 ic:gh
 // - Handles game menu.
 class Menu {
-public:
+ public:
     Menu() {}
     ~Menu() {}
 };

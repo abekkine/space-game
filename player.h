@@ -4,7 +4,7 @@
 // TODO Implement Player class +player +input +game id:3 gh:5 ic:gh
 // - Handles player stuff.
 class Player {
-public:
+ public:
     Player() {}
     ~Player() {}
 };

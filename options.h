@@ -3,7 +3,7 @@
 
 // TODO Implement Options class +game +config id:15 gh:17 ic:gh
 class Options {
-public:
+ public:
     Options() {}
     ~Options() {}
 };

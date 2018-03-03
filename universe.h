@@ -4,7 +4,7 @@
 // TODO Implement Universe class +game +player id:4 gh:6 ic:gh
 // - Handles & executes game universe
 class Universe {
-public:
+ public:
     Universe() {}
     ~Universe() {}
 };

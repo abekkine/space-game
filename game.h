@@ -9,7 +9,7 @@
 // - Add required methods to call within main.cpp
 // - Add required (class) dependencies to make it work properly.
 class Game {
-public:
+ public:
     Game()
     : input_(0)
     , render_(0)
@@ -23,7 +23,7 @@ public:
         (void)argv;
 
         {
-            using namespace std::placeholders;
+            using std::placeholders::_1;
             DISPLAY.RegisterKeyCallback(std::bind(&Input::ProcessKey, input_, _1));
         }
         DISPLAY.Init();
@@ -32,8 +32,7 @@ public:
         render_->Init();
     }
     void Run() {
-
-        while (! DISPLAY.QuitRequested()) {
+        while (!DISPLAY.QuitRequested()) {
             DISPLAY.PreRender();
             render_->Render();
             DISPLAY.PostRender();
@@ -41,7 +40,8 @@ public:
 
         DISPLAY.Quit();
     }
-private:
+
+ private:
     Input * input_;
     GameRender * render_;
 };

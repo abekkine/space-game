@@ -14,28 +14,34 @@
 static void key_callback(GLFWwindow * window, int key, int scancode, int action, int mods);
 
 class Display : public Singleton<Display> {
-public:
+ public:
     explicit Display(token)
     : window_(0)
     , key_cb_([](int k) { (void)k; })
+    , vp_left_(-1.0)
+    , vp_right_(1.0)
+    , vp_top_(1.0)
+    , vp_bottom_(-1.0)
     {}
     ~Display() {}
     void Init() {
-        if (! glfwInit()) {
+        if (!glfwInit()) {
             std::string message = std::string("Unable to initialize GLFW.");
             throw GameException(GameException::eGLFWError, message);
         }
 
-        int width = CONFIG.GetParam<int>( {"display", "width"}, 1024 );
-        int height = CONFIG.GetParam<int>( {"display", "height"}, 576 );
-        bool fullscreen = CONFIG.GetParam<bool>( {"display", "fullscreen"}, false );
+        int width = CONFIG.GetParam<int>({"display", "width"}, 1024);
+        int height = CONFIG.GetParam<int>({"display", "height"}, 576);
+        bool fullscreen = CONFIG.GetParam<bool>({"display", "fullscreen"}, false);
+        double size = CONFIG.GetParam<double>({"world", "size"}, 100.0);
+        SetupViewport(width, height, size);
 
         if (fullscreen) {
             window_ = glfwCreateWindow(width, height, "Testing", glfwGetPrimaryMonitor(), NULL);
-        }
-        else {
+        } else {
             window_ = glfwCreateWindow(width, height, "Testing", NULL, NULL);
         }
+
         if (!window_) {
             Quit();
             std::string message = std::string("Unable to create window.");
@@ -48,6 +54,12 @@ public:
 
         glfwSetKeyCallback(window_, key_callback);
     }
+    void SetupViewport(int width, int height, double size) {
+        vp_left_ = -0.5 * size;
+        vp_right_ = 0.5 * size;
+        vp_top_ = 0.5 * height * size / static_cast<double>(width);
+        vp_bottom_ = -vp_top_;
+    }
     bool QuitRequested() {
         bool quit_request;
 
@@ -56,6 +68,10 @@ public:
         return quit_request;
     }
     void PreRender() {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(vp_left_, vp_right_, vp_bottom_, vp_top_, -1.0, 1.0);
+        glMatrixMode(GL_MODELVIEW);
         glClear(GL_COLOR_BUFFER_BIT);
     }
     void PostRender() {
@@ -75,9 +91,14 @@ public:
     void KeyCallback(int key) {
         key_cb_(key);
     }
-private:
+
+ private:
     GLFWwindow * window_;
     std::function<void(int)> key_cb_;
+    double vp_left_;
+    double vp_right_;
+    double vp_top_;
+    double vp_bottom_;
 };
 
 #define DISPLAY Display::Instance()

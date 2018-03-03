@@ -1,6 +1,7 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
+#include <string>
 #include <fstream>
 #include <initializer_list>
 
@@ -11,10 +12,9 @@ using json = nlohmann::json;
 #include "singleton.h"
 
 class Config : public Singleton<Config> {
-public:
+ public:
     explicit Config(token)
-    : config_file_(std::string("game.json"))
-    {
+    : config_file_(std::string("game.json")) {
         std::fstream file(config_file_, std::fstream::in);
         file >> config_json_;
         file.close();
@@ -23,7 +23,7 @@ public:
     json GetParam(std::initializer_list<std::string> path) {
         json object = config_json_;
         std::string name = "";
-        for (auto i=path.begin(); i!=path.end(); ++i) {
+        for (auto i=path.begin(); i != path.end(); ++i) {
             name += "[" + *i + "]";
             object = object[*i];
             if (object == NULL) {
@@ -42,14 +42,14 @@ public:
         catch (GameException & e) {
             if (e.code() == GameException::eParameterNotFound) {
                 param_value = value;
-            }
-            else {
+            } else {
                 throw;
-             }
+            }
         }
         return param_value;
     }
-private:
+
+ private:
     const std::string config_file_;
     json config_json_;
 };

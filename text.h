@@ -5,7 +5,7 @@
 // - Handles text formatting and display,
 // - Supports multiple TT fonts.
 class Text {
-public:
+ public:
     Text() {}
     ~Text() {}
 };

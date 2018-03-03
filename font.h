@@ -4,7 +4,7 @@
 // TODO Implement Font class +font +ui +render id:14 gh:16 ic:gh
 // - Handles TrueType font rendering.
 class Font {
-public:
+ public:
     Font() {}
     ~Font() {}
 };
