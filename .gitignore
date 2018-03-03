@@ -3,4 +3,6 @@ spaceGame
 *.o
 *.gch
 *.json
+.*sw*
+
 
