@@ -34,7 +34,7 @@ class Config : public Singleton<Config> {
         return object;
     }
     template <typename T>
-    json GetParam(std::initializer_list<std::string> path, T value) {
+    json GetParam(const std::initializer_list<std::string> & path, T value) {
         json param_value;
         try {
             param_value = GetParam(path);

@@ -6,16 +6,19 @@
 #include <iostream>
 
 #include "texture.h"
+#include "font.h"
 
 class GameRender {
  public:
     explicit GameRender(bool test_mode)
     : test_mode_(test_mode)
-    , test_texture_(0) {
+    , test_texture_(0)
+    , test_font_(0) {
     }
 
     ~GameRender() {
         delete test_texture_;
+        delete test_font_;
     }
 
     void Init() {
@@ -24,15 +27,23 @@ class GameRender {
         }
 
         test_texture_ = new Texture("test.png");
+        test_font_ = new Font("FreeMono.ttf");
     }
-    void Render() {
+    void RenderWorld() {
         if (test_mode_) {
             TestPrimitives();
             TestTextures();
-            TestFonts();
         } else {
             // TODO Render game content +render +game id:17 gh:20 ic:gh
             // - Implement methods required to render game content.
+        }
+    }
+    void RenderUi() {
+        if (test_mode_) {
+            TestUiFonts();
+        }
+        else {
+
         }
     }
 
@@ -58,13 +69,18 @@ class GameRender {
         glScaled(5.0, 5.0, 1.0);
         test_texture_->Render();
     }
-    // TODO Testing fonts +render +font +test id:19 gh:22 ic:gh
-    // Implement test code to render fonts & text.
-    void TestFonts() {}
+
+    void TestUiFonts() {
+        glColor3f(1.0, 1.0, 0.0);
+        glRasterPos2i(10, 10);
+        test_font_->FaceSize(40);
+        test_font_->Render(std::string("This is custom font!"));
+    }
 
  private:
     const bool test_mode_;
     Texture * test_texture_;
+    Font * test_font_;
 };
 
 #endif  // GAME_RENDER_H_

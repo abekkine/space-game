@@ -10,6 +10,7 @@ class GameException : public std::exception {
         eParameterNotFound = 10001,
         eGLFWError,
         eTextureNotFound,
+        eFontLoadingError,
     };
  public:
     GameException(ExceptionCode code, const std::string & message)

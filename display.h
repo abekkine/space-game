@@ -22,6 +22,8 @@ class Display : public Singleton<Display> {
     , vp_right_(1.0)
     , vp_top_(1.0)
     , vp_bottom_(-1.0)
+    , width_(0)
+    , height_(0)
     {}
     ~Display() {}
     void Init() {
@@ -30,16 +32,16 @@ class Display : public Singleton<Display> {
             throw GameException(GameException::eGLFWError, message);
         }
 
-        int width = CONFIG.GetParam<int>({"display", "width"}, 1024);
-        int height = CONFIG.GetParam<int>({"display", "height"}, 576);
+        width_ = CONFIG.GetParam<int>({"display", "width"}, 1024);
+        height_ = CONFIG.GetParam<int>({"display", "height"}, 576);
         bool fullscreen = CONFIG.GetParam<bool>({"display", "fullscreen"}, false);
         double size = CONFIG.GetParam<double>({"world", "size"}, 100.0);
-        SetupViewport(width, height, size);
+        SetupViewport(size);
 
         if (fullscreen) {
-            window_ = glfwCreateWindow(width, height, "Testing", glfwGetPrimaryMonitor(), NULL);
+            window_ = glfwCreateWindow(width_, height_, "Testing", glfwGetPrimaryMonitor(), NULL);
         } else {
-            window_ = glfwCreateWindow(width, height, "Testing", NULL, NULL);
+            window_ = glfwCreateWindow(width_, height_, "Testing", NULL, NULL);
         }
 
         if (!window_) {
@@ -54,10 +56,10 @@ class Display : public Singleton<Display> {
 
         glfwSetKeyCallback(window_, key_callback);
     }
-    void SetupViewport(int width, int height, double size) {
+    void SetupViewport(double size) {
         vp_left_ = -0.5 * size;
         vp_right_ = 0.5 * size;
-        vp_top_ = 0.5 * height * size / static_cast<double>(width);
+        vp_top_ = 0.5 * height_ * size / static_cast<double>(width_);
         vp_bottom_ = -vp_top_;
     }
     bool QuitRequested() {
@@ -67,11 +69,18 @@ class Display : public Singleton<Display> {
 
         return quit_request;
     }
-    void PreRender() {
+    void UiMode() {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0.0, width_, height_, 0.0, -1.0, 1.0);
+    }
+    void WorldMode() {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glOrtho(vp_left_, vp_right_, vp_bottom_, vp_top_, -1.0, 1.0);
         glMatrixMode(GL_MODELVIEW);
+    }
+    void PreRender() {
         glClear(GL_COLOR_BUFFER_BIT);
     }
     void PostRender() {
@@ -99,6 +108,8 @@ class Display : public Singleton<Display> {
     double vp_right_;
     double vp_top_;
     double vp_bottom_;
+    int width_;
+    int height_;
 };
 
 #define DISPLAY Display::Instance()

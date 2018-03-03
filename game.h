@@ -34,7 +34,10 @@ class Game {
     void Run() {
         while (!DISPLAY.QuitRequested()) {
             DISPLAY.PreRender();
-            render_->Render();
+            DISPLAY.WorldMode();
+            render_->RenderWorld();
+            DISPLAY.UiMode();
+            render_->RenderUi();
             DISPLAY.PostRender();
         }
 
