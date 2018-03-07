@@ -13,7 +13,7 @@
 // - Handles textures.
 class Texture {
  public:
-    explicit Texture(std::string file_name)
+    explicit Texture(const std::string & file_name)
     : width_(0.0)
     , height_(0.0)
     , raw_width_(0)
