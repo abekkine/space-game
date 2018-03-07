@@ -32,7 +32,7 @@ class Game {
         render_->Init();
     }
     void Run() {
-        // TODO Separate World rendering and Ui rendering apart +game +render
+        // TODO Separate World rendering and Ui rendering apart +game +render id:22 gh:28 ic:gh
         // - rename GameRender as WorldRender,
         // - move text rendering into UiRender,
         while (!DISPLAY.QuitRequested()) {
