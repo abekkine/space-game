@@ -2,17 +2,14 @@
 #define GAME_H_
 
 #include "display.h"
-#include "input.h"
 #include "game_state.h"
 
 class Game {
  public:
     Game()
-    : input_(0)
-    , game_state_(0)
+    : game_state_(0)
     {}
     ~Game() {
-        delete input_;
         delete game_state_;
     }
     void Init(int argc, char * argv[]) {
@@ -22,7 +19,7 @@ class Game {
         // Scope for placeholders.
         {
             using std::placeholders::_1;
-            DISPLAY.RegisterKeyCallback(std::bind(&Input::ProcessKey, input_, _1));
+            DISPLAY.RegisterKeyCallback(std::bind(&Game::ProcessKey, this, _1));
         }
         DISPLAY.Init();
 
@@ -43,8 +40,12 @@ class Game {
     }
 
  private:
+    void ProcessKey(int key) {
+        game_state_->ProcessKey(key);
+    }
+
+ private:
     std::function<void()> render_function_;
-    Input * input_;
     GameState * game_state_;
 };
 

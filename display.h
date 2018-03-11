@@ -117,9 +117,11 @@ class Display : public Singleton<Display> {
 static void key_callback(GLFWwindow * window, int key, int scancode, int action, int mods) {
     (void)window;
     (void)scancode;
-    (void)action;
     (void)mods;
-    DISPLAY.KeyCallback(key);
+
+    if (GLFW_PRESS == action) {
+        DISPLAY.KeyCallback(key);
+    }
 }
 
 #endif  // DISPLAY_H_
