@@ -4,5 +4,4 @@ spaceGame
 *.gch
 *.json
 .*sw*
-
-
+.sconsign.dblite
