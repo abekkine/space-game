@@ -26,13 +26,13 @@ class GamePlay {
          DISPLAY.WorldMode();
          render_->Render();
      }
-     GameDefinitions::GameStateType KeyInput(int key) {
-         GameDefinitions::GameStateType state = GameDefinitions::eInGame;
+     GameDefinitions::GameStateEnum KeyInput(int key) {
+         GameDefinitions::GameStateEnum state = GameDefinitions::gameState_InGame;
 
          switch (key) {
              case GLFW_KEY_Q:
              case GLFW_KEY_ESCAPE:
-                state = GameDefinitions::eInMenu;
+                state = GameDefinitions::gameState_InMenu;
                 break;
          }
 

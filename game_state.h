@@ -10,7 +10,7 @@
 class GameState {
  public:
     GameState()
-    : state_(GameDefinitions::eInMenu)
+    : state_(GameDefinitions::gameState_InMenu)
     , menu_(0)
     , gameplay_(0)
     {}
@@ -31,11 +31,11 @@ class GameState {
         gameplay_ = new GamePlay();
         gameplay_->Init();
 
-        render_states_[GameDefinitions::eInMenu] = std::bind(&Menu::Render, menu_);
-        render_states_[GameDefinitions::eInGame] = std::bind(&GamePlay::Render, gameplay_);
+        render_states_[GameDefinitions::gameState_InMenu] = std::bind(&Menu::Render, menu_);
+        render_states_[GameDefinitions::gameState_InGame] = std::bind(&GamePlay::Render, gameplay_);
 
-        key_processors_[GameDefinitions::eInMenu] = std::bind(&Menu::KeyInput, menu_, std::placeholders::_1);
-        key_processors_[GameDefinitions::eInGame] = std::bind(&GamePlay::KeyInput, gameplay_, std::placeholders::_1);
+        key_processors_[GameDefinitions::gameState_InMenu] = std::bind(&Menu::KeyInput, menu_, std::placeholders::_1);
+        key_processors_[GameDefinitions::gameState_InGame] = std::bind(&GamePlay::KeyInput, gameplay_, std::placeholders::_1);
     }
     void Render() {
         render_states_[state_]();
@@ -45,11 +45,11 @@ class GameState {
     }
 
  private:
-    GameDefinitions::GameStateType state_;
+    GameDefinitions::GameStateEnum state_;
     Menu * menu_;
     GamePlay * gameplay_;
-    std::function<void()> render_states_[GameDefinitions::eStateMax];
-    std::function<GameDefinitions::GameStateType(int)> key_processors_[GameDefinitions::eStateMax];
+    std::function<void()> render_states_[GameDefinitions::gameState_SIZE];
+    std::function<GameDefinitions::GameStateEnum(int)> key_processors_[GameDefinitions::gameState_SIZE];
 };
 
 #endif  // GAME_STATE_H_

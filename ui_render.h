@@ -23,7 +23,8 @@ class UiRender {
             delete test_font_;
             test_font_ = 0;
         }
-        test_font_ = new Font("FreeMono.ttf");
+
+        test_font_ = new Font("menu_font.ttf");
     }
 
     void Render() {
