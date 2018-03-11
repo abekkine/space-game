@@ -4,19 +4,27 @@
 #include "display.h"
 #include "input.h"
 #include "game_render.h"
+#include "ui_render.h"
 
-// TODO Implement game class +game +states id:2 gh:4 ic:gh
-// - Add required methods to call within main.cpp
-// - Add required (class) dependencies to make it work properly.
 class Game {
+ private:
+    enum GameState {
+        eNone = 0,
+        eInMenu,
+        eInGame,
+    };
+
  public:
     Game()
     : input_(0)
+    , game_state_(eNone)
     , render_(0)
+    , ui_(0)
     {}
     ~Game() {
         delete input_;
         delete render_;
+        delete ui_;
     }
     void Init(int argc, char * argv[]) {
         (void)argc;
@@ -30,17 +38,40 @@ class Game {
 
         render_ = new GameRender(true);
         render_->Init();
+
+        ui_ = new UiRender(true);
+        ui_->Init();
+
+        game_state_ = eInMenu;
     }
+
+    void RenderMenu() {
+        // Render Ui
+        DISPLAY.UiMode();
+        ui_->Render();
+    }
+
+    void RenderGame() {
+        // Render world
+        DISPLAY.WorldMode();
+        render_->Render();
+    }
+
     void Run() {
-        // TODO Separate World rendering and Ui rendering apart +game +render id:22 gh:28 ic:gh
-        // - rename GameRender as WorldRender,
-        // - move text rendering into UiRender,
         while (!DISPLAY.QuitRequested()) {
             DISPLAY.PreRender();
-            DISPLAY.WorldMode();
-            render_->RenderWorld();
-            DISPLAY.UiMode();
-            render_->RenderUi();
+
+            switch (game_state_) {
+                case eInMenu:
+                    RenderMenu();
+                    break;
+                case eInGame:
+                    RenderGame();
+                    break;
+                default:
+                    break;
+            }
+
             DISPLAY.PostRender();
         }
 
@@ -49,7 +80,9 @@ class Game {
 
  private:
     Input * input_;
+    GameState game_state_;
     GameRender * render_;
+    UiRender * ui_;
 };
 
 #endif  // GAME_H_
