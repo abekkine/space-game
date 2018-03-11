@@ -31,7 +31,7 @@ class UiRender {
         if (test_mode_) {
             TestUiFonts();
         } else {
-            // TODO Implement main function of UI rendering +ui +menu
+            // TODO Implement main function of UI rendering +ui +menu id:23 gh:30 ic:gh
         }
     }
 
