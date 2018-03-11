@@ -7,8 +7,6 @@
 #include "display.h"
 #include "ui_render.h"
 
-// TODO Implement Menu class +ui +input id:9 gh:11 ic:gh
-// - Handles game menu.
 class Menu {
  public:
     Menu()

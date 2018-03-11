@@ -7,8 +7,7 @@
 
 #include "font.h"
 
-// TODO Implement UiRender class +ui +game +menu +text +font id:16 gh:18 ic:gh
-// - Handles renderables related to user interface.
+// [TODO]
 class UiRender {
  public:
     explicit UiRender(bool test_mode)

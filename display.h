@@ -88,7 +88,6 @@ class Display : public Singleton<Display> {
         glfwPollEvents();
     }
     void RequestQuit() {
-        std::cout << "Display::RequestQuit()\n";
         glfwSetWindowShouldClose(window_, GLFW_TRUE);
     }
     void Quit() {
