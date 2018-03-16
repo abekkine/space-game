@@ -34,8 +34,11 @@ class GameState {
         render_states_[GameDefinitions::gameState_InMenu] = std::bind(&Menu::Render, menu_);
         render_states_[GameDefinitions::gameState_InGame] = std::bind(&GamePlay::Render, gameplay_);
 
-        key_processors_[GameDefinitions::gameState_InMenu] = std::bind(&Menu::KeyInput, menu_, std::placeholders::_1);
-        key_processors_[GameDefinitions::gameState_InGame] = std::bind(&GamePlay::KeyInput, gameplay_, std::placeholders::_1);
+        {
+            using std::placeholders::_1;
+            key_processors_[GameDefinitions::gameState_InMenu] = std::bind(&Menu::KeyInput, menu_, _1);
+            key_processors_[GameDefinitions::gameState_InGame] = std::bind(&GamePlay::KeyInput, gameplay_, _1);
+        }
     }
     void Render() {
         render_states_[state_]();

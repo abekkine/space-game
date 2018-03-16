@@ -1,6 +1,7 @@
 #ifndef GAME_RENDER_H_
 #define GAME_RENDER_H_
 
+#include <math.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
@@ -26,13 +27,40 @@ class GameRender {
         test_texture_ = new Texture("test.png");
     }
     void Render() {
-        if (test_mode_) {
-            TestPrimitives();
-            TestTextures();
-        } else {
+        glPushMatrix();
+        RenderUniverse();
+        RenderPlayer();
+        // if (test_mode_) {
+        //     TestPrimitives();
+        //     TestTextures();
+        // } else {
             // TODO Render game content +render +game id:17 gh:20 ic:gh
             // - Implement methods required to render game content.
-        }
+        // }
+        glPopMatrix();
+    }
+    void RenderPlayer() {
+        glLoadIdentity();
+        glTranslated(0.0, 0.0, 0.0);
+        glColor3f(1.0, 1.0, 1.0);
+        glBegin(GL_TRIANGLES);
+            glVertex2d(-0.6, -0.3);
+            glVertex2d(0.6, -0.3);
+            glVertex2d(0.0,  1.0);
+        glEnd();
+    }
+    void RenderUniverse() {
+        glLoadIdentity();
+        glTranslated(0.0, -100.0, 0.0);
+        glColor3f(1.0, 0.0, 0.0);
+
+        const double R = 90.0;
+        glBegin(GL_TRIANGLE_FAN);
+            for (double a=0.0; a < 2.0 * M_PI; a+=0.05) {
+                glVertex2d(R * cos(a), R * sin(a));
+            }
+        glEnd();
+
     }
 
  private:

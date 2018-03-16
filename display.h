@@ -73,6 +73,7 @@ class Display : public Singleton<Display> {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glOrtho(0.0, width_, height_, 0.0, -1.0, 1.0);
+        glMatrixMode(GL_MODELVIEW);
     }
     void WorldMode() {
         glMatrixMode(GL_PROJECTION);

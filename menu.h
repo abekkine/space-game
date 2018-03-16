@@ -11,7 +11,7 @@
 #include "font.h"
 
 struct MenuItem {
-    explicit MenuItem(std::string l, int x, int y, std::function<void()> func)
+    explicit MenuItem(std::string l, int x, int y, std::function<GameDefinitions::GameStateEnum()> func)
     : label(l)
     , position_x(x)
     , position_y(y)
@@ -20,7 +20,7 @@ struct MenuItem {
 
     std::string label;
     int position_x, position_y;
-    std::function<void()> action;
+    std::function<GameDefinitions::GameStateEnum()> action;
 };
 
 class Menu {
@@ -55,6 +55,7 @@ class Menu {
             } else {
                 glColor3f(1.0, 1.0, 1.0);
             }
+
             glRasterPos2i(menu_items_[i]->position_x, menu_items_[i]->position_y);
             font_->Render(menu_items_[i]->label);
         }
@@ -66,16 +67,16 @@ class Menu {
             case GLFW_KEY_ESCAPE:
                 DISPLAY.RequestQuit();
                 break;
-            case GLFW_KEY_SPACE:
-                state = GameDefinitions::gameState_InGame;
-                break;
+            // case GLFW_KEY_SPACE:
+            //     state = GameDefinitions::gameState_InGame;
+            //     break;
             case GLFW_KEY_UP:
                 PreviousMenuItem(); break;
             case GLFW_KEY_DOWN:
                 NextMenuItem(); break;
             case GLFW_KEY_ENTER:
             case GLFW_KEY_RIGHT:
-                InvokeMenuItem(); break;
+                state = InvokeMenuItem(); break;
             default:
                 std::cout << "Menu Key : [" << key << "]\n";
                 break;
@@ -111,23 +112,28 @@ class Menu {
             --selected_item_;
         }
     }
-    void InvokeMenuItem() {
+    GameDefinitions::GameStateEnum InvokeMenuItem() {
         MenuItem * activeMenu = menu_items_[selected_item_];
 
-        activeMenu->action();
+        return activeMenu->action();
     }
 
-    void ActionNewGame() {
+    GameDefinitions::GameStateEnum ActionNewGame() {
         std::cout << "[TODO] New Game selected\n";
+        return GameDefinitions::gameState_InGame;
     }
-    void ActionContinue() {
+    GameDefinitions::GameStateEnum ActionContinue() {
         std::cout << "[TODO] Continue selected\n";
+        return GameDefinitions::gameState_InGame;
     }
-    void ActionSettings() {
+    GameDefinitions::GameStateEnum ActionSettings() {
         std::cout << "[TODO] Settings selected\n";
+        return GameDefinitions::gameState_InMenu;
     }
-    void ActionQuit() {
+    GameDefinitions::GameStateEnum ActionQuit() {
         std::cout << "[TODO] Quit selected\n";
+        DISPLAY.RequestQuit();
+        return GameDefinitions::gameState_InMenu;
     }
 
  private:
