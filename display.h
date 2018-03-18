@@ -73,6 +73,7 @@ class Display : public Singleton<Display> {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glOrtho(0.0, width_, height_, 0.0, -1.0, 1.0);
+        glMatrixMode(GL_MODELVIEW);
     }
     void WorldMode() {
         glMatrixMode(GL_PROJECTION);
@@ -88,7 +89,6 @@ class Display : public Singleton<Display> {
         glfwPollEvents();
     }
     void RequestQuit() {
-        std::cout << "Display::RequestQuit()\n";
         glfwSetWindowShouldClose(window_, GLFW_TRUE);
     }
     void Quit() {
@@ -117,9 +117,11 @@ class Display : public Singleton<Display> {
 static void key_callback(GLFWwindow * window, int key, int scancode, int action, int mods) {
     (void)window;
     (void)scancode;
-    (void)action;
     (void)mods;
-    DISPLAY.KeyCallback(key);
+
+    if (GLFW_PRESS == action) {
+        DISPLAY.KeyCallback(key);
+    }
 }
 
 #endif  // DISPLAY_H_

@@ -1,7 +1,7 @@
 #ifndef OPTIONS_H_
 #define OPTIONS_H_
 
-// TODO Implement Options class +game +config id:15 gh:17 ic:gh
+// [TODO] : Implement
 class Options {
  public:
     Options() {}

@@ -1,9 +1,7 @@
 #ifndef TEXT_H_
 #define TEXT_H_
 
-// TODO Implement Text class +font +ui +render +display +menu id:10 gh:12 ic:gh
-// - Handles text formatting and display,
-// - Supports multiple TT fonts.
+// [TODO]
 class Text {
  public:
     Text() {}

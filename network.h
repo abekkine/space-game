@@ -1,8 +1,7 @@
 #ifndef NETWORK_H_
 #define NETWORK_H_
 
-// TODO Implement Network class +player +game id:12 gh:14 ic:gh
-// - Handles network operations.
+// [TODO] : Implement
 class Network {
  public:
     Network() {}

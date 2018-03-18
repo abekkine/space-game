@@ -1,8 +1,7 @@
 #ifndef FILE_H_
 #define FILE_H_
 
-// TODO Implement File class +file id:11 gh:13 ic:gh
-// - Handles file I/O.
+// [TODO] : Implement
 class File {
  public:
     File() {}

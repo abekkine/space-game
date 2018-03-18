@@ -1,9 +1,9 @@
 #ifndef FONT_H_
 #define FONT_H_
 
-#include <string>
-
 #include <FTGL/ftgl.h>
+
+#include <string>
 
 #include "game_exception.h"
 

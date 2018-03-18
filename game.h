@@ -2,75 +2,46 @@
 #define GAME_H_
 
 #include "display.h"
-#include "input.h"
-#include "game_render.h"
-#include "ui_render.h"
+#include "game_state.h"
+#include "universe.h"
 
 class Game {
- private:
-    enum GameState {
-        eNone = 0,
-        eInMenu,
-        eInGame,
-    };
-
  public:
     Game()
-    : input_(0)
-    , game_state_(eNone)
-    , render_(0)
-    , ui_(0)
+    : game_state_(0)
+    , universe_(0)
     {}
     ~Game() {
-        delete input_;
-        delete render_;
-        delete ui_;
+        delete game_state_;
+        delete universe_;
     }
     void Init(int argc, char * argv[]) {
         (void)argc;
         (void)argv;
 
+        // Scope for placeholders.
         {
             using std::placeholders::_1;
-            DISPLAY.RegisterKeyCallback(std::bind(&Input::ProcessKey, input_, _1));
+            DISPLAY.RegisterKeyCallback(std::bind(&Game::ProcessKey, this, _1));
         }
         DISPLAY.Init();
 
-        render_ = new GameRender(true);
-        render_->Init();
+        game_state_ = new GameState();
+        game_state_->Init();
 
-        ui_ = new UiRender(true);
-        ui_->Init();
-
-        game_state_ = eInMenu;
-    }
-
-    void RenderMenu() {
-        // Render Ui
-        DISPLAY.UiMode();
-        ui_->Render();
-    }
-
-    void RenderGame() {
-        // Render world
-        DISPLAY.WorldMode();
-        render_->Render();
+        // Start universe thread.
+        universe_ = new Universe();
+        universe_->Init();
     }
 
     void Run() {
+
+        universe_->Run();
+
         while (!DISPLAY.QuitRequested()) {
             DISPLAY.PreRender();
 
-            switch (game_state_) {
-                case eInMenu:
-                    RenderMenu();
-                    break;
-                case eInGame:
-                    RenderGame();
-                    break;
-                default:
-                    break;
-            }
+            game_state_->Render();
 
             DISPLAY.PostRender();
         }
@@ -79,10 +50,14 @@ class Game {
     }
 
  private:
-    Input * input_;
-    GameState game_state_;
-    GameRender * render_;
-    UiRender * ui_;
+    void ProcessKey(int key) {
+        game_state_->ProcessKey(key);
+    }
+
+ private:
+    std::function<void()> render_function_;
+    GameState * game_state_;
+    Universe * universe_;
 };
 
 #endif  // GAME_H_

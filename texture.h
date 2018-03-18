@@ -9,8 +9,6 @@
 
 #include "game_exception.h"
 
-// TODO Implement Texture class +game +display +render id:13 gh:15 ic:gh
-// - Handles textures.
 class Texture {
  public:
     explicit Texture(const std::string & file_name)

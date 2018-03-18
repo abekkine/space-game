@@ -4,5 +4,8 @@ spaceGame
 *.gch
 *.json
 .*sw*
+.sconsign.dblite
 
+*.ttf
+!FreeMono.ttf
 
