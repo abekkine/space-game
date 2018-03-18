@@ -14,6 +14,10 @@ class GamePlay {
      ~GamePlay() {}
      void Init() {}
      void Render() {
+         GameData::Player plr;
+         GAMEDATA.GetPlayer(&plr);
+         DISPLAY.CenterAt(plr.x, plr.y);
+
          DISPLAY.WorldMode();
 
          glPushMatrix();
