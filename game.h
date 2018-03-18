@@ -3,14 +3,17 @@
 
 #include "display.h"
 #include "game_state.h"
+#include "universe.h"
 
 class Game {
  public:
     Game()
     : game_state_(0)
+    , universe_(0)
     {}
     ~Game() {
         delete game_state_;
+        delete universe_;
     }
     void Init(int argc, char * argv[]) {
         (void)argc;
@@ -25,9 +28,16 @@ class Game {
 
         game_state_ = new GameState();
         game_state_->Init();
+
+        // Start universe thread.
+        universe_ = new Universe();
+        universe_->Init();
     }
 
     void Run() {
+
+        universe_->Run();
+
         while (!DISPLAY.QuitRequested()) {
             DISPLAY.PreRender();
 
@@ -47,6 +57,7 @@ class Game {
  private:
     std::function<void()> render_function_;
     GameState * game_state_;
+    Universe * universe_;
 };
 
 #endif  // GAME_H_

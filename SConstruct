@@ -14,6 +14,7 @@ env.Append( CPPPATH = [ '.' ] )
 env.Append( CPPPATH = [ './3rd-party' ] )
 env.Append( CPPPATH = [ '/usr/include/SDL' ] )
 env.Append( CPPPATH = [ '/usr/include/freetype2' ] )
+env.Append( CPPPATH = [ '/usr/include/Box2D' ] )
 
 env.Append( CPPFLAGS = [ '-g' ] )
 env.Append( CPPFLAGS = [ '--std=c++11' ] )
@@ -27,7 +28,7 @@ env.Append( LIBS = [ 'GL' ] )
 env.Append( LIBS = [ 'SDL' ] )
 env.Append( LIBS = [ 'SDL_image' ] )
 env.Append( LIBS = [ 'ftgl' ] )
+env.Append( LIBS = [ 'pthread' ] )
+env.Append( LIBS = [ 'Box2D' ] )
 
 env.Program( TARGET_NAME, source = files )
-
-
