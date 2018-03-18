@@ -29,7 +29,7 @@ public:
         Box2DInit();
     }
     void Box2DInit() {
-        b2Vec2 gravity(0.0f, -1.0f);
+        b2Vec2 gravity(0.0f, 0.0f);
         world_ = new b2World(gravity);
 
         // Planet creation
@@ -76,21 +76,39 @@ public:
 private:
     void ThreadLoop() {
         while (true) {
+            // Player
+            b2Vec2 plr_pos = b2_player_body_->GetPosition();
+            player_.x = plr_pos.x;
+            player_.y = plr_pos.y;
+            player_.a = b2_player_body_->GetAngle() * 180.0 / M_PI;
+            game_data_->SetPlayer(player_);
 
-            world_->Step(0.02, 6, 2);
-
-            b2Vec2 pos = b2_player_body_->GetPosition();
-            double angle = b2_player_body_->GetAngle();
-
-            player_.x = pos.x;
-            player_.y = pos.y;
-            player_.a = angle * 180.0 / M_PI;
-
-            b2_planet_body_->SetAngularVelocity(0.2 * M_PI / 180.0);//0.05 * M_PI / 180.0);
+            // Planet
+            b2Vec2 plt_pos = b2_planet_body_->GetPosition();
             planet_.a = b2_planet_body_->GetAngle() * 180.0 / M_PI;
             game_data_->SetPlanet(planet_);
 
-            game_data_->SetPlayer(player_);
+            // Gravity
+            double dx = plt_pos.x - plr_pos.x;
+            double dy = plt_pos.y - plr_pos.y;
+            double r2 = dx*dx + dy*dy;
+            double r = sqrt(r2);
+            // planet mass
+            double M = M_PI * planet_.r * planet_.r * 1.0;
+            // player mass
+            double m = 1.0;
+            const double G = 1.0;
+            double gmr2 = G * M * m / (r2 * r);
+            double fx = gmr2 * dx;
+            double fy = gmr2 * dy;
+            b2Vec2 gravity(fx, fy);
+            b2_player_body_->ApplyForceToCenter(gravity, true);
+
+            // Planet rotation
+            b2_planet_body_->SetAngularVelocity(0.2 * M_PI / 180.0);
+
+            // Advance physics
+            world_->Step(0.02, 6, 2);
 
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
