@@ -22,6 +22,8 @@ class Display : public Singleton<Display> {
     , vp_right_(1.0)
     , vp_top_(1.0)
     , vp_bottom_(-1.0)
+    , vp_center_x_(0.0)
+    , vp_center_y_(0.0)
     , width_(0)
     , height_(0)
     {}
@@ -35,8 +37,8 @@ class Display : public Singleton<Display> {
         width_ = CONFIG.GetParam<int>({"display", "width"}, 1024);
         height_ = CONFIG.GetParam<int>({"display", "height"}, 576);
         bool fullscreen = CONFIG.GetParam<bool>({"display", "fullscreen"}, false);
-        double size = CONFIG.GetParam<double>({"world", "size"}, 100.0);
-        SetupViewport(size);
+        size_ = CONFIG.GetParam<double>({"world", "size"}, 100.0);
+        SetupViewport();
 
         if (fullscreen) {
             window_ = glfwCreateWindow(width_, height_, "Testing", glfwGetPrimaryMonitor(), NULL);
@@ -56,11 +58,11 @@ class Display : public Singleton<Display> {
 
         glfwSetKeyCallback(window_, key_callback);
     }
-    void SetupViewport(double size) {
-        vp_left_ = -0.5 * size;
-        vp_right_ = 0.5 * size;
-        vp_top_ = 0.5 * height_ * size / static_cast<double>(width_);
-        vp_bottom_ = -vp_top_;
+    void SetupViewport() {
+        vp_left_ = -0.5 * size_ + vp_center_x_;
+        vp_right_ = 0.5 * size_ + vp_center_x_;
+        vp_top_ = vp_center_y_ + 0.5 * height_ * size_ / static_cast<double>(width_);
+        vp_bottom_ = vp_center_y_ - 0.5 * height_ * size_ / static_cast<double>(width_);
     }
     bool QuitRequested() {
         bool quit_request;
@@ -68,6 +70,11 @@ class Display : public Singleton<Display> {
         quit_request = glfwWindowShouldClose(window_);
 
         return quit_request;
+    }
+    void CenterAt(double x, double y) {
+        vp_center_x_ = x;
+        vp_center_y_ = y;
+        SetupViewport();
     }
     void UiMode() {
         glMatrixMode(GL_PROJECTION);
@@ -108,8 +115,11 @@ class Display : public Singleton<Display> {
     double vp_right_;
     double vp_top_;
     double vp_bottom_;
+    double vp_center_x_;
+    double vp_center_y_;
     int width_;
     int height_;
+    double size_;
 };
 
 #define DISPLAY Display::Instance()

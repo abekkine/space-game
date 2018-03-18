@@ -20,8 +20,12 @@
 
 #TODO: Game play should not continue when in game menu +game +physics id:25 gh:35 ic:gh
 
-#TODO: Screen should be centered on player ship +display id:26 gh:36 ic:gh
-
 #TODO: Viewport should rotate with player ship +game +display id:27 gh:37 ic:gh
 
 #TODO: Gravity calculations should be generalized +game +physics id:28 gh:38 ic:gh
+
+#TODO: Add version information to game menu +game
+
+#TODO: Implement measured timing, instead of fixed time steps +physics
+
+#TODO: Enable line and polygon antialiasing +display

@@ -86,7 +86,7 @@ private:
             player_.y = pos.y;
             player_.a = angle * 180.0 / M_PI;
 
-            b2_planet_body_->SetAngularVelocity(0.05 * M_PI / 180.0);
+            b2_planet_body_->SetAngularVelocity(0.2 * M_PI / 180.0);//0.05 * M_PI / 180.0);
             planet_.a = b2_planet_body_->GetAngle() * 180.0 / M_PI;
             game_data_->SetPlanet(planet_);
 
