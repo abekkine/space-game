@@ -24,8 +24,8 @@
 
 #TODO: Gravity calculations should be generalized +game +physics id:28 gh:38 ic:gh
 
-#TODO: Add version information to game menu +game
+#TODO: Add version information to game menu +game id:29 gh:41 ic:gh
 
-#TODO: Implement measured timing, instead of fixed time steps +physics
+#TODO: Implement measured timing, instead of fixed time steps +physics id:30 gh:42 ic:gh
 
-#TODO: Enable line and polygon antialiasing +display
+#TODO: Enable line and polygon antialiasing +display id:31 gh:43 ic:gh
