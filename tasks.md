@@ -18,11 +18,10 @@
 #TODO: Implement Universe class +game +player id:4 gh:6 ic:gh
 - Handles & executes game universe
 
-#TODO : Game play should not continue when in game menu +game +physics
+#TODO: Game play should not continue when in game menu +game +physics
 
-#TODO : Screen should be centered on player ship +display
+#TODO: Screen should be centered on player ship +display
 
-#TODO : Viewport should rotate with player ship +game +display
+#TODO: Viewport should rotate with player ship +game +display
 
-#TODO : Gravity calculations should be generalized +game +physics
-
+#TODO: Gravity calculations should be generalized +game +physics
