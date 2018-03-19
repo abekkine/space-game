@@ -42,6 +42,13 @@ public:
         double r;
         float c[3];
     };
+    struct Thrust {
+        Thrust() : main(0.0), left(0.0), right(0.0) {}
+        double main;
+        double left;
+        double right;
+    };
+
 
 public:
     explicit GameData(token)
@@ -65,13 +72,30 @@ public:
         std::lock_guard<std::mutex> lock(planet_mutex_);
         *planet = planet_;
     }
+    void SetThrust(double m, double l, double r) {
+        std::lock_guard<std::mutex> lock(thrust_mutex_);
+        thrust_.main = m;
+        thrust_.left = l;
+        thrust_.right = r;
+    }
+    void GetThrust(double & thrust_x, double & thrust_y) {
+        std::lock_guard<std::mutex> lock(thrust_mutex_);
+        thrust_x = thrust_.main * cos(0.5 * M_PI + (player_.a * M_PI / 180.0));
+        thrust_y = thrust_.main * sin(0.5 * M_PI + (player_.a * M_PI / 180.0));
+    }
+    double GetMoment() {
+        std::lock_guard<std::mutex> lock(thrust_mutex_);
+        return (thrust_.right - thrust_.left);
+    }
 
 private:
     std::mutex player_mutex_;
     std::mutex planet_mutex_;
+    std::mutex thrust_mutex_;
 
     Player player_;
     Planet planet_;
+    Thrust thrust_;
 };
 
 #define GAMEDATA GameData::Instance()

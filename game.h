@@ -22,7 +22,8 @@ class Game {
         // Scope for placeholders.
         {
             using std::placeholders::_1;
-            DISPLAY.RegisterKeyCallback(std::bind(&Game::ProcessKey, this, _1));
+            using std::placeholders::_2;
+            DISPLAY.RegisterKeyCallback(std::bind(&Game::ProcessKey, this, _1, _2));
         }
         DISPLAY.Init();
 
@@ -50,8 +51,8 @@ class Game {
     }
 
  private:
-    void ProcessKey(int key) {
-        game_state_->ProcessKey(key);
+    void ProcessKey(int key, bool action) {
+        game_state_->ProcessKey(key, action);
     }
 
  private:

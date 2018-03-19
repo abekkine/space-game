@@ -60,8 +60,9 @@ class Menu {
             font_->Render(menu_items_[i]->label);
         }
     }
-    GameDefinitions::GameStateEnum KeyInput(int key) {
+    GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
         GameDefinitions::GameStateEnum state = GameDefinitions::gameState_InMenu;
+        if (action == true)
         switch (key) {
             case GLFW_KEY_Q:
             case GLFW_KEY_ESCAPE:

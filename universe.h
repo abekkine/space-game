@@ -104,6 +104,14 @@ private:
             b2Vec2 gravity(fx, fy);
             b2_player_body_->ApplyForceToCenter(gravity, true);
 
+            // Thrust
+            double main_thrust_x;
+            double main_thrust_y;
+            game_data_->GetThrust(main_thrust_x, main_thrust_y);
+            b2_player_body_->ApplyForceToCenter(b2Vec2(main_thrust_x, main_thrust_y), true);
+            double moment = game_data_->GetMoment();
+            b2_player_body_->ApplyTorque(moment, true);
+
             // Planet rotation
             b2_planet_body_->SetAngularVelocity(0.2 * M_PI / 180.0);
 

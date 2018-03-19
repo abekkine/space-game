@@ -27,13 +27,39 @@ class GamePlay {
 
          glPopMatrix();
      }
-     GameDefinitions::GameStateEnum KeyInput(int key) {
+     GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
          GameDefinitions::GameStateEnum state = GameDefinitions::gameState_InGame;
 
          switch (key) {
              case GLFW_KEY_Q:
              case GLFW_KEY_ESCAPE:
                 state = GameDefinitions::gameState_InMenu;
+                break;
+             case GLFW_KEY_W: // main thruster
+                if (action == true) {
+                    // enable thruster.
+                    GAMEDATA.SetThrust(20.0, 0.0, 0.0);
+                }
+                else {
+                    // disable thruster.
+                    GAMEDATA.SetThrust(0.0, 0.0, 0.0);
+                }
+                break;
+             case GLFW_KEY_A: // right thruster
+                if (action == true) {
+                    GAMEDATA.SetThrust(0.0, 0.0, 1.0);
+                }
+                else {
+                    GAMEDATA.SetThrust(0.0, 0.0, 0.0);
+                }
+                break;
+             case GLFW_KEY_D: // left thruster
+                 if (action == true) {
+                     GAMEDATA.SetThrust(0.0, 1.0, 0.0);
+                 }
+                 else {
+                     GAMEDATA.SetThrust(0.0, 0.0, 0.0);
+                 }
                 break;
          }
 

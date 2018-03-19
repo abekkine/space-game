@@ -17,7 +17,7 @@ class Display : public Singleton<Display> {
  public:
     explicit Display(token)
     : window_(0)
-    , key_cb_([](int k) { (void)k; })
+    , key_cb_([](int k, bool a) { (void)k; (void)a; })
     , vp_left_(-1.0)
     , vp_right_(1.0)
     , vp_top_(1.0)
@@ -101,16 +101,16 @@ class Display : public Singleton<Display> {
     void Quit() {
         glfwTerminate();
     }
-    void RegisterKeyCallback(std::function<void(int)> cb) {
+    void RegisterKeyCallback(std::function<void(int, bool)> cb) {
         key_cb_ = cb;
     }
-    void KeyCallback(int key) {
-        key_cb_(key);
+    void KeyCallback(int key, bool action) {
+        key_cb_(key, action);
     }
 
  private:
     GLFWwindow * window_;
-    std::function<void(int)> key_cb_;
+    std::function<void(int, bool)> key_cb_;
     double vp_left_;
     double vp_right_;
     double vp_top_;
@@ -130,7 +130,10 @@ static void key_callback(GLFWwindow * window, int key, int scancode, int action,
     (void)mods;
 
     if (GLFW_PRESS == action) {
-        DISPLAY.KeyCallback(key);
+        DISPLAY.KeyCallback(key, true);
+    }
+    else if (GLFW_RELEASE == action) {
+        DISPLAY.KeyCallback(key, false);
     }
 }
 
