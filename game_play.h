@@ -9,25 +9,31 @@
 #include "game_data.h"
 
 class GamePlay {
+private:
+    GameData::Player player_;
+    GameData::Planet planet_;
  public:
      GamePlay() {}
      ~GamePlay() {}
      void Init() {}
      void Render() {
-         GameData::Player plr;
-         GAMEDATA.GetPlayer(&plr);
-         DISPLAY.CenterAt(plr.x, plr.y);
+         GAMEDATA.GetPlayer(&player_);
+         GAMEDATA.GetPlanet(&planet_);
 
          DISPLAY.WorldMode();
 
+         RenderPlayer();
+
          glPushMatrix();
 
+         glRotated(player_.a, 0.0, 0.0, -1.0);
+         glTranslated(-player_.x, -player_.y, 0.0);
+
          RenderUniverse();
-         RenderPlayer();
-         // DEBUG
-         RenderVectors();
 
          glPopMatrix();
+
+         RenderVectors();
      }
      GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
          GameDefinitions::GameStateEnum state = GameDefinitions::gameState_InGame;
@@ -70,34 +76,25 @@ class GamePlay {
 
  private:
     void RenderPlayer() {
-        GameData::Player plr;
-        GAMEDATA.GetPlayer(&plr);
 
         glLoadIdentity();
-        // Position
-        glTranslated(plr.x, plr.y, 0.0);
-        // Rotation
-        glRotated(plr.a, 0.0, 0.0, 1.0);
         // Color
-        glColor3fv(plr.c);
+        glColor3fv(player_.c);
 
         glBegin(GL_TRIANGLE_FAN);
         glVertex2d(0.0, 0.0);
-        for (int i=0; i<plr.n; ++i)
-        glVertex2d(plr.vertices[i][0], plr.vertices[i][1]);
-        glVertex2d(plr.vertices[0][0], plr.vertices[0][1]);
+        for (int i=0; i<player_.n; ++i)
+        glVertex2d(player_.vertices[i][0], player_.vertices[i][1]);
+        glVertex2d(player_.vertices[0][0], player_.vertices[0][1]);
         glEnd();
     }
     void RenderUniverse() {
-        GameData::Planet p;
-        GAMEDATA.GetPlanet(&p);
 
-        glLoadIdentity();
-        glTranslated(p.x, p.y, 0.0);
-        glRotated(p.a, 0.0, 0.0, 1.0);
-        glColor3fv(p.c);
+        glTranslated(planet_.x, planet_.y, 0.0);
+        glRotated(planet_.a, 0.0, 0.0, 1.0);
+        glColor3fv(planet_.c);
 
-        const double R = p.r;
+        const double R = planet_.r;
         glBegin(GL_TRIANGLE_FAN);
         for (double a=0.0; a < 2.0 * M_PI; a+=0.05) {
             glVertex2d(R * cos(a), R * sin(a));
@@ -109,11 +106,8 @@ class GamePlay {
         glVertex2d(0.0, R*0.99);
         glEnd();
     }
-    // DEBUG
+
     void RenderVectors() {
-        // Player Position
-        GameData::Player p;
-        GAMEDATA.GetPlayer(&p);
         // Gravity
         double gx, gy;
         GAMEDATA.GetGravityDebug(gx, gy);
@@ -127,7 +121,7 @@ class GamePlay {
         glPushMatrix();
 
         glLoadIdentity();
-        glTranslated(p.x, p.y, 0.0);
+        glRotated(player_.a, 0.0, 0.0, -1.0);
 
         glLineWidth(2.0);
         // Thrust  : green
