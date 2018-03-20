@@ -102,6 +102,7 @@ private:
             double fx = gmr2 * dx;
             double fy = gmr2 * dy;
             b2Vec2 gravity(fx, fy);
+            game_data_->SetGravityDebug( fx, fy );
             b2_player_body_->ApplyForceToCenter(gravity, true);
 
             // Thrust
@@ -111,6 +112,10 @@ private:
             b2_player_body_->ApplyForceToCenter(b2Vec2(main_thrust_x, main_thrust_y), true);
             double moment = game_data_->GetMoment();
             b2_player_body_->ApplyTorque(moment, true);
+
+            // DEBUG : player speed
+            b2Vec2 v = b2_player_body_->GetLinearVelocity();
+            game_data_->SetVelocityDebug(v.x, v.y);
 
             // Planet rotation
             b2_planet_body_->SetAngularVelocity(0.2 * M_PI / 180.0);

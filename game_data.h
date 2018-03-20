@@ -87,6 +87,32 @@ public:
         std::lock_guard<std::mutex> lock(thrust_mutex_);
         return (thrust_.right - thrust_.left);
     }
+    // DEBUG
+    double gx, gy;
+    std::mutex g_mutex;
+    void SetGravityDebug(double x, double y) {
+        std::lock_guard<std::mutex> lock(g_mutex);
+        gx = x;
+        gy = y;
+    }
+    void GetGravityDebug(double & x, double & y) {
+        std::lock_guard<std::mutex> lock(g_mutex);
+        x = gx;
+        y = gy;
+    }
+    double vx, vy;
+    std::mutex v_mutex;
+    void SetVelocityDebug(double x, double y) {
+        std::lock_guard<std::mutex> lock(v_mutex);
+        vx = x;
+        vy = y;
+    }
+    void GetVelocityDebug(double & x, double & y) {
+        std::lock_guard<std::mutex> lock(v_mutex);
+        x = vx;
+        y = vy;
+    }
+    // END DEBUG
 
 private:
     std::mutex player_mutex_;
