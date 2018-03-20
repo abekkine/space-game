@@ -24,6 +24,8 @@ class GamePlay {
 
          RenderUniverse();
          RenderPlayer();
+         // DEBUG
+         RenderVectors();
 
          glPopMatrix();
      }
@@ -107,6 +109,49 @@ class GamePlay {
         glVertex2d(0.0, R*0.99);
         glEnd();
     }
+    // DEBUG
+    void RenderVectors() {
+        // Player Position
+        GameData::Player p;
+        GAMEDATA.GetPlayer(&p);
+        // Gravity
+        double gx, gy;
+        GAMEDATA.GetGravityDebug(gx, gy);
+        // Thrust
+        double tx, ty;
+        GAMEDATA.GetThrust(tx, ty);
+        // Velocity
+        double vx, vy;
+        GAMEDATA.GetVelocityDebug(vx, vy);
+
+        glPushMatrix();
+
+        glLoadIdentity();
+        glTranslated(p.x, p.y, 0.0);
+
+        glLineWidth(2.0);
+        // Thrust  : green
+        glColor3f(0.0, 1.0, 0.0);
+        glBegin(GL_LINES);
+            glVertex2d(0.0, 0.0);
+            glVertex2d(tx, ty);
+        glEnd();
+        // Gravity : yellow
+        glColor3f(1.0, 1.0, 0.0);
+        glBegin(GL_LINES);
+            glVertex2d(0.0, 0.0);
+            glVertex2d(gx, gy);
+        glEnd();
+        // Velocity: blue
+        glColor3f(0.0, 0.0, 1.0);
+        glBegin(GL_LINES);
+            glVertex2d(0.0, 0.0);
+            glVertex2d(vx, vy);
+        glEnd();
+
+        glPopMatrix();
+    }
+
 };
 
 #endif  // GAME_PLAY_H_
