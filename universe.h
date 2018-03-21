@@ -97,7 +97,7 @@ private:
             double M = M_PI * planet_.r * planet_.r * 1.0;
             // player mass
             double m = 1.0;
-            const double G = 1.0;
+            const double G = 0.5;
             double gmr2 = G * M * m / (r2 * r);
             double fx = gmr2 * dx;
             double fy = gmr2 * dy;
