@@ -96,9 +96,11 @@ private:
 
         const double R = planet_.r;
         glBegin(GL_TRIANGLE_FAN);
+            glVertex2d(0.0, 0.0);
         for (double a=0.0; a < 2.0 * M_PI; a+=0.05) {
             glVertex2d(R * cos(a), R * sin(a));
         }
+            glVertex2d(R, 0.0);
         glEnd();
         glPointSize(3.0);
         glColor3f(1.0, 1.0, 1.0);

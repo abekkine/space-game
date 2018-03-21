@@ -33,6 +33,7 @@ class Display : public Singleton<Display> {
             std::string message = std::string("Unable to initialize GLFW.");
             throw GameException(GameException::eGLFWError, message);
         }
+        glfwWindowHint(GLFW_SAMPLES, 8);
 
         width_ = CONFIG.GetParam<int>({"display", "width"}, 1024);
         height_ = CONFIG.GetParam<int>({"display", "height"}, 576);
@@ -57,6 +58,11 @@ class Display : public Singleton<Display> {
         glfwMakeContextCurrent(window_);
 
         glfwSetKeyCallback(window_, key_callback);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glEnable(GL_MULTISAMPLE);
     }
     void SetupViewport() {
         vp_left_ = -0.5 * size_ + vp_center_x_;
