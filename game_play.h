@@ -7,15 +7,19 @@
 #include "display.h"
 #include "texture.h"
 #include "game_data.h"
+#include "background.h"
 
 class GamePlay {
 private:
     GameData::Player player_;
     GameData::Planet planet_;
+    Background background_;
  public:
      GamePlay() {}
      ~GamePlay() {}
-     void Init() {}
+     void Init() {
+         background_.Init();
+     }
      void Render() {
          GAMEDATA.GetPlayer(&player_);
          GAMEDATA.GetPlanet(&planet_);
@@ -29,6 +33,7 @@ private:
          glRotated(player_.a, 0.0, 0.0, -1.0);
          glTranslated(-player_.x, -player_.y, 0.0);
 
+         RenderBackground();
          RenderUniverse();
 
          glPopMatrix();
@@ -107,6 +112,11 @@ private:
         glBegin(GL_POINTS);
         glVertex2d(0.0, R*0.99);
         glEnd();
+    }
+
+    void RenderBackground() {
+
+        background_.Render(player_);
     }
 
     void RenderVectors() {
