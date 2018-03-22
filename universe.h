@@ -118,7 +118,7 @@ private:
             game_data_->SetVelocityDebug(v.x, v.y);
 
             // Planet rotation
-            b2_planet_body_->SetAngularVelocity(0.02 * M_PI / 180.0);
+            b2_planet_body_->SetAngularVelocity(0.2 * M_PI / 180.0);
 
             // Advance physics
             world_->Step(0.015, 12, 6);
