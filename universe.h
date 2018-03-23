@@ -27,6 +27,9 @@ public:
         game_data_->SetPlanet(planet_);
 
         Box2DInit();
+
+        t_begin_ = std::chrono::steady_clock::now();
+        t_end_ = t_begin_;
     }
     void Box2DInit() {
         b2Vec2 gravity(0.0f, 0.0f);
@@ -121,13 +124,18 @@ private:
             b2_planet_body_->SetAngularVelocity(0.2 * M_PI / 180.0);
 
             // Advance physics
-            world_->Step(0.015, 12, 6);
+            t_begin_ = std::chrono::steady_clock::now();
+            double delta_time = std::chrono::duration<double> (t_begin_ - t_end_).count();
+            world_->Step(delta_time, 12, 6);
+            t_end_ = t_begin_;
 
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
 
 private:
+    std::chrono::time_point<std::chrono::steady_clock> t_begin_;
+    std::chrono::time_point<std::chrono::steady_clock> t_end_;
     b2World * world_;
     b2BodyDef b2_player_def_;
     b2BodyDef b2_planet_def_;
