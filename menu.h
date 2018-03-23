@@ -8,7 +8,7 @@
 
 #include "game_definitions.h"
 #include "display.h"
-#include "font.h"
+#include "text.h"
 
 struct MenuItem {
     explicit MenuItem(std::string l, int x, int y, std::function<GameDefinitions::GameStateEnum()> func)
@@ -26,7 +26,7 @@ struct MenuItem {
 class Menu {
  public:
     Menu()
-    : font_(0)
+    : text_(0)
     , menu_items_{}
     , selected_item_(GameDefinitions::menuItem_NewGame)
     {}
@@ -36,18 +36,20 @@ class Menu {
         }
     }
     void Init() {
-        if (font_ != 0) {
-            delete font_;
-            font_ = 0;
+        if (text_ != 0) {
+            delete text_;
+            text_ = 0;
         }
 
-        font_ = new Font("fonts/menu_font.ttf");
-        font_->FaceSize(40);
+        text_ = new Text();
+        text_->AddFont("menu", "fonts/menu_font.ttf");
 
         InitMenuItems();
     }
     void Render() {
         DISPLAY.UiMode();
+
+        text_->UseFont("menu", 40);
 
         for (int i=0; i < GameDefinitions::menuItem_SIZE; ++i) {
             if (i == selected_item_) {
@@ -56,8 +58,7 @@ class Menu {
                 glColor3f(1.0, 1.0, 1.0);
             }
 
-            glRasterPos2i(menu_items_[i]->position_x, menu_items_[i]->position_y);
-            font_->Render(menu_items_[i]->label);
+            text_->Render(menu_items_[i]->position_x, menu_items_[i]->position_y, menu_items_[i]->label);
         }
     }
     GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
@@ -138,7 +139,7 @@ class Menu {
     }
 
  private:
-    Font * font_;
+    Text * text_;
     MenuItem * menu_items_[GameDefinitions::menuItem_SIZE];
     GameDefinitions::MenuItemEnum selected_item_;
 };
