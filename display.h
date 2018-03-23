@@ -64,6 +64,10 @@ class Display : public Singleton<Display> {
 
         glEnable(GL_MULTISAMPLE);
     }
+    void GetSize(int & width, int & height) {
+        width = width_;
+        height = height_;
+    }
     void SetupViewport() {
         vp_left_ = -0.5 * size_ + vp_center_x_;
         vp_right_ = 0.5 * size_ + vp_center_x_;

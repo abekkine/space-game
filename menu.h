@@ -10,6 +10,8 @@
 #include "display.h"
 #include "text.h"
 
+#include "version.h"
+
 struct MenuItem {
     explicit MenuItem(std::string l, int x, int y, std::function<GameDefinitions::GameStateEnum()> func)
     : label(l)
@@ -29,6 +31,8 @@ class Menu {
     : text_(0)
     , menu_items_{}
     , selected_item_(GameDefinitions::menuItem_NewGame)
+    , screen_width_(-1)
+    , screen_height_(-1)
     {}
     ~Menu() {
         for (int i=0; i < GameDefinitions::menuItem_SIZE; ++i) {
@@ -43,8 +47,11 @@ class Menu {
 
         text_ = new Text();
         text_->AddFont("menu", "fonts/menu_font.ttf");
+        text_->AddFont("version", "fonts/mono/FreeMono.ttf");
 
         InitMenuItems();
+
+        DISPLAY.GetSize(screen_width_, screen_height_);
     }
     void Render() {
         DISPLAY.UiMode();
@@ -60,6 +67,12 @@ class Menu {
 
             text_->Render(menu_items_[i]->position_x, menu_items_[i]->position_y, menu_items_[i]->label);
         }
+
+        std::string version_text = std::string(VERSION_STR);
+        int vpos_y = screen_height_ - 20;
+        int vpos_x = screen_width_ - (1 + version_text.length()) * 15;
+        text_->UseFont("version", 24);
+        text_->Render(vpos_x, vpos_y, std::string(VERSION_STR));
     }
     GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
         GameDefinitions::GameStateEnum state = GameDefinitions::gameState_InMenu;
@@ -142,5 +155,7 @@ class Menu {
     Text * text_;
     MenuItem * menu_items_[GameDefinitions::menuItem_SIZE];
     GameDefinitions::MenuItemEnum selected_item_;
+    int screen_width_;
+    int screen_height_;
 };
 #endif  // MENU_H_
