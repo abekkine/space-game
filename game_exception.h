@@ -5,14 +5,14 @@
 #include <string>
 
 class GameException : public std::exception {
- public:
+public:
     enum ExceptionCode {
         eParameterNotFound = 10001,
         eGLFWError,
         eTextureNotFound,
         eFontLoadingError,
     };
- public:
+public:
     GameException(ExceptionCode code, const std::string & message)
     : message_(message)
     , code_(code)
@@ -25,7 +25,7 @@ class GameException : public std::exception {
         return code_;
     }
 
- private:
+private:
     const std::string message_;
     const ExceptionCode code_;
 };

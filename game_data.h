@@ -49,7 +49,6 @@ public:
         double right;
     };
 
-
 public:
     explicit GameData(token)
     : player_{}

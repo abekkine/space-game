@@ -12,7 +12,7 @@ using json = nlohmann::json;
 #include "singleton.h"
 
 class Config : public Singleton<Config> {
- public:
+public:
     explicit Config(token)
     : config_file_(std::string("game.json")) {
         std::fstream file(config_file_, std::fstream::in);
@@ -49,7 +49,7 @@ class Config : public Singleton<Config> {
         return param_value;
     }
 
- private:
+private:
     const std::string config_file_;
     json config_json_;
 };

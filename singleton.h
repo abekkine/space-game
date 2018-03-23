@@ -3,7 +3,7 @@
 
 template<typename T>
 class Singleton {
- public:
+public:
     static T & Instance() {
         static T instance{token{}};
         return instance;
@@ -12,7 +12,7 @@ class Singleton {
     Singleton(const Singleton &) = delete;
     Singleton & operator= (const Singleton) = delete;
 
- protected:
+protected:
     struct token {};
     Singleton() {}
 };

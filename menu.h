@@ -26,7 +26,7 @@ struct MenuItem {
 };
 
 class Menu {
- public:
+public:
     Menu()
     : text_(0)
     , menu_items_{}
@@ -100,7 +100,7 @@ class Menu {
         return state;
     }
 
- private:
+private:
     void InitMenuItems() {
         MenuItem * item = 0;
 
@@ -151,7 +151,7 @@ class Menu {
         return GameDefinitions::gameState_InMenu;
     }
 
- private:
+private:
     Text * text_;
     MenuItem * menu_items_[GameDefinitions::menuItem_SIZE];
     GameDefinitions::MenuItemEnum selected_item_;

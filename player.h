@@ -3,7 +3,7 @@
 
 // [TODO] : implement
 class Player {
- public:
+public:
     Player() {}
     ~Player() {}
 };

@@ -8,7 +8,7 @@
 #include "game_play.h"
 
 class GameState {
- public:
+public:
     GameState()
     : state_(GameDefinitions::gameState_InMenu)
     , menu_(0)
@@ -48,7 +48,7 @@ class GameState {
         state_ = key_processors_[state_](key, action);
     }
 
- private:
+private:
     GameDefinitions::GameStateEnum state_;
     Menu * menu_;
     GamePlay * gameplay_;

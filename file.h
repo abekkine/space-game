@@ -3,7 +3,7 @@
 
 // [TODO] : Implement
 class File {
- public:
+public:
     File() {}
     ~File() {}
 };

@@ -10,7 +10,7 @@
 #include "game_exception.h"
 
 class Texture {
- public:
+public:
     explicit Texture(const std::string & file_name)
     : width_(0.0)
     , height_(0.0)
@@ -45,7 +45,7 @@ class Texture {
         glDisable(GL_TEXTURE_2D);
     }
 
- private:
+private:
     SDL_Surface * LoadFile() {
         SDL_Surface * image = IMG_Load(file_name_.c_str());
         if (image != NULL) {
@@ -101,7 +101,7 @@ class Texture {
         }
     }
 
- private:
+private:
     double width_;
     double height_;
     int raw_width_;

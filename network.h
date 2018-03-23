@@ -3,7 +3,7 @@
 
 // [TODO] : Implement
 class Network {
- public:
+public:
     Network() {}
     ~Network() {}
 };

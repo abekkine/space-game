@@ -8,7 +8,7 @@
 #include "game_exception.h"
 
 class Font {
- public:
+public:
     Font(const Font & f)
     : font_file_(f.font_file_)
     , font_(0)
@@ -42,7 +42,7 @@ class Font {
         font_->Render(text);
     }
 
- private:
+private:
      std::string font_file_;
      FTGLPixmapFont * font_;
      int face_size_;

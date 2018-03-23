@@ -14,41 +14,42 @@ private:
     GameData::Player player_;
     GameData::Planet planet_;
     Background background_;
- public:
-     GamePlay() {}
-     ~GamePlay() {}
-     void Init() {
-         background_.Init();
-     }
-     void Render() {
-         GAMEDATA.GetPlayer(&player_);
-         GAMEDATA.GetPlanet(&planet_);
 
-         DISPLAY.WorldMode();
+public:
+    GamePlay() {}
+    ~GamePlay() {}
+    void Init() {
+        background_.Init();
+    }
+    void Render() {
+        GAMEDATA.GetPlayer(&player_);
+        GAMEDATA.GetPlanet(&planet_);
 
-         RenderPlayer();
+        DISPLAY.WorldMode();
 
-         glPushMatrix();
+        RenderPlayer();
 
-         glRotated(player_.a, 0.0, 0.0, -1.0);
-         glTranslated(-player_.x, -player_.y, 0.0);
+        glPushMatrix();
 
-         RenderBackground();
-         RenderUniverse();
+        glRotated(player_.a, 0.0, 0.0, -1.0);
+        glTranslated(-player_.x, -player_.y, 0.0);
 
-         glPopMatrix();
+        RenderBackground();
+        RenderUniverse();
 
-         RenderVectors();
-     }
-     GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
-         GameDefinitions::GameStateEnum state = GameDefinitions::gameState_InGame;
+        glPopMatrix();
 
-         switch (key) {
-             case GLFW_KEY_Q:
-             case GLFW_KEY_ESCAPE:
+        RenderVectors();
+    }
+    GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
+        GameDefinitions::GameStateEnum state = GameDefinitions::gameState_InGame;
+
+        switch (key) {
+            case GLFW_KEY_Q:
+            case GLFW_KEY_ESCAPE:
                 state = GameDefinitions::gameState_InMenu;
                 break;
-             case GLFW_KEY_W: // main thruster
+            case GLFW_KEY_W: // main thruster
                 if (action == true) {
                     // enable thruster.
                     GAMEDATA.SetThrust(20.0, 0.0, 0.0);
@@ -58,7 +59,7 @@ private:
                     GAMEDATA.SetThrust(0.0, 0.0, 0.0);
                 }
                 break;
-             case GLFW_KEY_A: // right thruster
+            case GLFW_KEY_A: // right thruster
                 if (action == true) {
                     GAMEDATA.SetThrust(0.0, 0.0, 1.0);
                 }
@@ -66,20 +67,20 @@ private:
                     GAMEDATA.SetThrust(0.0, 0.0, 0.0);
                 }
                 break;
-             case GLFW_KEY_D: // left thruster
-                 if (action == true) {
-                     GAMEDATA.SetThrust(0.0, 1.0, 0.0);
-                 }
-                 else {
-                     GAMEDATA.SetThrust(0.0, 0.0, 0.0);
-                 }
+            case GLFW_KEY_D: // left thruster
+                if (action == true) {
+                    GAMEDATA.SetThrust(0.0, 1.0, 0.0);
+                }
+                else {
+                    GAMEDATA.SetThrust(0.0, 0.0, 0.0);
+                }
                 break;
-         }
+        }
 
-         return state;
-     }
+        return state;
+    }
 
- private:
+private:
     void RenderPlayer() {
 
         glLoadIdentity();
@@ -101,12 +102,13 @@ private:
 
         const double R = planet_.r;
         glBegin(GL_TRIANGLE_FAN);
-            glVertex2d(0.0, 0.0);
+        glVertex2d(0.0, 0.0);
         for (double a=0.0; a < 2.0 * M_PI; a+=0.05) {
             glVertex2d(R * cos(a), R * sin(a));
         }
-            glVertex2d(R, 0.0);
+        glVertex2d(R, 0.0);
         glEnd();
+
         glPointSize(3.0);
         glColor3f(1.0, 1.0, 1.0);
         glBegin(GL_POINTS);
@@ -157,7 +159,6 @@ private:
 
         glPopMatrix();
     }
-
 };
 
 #endif  // GAME_PLAY_H_

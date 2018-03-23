@@ -14,7 +14,7 @@
 static void key_callback(GLFWwindow * window, int key, int scancode, int action, int mods);
 
 class Display : public Singleton<Display> {
- public:
+public:
     explicit Display(token)
     : window_(0)
     , key_cb_([](int k, bool a) { (void)k; (void)a; })

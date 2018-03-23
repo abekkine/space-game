@@ -6,7 +6,7 @@
 #include "universe.h"
 
 class Game {
- public:
+public:
     Game()
     : game_state_(0)
     , universe_(0)
@@ -50,12 +50,12 @@ class Game {
         DISPLAY.Quit();
     }
 
- private:
+private:
     void ProcessKey(int key, bool action) {
         game_state_->ProcessKey(key, action);
     }
 
- private:
+private:
     std::function<void()> render_function_;
     GameState * game_state_;
     Universe * universe_;

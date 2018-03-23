@@ -3,7 +3,7 @@
 
 // [TODO] : Implement
 class Options {
- public:
+public:
     Options() {}
     ~Options() {}
 };

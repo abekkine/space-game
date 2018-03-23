@@ -3,7 +3,7 @@
 
 // [TODO]
 class States {
- public:
+public:
     States() {}
     ~States() {}
 };
