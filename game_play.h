@@ -39,6 +39,8 @@ public:
 
         glPopMatrix();
 
+        RenderHUD();
+
         RenderVectors();
     }
     GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
@@ -119,6 +121,10 @@ private:
     void RenderBackground() {
 
         background_.Render(player_);
+    }
+
+    void RenderHUD() {
+        // [TODO]
     }
 
     void RenderVectors() {
