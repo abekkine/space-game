@@ -9,57 +9,23 @@
 #include "game_data.h"
 #include "background.h"
 
-// [TODO] HUD /w DataBus
 #include "data_bus.h"
-// [END]
+#include "devices/generic_hud_device.h"
 
 class GamePlay {
 private:
     GameData::Player player_;
     GameData::Planet planet_;
     Background background_;
+    GenericHudDevice hud_;
 
 public:
     GamePlay() {}
     ~GamePlay() {}
     void Init() {
         background_.Init();
-
-// [TODO] HUD /w DataBus
-        vx = vy = tx = ty = gx = gy = 0.0;
-        using std::placeholders::_1;
-        DATABUS.Subscribe(db_PlayerGravity,
-            std::bind(&GamePlay::debugGravity, this, _1));
-        DATABUS.Subscribe(db_PlayerThrust,
-            std::bind(&GamePlay::debugThrust, this, _1));
-        DATABUS.Subscribe(db_PlayerVelocity,
-            std::bind(&GamePlay::debugVelocity, this, _1));
+        hud_.Init();
     }
-    double gx, gy;
-    void debugGravity(BusDataInterface * data) {
-        BD_Vector *v = static_cast<BD_Vector *>(data);
-        if (v != 0) {
-            gx = v->x;
-            gy = v->y;
-        }
-    }
-    double tx, ty;
-    void debugThrust(BusDataInterface * data) {
-        BD_Vector *v = static_cast<BD_Vector *>(data);
-        if (v != 0) {
-            tx = v->x;
-            ty = v->y;
-        }
-    }
-    double vx, vy;
-    void debugVelocity(BusDataInterface * data) {
-        BD_Vector *v = static_cast<BD_Vector *>(data);
-        if (v != 0) {
-            vx = v->x;
-            vy = v->y;
-        }
-    }
-// [END]
     void Render() {
         GAMEDATA.GetPlayer(&player_);
         GAMEDATA.GetPlanet(&planet_);
@@ -79,8 +45,6 @@ public:
         glPopMatrix();
 
         RenderHUD();
-
-        RenderVectors();
     }
     GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
         GameDefinitions::GameStateEnum state = GameDefinitions::gameState_InGame;
@@ -158,41 +122,11 @@ private:
     }
 
     void RenderBackground() {
-
         background_.Render(player_);
     }
 
     void RenderHUD() {
-        // [TODO]
-    }
-
-    void RenderVectors() {
-        glPushMatrix();
-
-        glLoadIdentity();
-        glRotated(player_.angle, 0.0, 0.0, -1.0);
-
-        glLineWidth(2.0);
-        // Thrust  : green
-        glColor3f(0.0, 1.0, 0.0);
-        glBegin(GL_LINES);
-            glVertex2d(0.0, 0.0);
-            glVertex2d(tx, ty);
-        glEnd();
-        // Gravity : yellow
-        glColor3f(1.0, 1.0, 0.0);
-        glBegin(GL_LINES);
-            glVertex2d(0.0, 0.0);
-            glVertex2d(gx, gy);
-        glEnd();
-        // Velocity: blue
-        glColor3f(0.0, 0.0, 1.0);
-        glBegin(GL_LINES);
-            glVertex2d(0.0, 0.0);
-            glVertex2d(vx, vy);
-        glEnd();
-
-        glPopMatrix();
+        hud_.Render();
     }
 };
 

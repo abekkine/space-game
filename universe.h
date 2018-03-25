@@ -169,6 +169,13 @@ private:
         // Send it up
         game_data_->SetPlayer(player_);
 
+        // Send player gravity to Data Bus.
+        BD_BasicPosition player_pos;
+        player_pos.x = player_.x;
+        player_pos.y = player_.y;
+        player_pos.angle = player_.angle;
+        DATABUS.Publish(db_PlayerPosition, &player_pos);
+
         // Planet
         pos = b2_planet_body_->GetPosition();
         planet_.x = pos.x;

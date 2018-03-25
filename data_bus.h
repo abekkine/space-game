@@ -24,6 +24,11 @@ struct BD_Vector : public BusDataInterface {
     double x, y;
 };
 
+struct BD_BasicPosition : public BusDataInterface {
+    double x, y;
+    double angle;
+};
+
 typedef std::function<void(BusDataInterface *)> BusDataHandler;
 typedef std::vector<BusDataHandler> BusDataHandlerList;
 
