@@ -6,6 +6,7 @@
 #include <thread>
 
 #include "game_data.h"
+#include "data_bus.h"
 
 class Universe {
 public:
@@ -94,26 +95,13 @@ private:
     void ThreadLoop() {
         while (true) {
             RefreshPositions();
-            // // Player
-            // b2Vec2 plr_pos = b2_player_body_->GetPosition();
-            // player_.x = plr_pos.x;
-            // player_.y = plr_pos.y;
-            // player_.a = b2_player_body_->GetAngle() * 180.0 / M_PI;
-            // game_data_->SetPlayer(player_);
 
-            // // Planet
-            // b2Vec2 plt_pos = b2_planet_body_->GetPosition();
-            // planet_.a = b2_planet_body_->GetAngle() * 180.0 / M_PI;
-            // game_data_->SetPlanet(planet_);
             UpdateGravity();
 
-            // DEBUG : player speed
             UpdatePlayer();
 
-            // Planet rotation
             UpdatePlanet();
 
-            // Advance universe
             Step();
 
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -130,9 +118,13 @@ private:
         double fx = gmr2 * dx;
         double fy = gmr2 * dy;
         b2Vec2 gravity(fx, fy);
-        // For debug display --> DATABUS
-        game_data_->SetGravityDebug( fx, fy );
         gravity_ = b2Vec2(fx, fy);
+
+        // Send player gravity to Data Bus.
+        BD_Vector player_gravity;
+        player_gravity.x = fx;
+        player_gravity.y = fy;
+        DATABUS.Publish(db_PlayerGravity, &player_gravity);
     }
     void UpdatePlayer() {
         // Gravity
@@ -147,9 +139,14 @@ private:
         double moment = game_data_->GetMoment();
         b2_player_body_->ApplyTorque(moment, true);
 
-        // Get Speed of player --> DATABUS
+        // Get Speed of player
         b2Vec2 v = b2_player_body_->GetLinearVelocity();
-        game_data_->SetVelocityDebug(v.x, v.y);
+
+        // Send player velocity to Data Bus.
+        BD_Vector player_velocity;
+        player_velocity.x = v.x;
+        player_velocity.y = v.y;
+        DATABUS.Publish(db_PlayerVelocity, &player_velocity);
     }
     void UpdatePlanet() {
 

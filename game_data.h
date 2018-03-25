@@ -5,6 +5,8 @@
 
 #include "singleton.h"
 
+#include "data_bus.h"
+
 class GameData : public Singleton<GameData> {
 public:
     struct Player {
@@ -60,10 +62,8 @@ public:
         float c[3];
     };
     struct Thrust {
-        Thrust() : main(0.0), left(0.0), right(0.0) {}
-        double main;
-        double left;
-        double right;
+        Thrust() : x(0.0), y(0.0), moment(0.0) {}
+        double x, y, moment;
     };
 
 public:
@@ -90,18 +90,23 @@ public:
     }
     void SetThrust(double m, double l, double r) {
         std::lock_guard<std::mutex> lock(thrust_mutex_);
-        thrust_.main = m;
-        thrust_.left = l;
-        thrust_.right = r;
+        thrust_.x = m * cos(0.5 * M_PI + (player_.angle * M_PI / 180.0));
+        thrust_.y = m * sin(0.5 * M_PI + (player_.angle * M_PI / 180.0));
+        thrust_.moment = r - l;
+
+        BD_Vector player_thrust;
+        player_thrust.x = thrust_.x;
+        player_thrust.y = thrust_.y;
+        DATABUS.Publish(db_PlayerThrust, &player_thrust);
     }
     void GetThrust(double & thrust_x, double & thrust_y) {
         std::lock_guard<std::mutex> lock(thrust_mutex_);
-        thrust_x = thrust_.main * cos(0.5 * M_PI + (player_.angle * M_PI / 180.0));
-        thrust_y = thrust_.main * sin(0.5 * M_PI + (player_.angle * M_PI / 180.0));
+        thrust_x = thrust_.x;
+        thrust_y = thrust_.y;
     }
     double GetMoment() {
         std::lock_guard<std::mutex> lock(thrust_mutex_);
-        return (thrust_.right - thrust_.left);
+        return thrust_.moment;
     }
     // DEBUG
     double gx, gy;

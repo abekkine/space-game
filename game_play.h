@@ -9,6 +9,10 @@
 #include "game_data.h"
 #include "background.h"
 
+// [TODO] HUD /w DataBus
+#include "data_bus.h"
+// [END]
+
 class GamePlay {
 private:
     GameData::Player player_;
@@ -20,7 +24,42 @@ public:
     ~GamePlay() {}
     void Init() {
         background_.Init();
+
+// [TODO] HUD /w DataBus
+        vx = vy = tx = ty = gx = gy = 0.0;
+        using std::placeholders::_1;
+        DATABUS.Subscribe(db_PlayerGravity,
+            std::bind(&GamePlay::debugGravity, this, _1));
+        DATABUS.Subscribe(db_PlayerThrust,
+            std::bind(&GamePlay::debugThrust, this, _1));
+        DATABUS.Subscribe(db_PlayerVelocity,
+            std::bind(&GamePlay::debugVelocity, this, _1));
     }
+    double gx, gy;
+    void debugGravity(BusDataInterface * data) {
+        BD_Vector *v = static_cast<BD_Vector *>(data);
+        if (v != 0) {
+            gx = v->x;
+            gy = v->y;
+        }
+    }
+    double tx, ty;
+    void debugThrust(BusDataInterface * data) {
+        BD_Vector *v = static_cast<BD_Vector *>(data);
+        if (v != 0) {
+            tx = v->x;
+            ty = v->y;
+        }
+    }
+    double vx, vy;
+    void debugVelocity(BusDataInterface * data) {
+        BD_Vector *v = static_cast<BD_Vector *>(data);
+        if (v != 0) {
+            vx = v->x;
+            vy = v->y;
+        }
+    }
+// [END]
     void Render() {
         GAMEDATA.GetPlayer(&player_);
         GAMEDATA.GetPlanet(&planet_);
@@ -122,16 +161,6 @@ private:
     }
 
     void RenderVectors() {
-        // Gravity
-        double gx, gy;
-        GAMEDATA.GetGravityDebug(gx, gy);
-        // Thrust
-        double tx, ty;
-        GAMEDATA.GetThrust(tx, ty);
-        // Velocity
-        double vx, vy;
-        GAMEDATA.GetVelocityDebug(vx, vy);
-
         glPushMatrix();
 
         glLoadIdentity();

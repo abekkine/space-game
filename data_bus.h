@@ -1,20 +1,27 @@
 #ifndef DATA_BUS_H_
 #define DATA_BUS_H_
 
-#include "singleton.h"
-
 #include <functional>
 #include <unordered_map>
 #include <vector>
 
+#include "singleton.h"
 struct BusDataInterface {
     virtual ~BusDataInterface() {}
 };
 
-enum class DataChannel : uint8_t {
-    eNONE,
-    // [TODO] : add here when needed...
-    eALL,
+enum DataChannel {
+    db_None = 0,
+    db_PlayerPosition,
+    db_PlayerVelocity,
+    db_PlayerThrust,
+    db_PlayerGravity,
+    // [TODO] : add more channels here when needed...
+    db_All = 255,
+};
+
+struct BD_Vector : public BusDataInterface {
+    double x, y;
 };
 
 typedef std::function<void(BusDataInterface *)> BusDataHandler;
@@ -50,7 +57,7 @@ public:
     }
 
 private:
-    std::unordered_map<DataChannel, BusDataHandlerList> subscribers_;
+    std::unordered_map<DataChannel, BusDataHandlerList, std::hash<int>> subscribers_;
 };
 
 #define DATABUS DataBus::Instance()
