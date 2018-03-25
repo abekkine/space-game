@@ -63,7 +63,7 @@ public:
         region_y_base = kSpan * floor(kFarFactor * p.y / kSpan);
         glPushMatrix();
         glLoadIdentity();
-        glRotated(p.a, 0.0, 0.0, -1.0);
+        glRotated(p.angle, 0.0, 0.0, -1.0);
         glTranslated(-kFarFactor*p.x, -kFarFactor*p.y, 0.0);
         glColor3f(0.8, 0.8, 0.8);
         glPointSize(3.0);

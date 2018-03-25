@@ -31,7 +31,7 @@ public:
 
         glPushMatrix();
 
-        glRotated(player_.a, 0.0, 0.0, -1.0);
+        glRotated(player_.angle, 0.0, 0.0, -1.0);
         glTranslated(-player_.x, -player_.y, 0.0);
 
         RenderBackground();
@@ -97,10 +97,10 @@ private:
     void RenderUniverse() {
 
         glTranslated(planet_.x, planet_.y, 0.0);
-        glRotated(planet_.a, 0.0, 0.0, 1.0);
+        glRotated(planet_.angle, 0.0, 0.0, 1.0);
         glColor3fv(planet_.c);
 
-        const double R = planet_.r;
+        const double R = planet_.radius;
         glBegin(GL_TRIANGLE_FAN);
         glVertex2d(0.0, 0.0);
         for (double a=0.0; a < 2.0 * M_PI; a+=0.05) {
@@ -135,7 +135,7 @@ private:
         glPushMatrix();
 
         glLoadIdentity();
-        glRotated(player_.a, 0.0, 0.0, -1.0);
+        glRotated(player_.angle, 0.0, 0.0, -1.0);
 
         glLineWidth(2.0);
         // Thrust  : green

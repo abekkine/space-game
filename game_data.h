@@ -11,7 +11,9 @@ public:
         Player()
         : x(0.0)
         , y(0.0)
-        , a(30.0)
+        , angle(30.0)
+        , mass(1.0)
+        , density(1.0)
         , n(8)
         , vertices{ {0.16, 1.2},
                     {-0.16, 1.2},
@@ -21,25 +23,40 @@ public:
                     {0.54, -0.46},
                     {0.68, 0.14},
                     {0.5, 0.16} }
+        // , kShipArea(1.4744)
         , c{1.0, 1.0, 1.0}
         {}
+        ~Player() {}
+        double Mass() {
+            return 1.4744 * density;
+        }
         double x, y;
-        double a;
+        double angle;
+        double mass;
+        double density;
         int n;
         double vertices[10][2];
+        // const double kShipArea;
         float c[3];
     };
     struct Planet {
         Planet()
         : x(0.0)
         , y(0.0)
-        , a(0.0)
-        , r(50.0)
+        , angle(0.0)
+        , mass(1.0)
+        , density(1.0)
+        , radius(50.0)
         , c{1.0, 0.0, 0.0}
         {}
+        double Mass() {
+            return M_PI * radius * radius * density;
+        }
         double x, y;
-        double a;
-        double r;
+        double angle;
+        double mass;
+        double density;
+        double radius;
         float c[3];
     };
     struct Thrust {
@@ -79,8 +96,8 @@ public:
     }
     void GetThrust(double & thrust_x, double & thrust_y) {
         std::lock_guard<std::mutex> lock(thrust_mutex_);
-        thrust_x = thrust_.main * cos(0.5 * M_PI + (player_.a * M_PI / 180.0));
-        thrust_y = thrust_.main * sin(0.5 * M_PI + (player_.a * M_PI / 180.0));
+        thrust_x = thrust_.main * cos(0.5 * M_PI + (player_.angle * M_PI / 180.0));
+        thrust_y = thrust_.main * sin(0.5 * M_PI + (player_.angle * M_PI / 180.0));
     }
     double GetMoment() {
         std::lock_guard<std::mutex> lock(thrust_mutex_);
