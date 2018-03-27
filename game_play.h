@@ -11,6 +11,7 @@
 
 #include "data_bus.h"
 #include "devices/generic_hud_device.h"
+#include "devices/hotas_device.h"
 
 class GamePlay {
 private:
@@ -18,6 +19,7 @@ private:
     GameData::Planet planet_;
     Background background_;
     GenericHudDevice hud_;
+    HOTASDevice hotas_;
 
 public:
     GamePlay() {}
@@ -25,6 +27,7 @@ public:
     void Init() {
         background_.Init();
         hud_.Init();
+        hotas_.Init();
     }
     void Render() {
         GAMEDATA.GetPlayer(&player_);
@@ -57,28 +60,31 @@ public:
             case GLFW_KEY_W: // main thruster
                 if (action == true) {
                     // enable thruster.
-                    GAMEDATA.SetThrust(20.0, 0.0, 0.0);
+                    hotas_.SetThrottle(1.0);
                 }
                 else {
                     // disable thruster.
-                    GAMEDATA.SetThrust(0.0, 0.0, 0.0);
+                    hotas_.SetThrottle(0.0);
                 }
                 break;
             case GLFW_KEY_A: // right thruster
                 if (action == true) {
-                    GAMEDATA.SetThrust(0.0, 0.0, 1.0);
+                    hotas_.SetSteering(-1.0);
                 }
                 else {
-                    GAMEDATA.SetThrust(0.0, 0.0, 0.0);
+                    hotas_.SetSteering(0.0);
                 }
                 break;
             case GLFW_KEY_D: // left thruster
                 if (action == true) {
-                    GAMEDATA.SetThrust(0.0, 1.0, 0.0);
+                    hotas_.SetSteering(1.0);
                 }
                 else {
-                    GAMEDATA.SetThrust(0.0, 0.0, 0.0);
+                    hotas_.SetSteering(0.0);
                 }
+                break;
+            case GLFW_KEY_G:
+                hotas_.ToggleLandingGear();
                 break;
         }
 
