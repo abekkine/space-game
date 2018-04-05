@@ -12,6 +12,7 @@
 #include "data_bus.h"
 #include "devices/generic_hud_device.h"
 #include "devices/hotas_device.h"
+#include "systems/ship_systems_manager.h"
 
 class GamePlay {
 private:
@@ -25,6 +26,9 @@ public:
     GamePlay() {}
     ~GamePlay() {}
     void Init() {
+        // Create ship systems
+        SYSTEMSMGR.createEngineSystem();
+
         background_.Init();
         hud_.Init();
         hotas_.Init();
