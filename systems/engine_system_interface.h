@@ -1,7 +1,9 @@
 #ifndef ENGINE_SYSTEM_INTERFACE_H_
 #define ENGINE_SYSTEM_INTERFACE_H_
 
-class EngineSystemInterface {
+#include "ship_system_interface.h"
+
+class EngineSystemInterface : public ShipSystemInterface {
 public:
     virtual void MainThrustCommand(double value) = 0;
     virtual void ReverseThrustCommand(double value) = 0;
@@ -14,6 +16,9 @@ public:
     virtual double Refuel(double value) = 0;
     virtual double DumpFuel(double value) = 0;
     virtual double FuelQuery() = 0;
+
+    virtual void Init() {}
+    virtual void Update(double time_step) { (void)time_step; }
 };
 
 #endif // ENGINE_SYSTEM_INTERFACE_H_

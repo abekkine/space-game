@@ -1,35 +1,89 @@
 #ifndef BASIC_ENGINE_SYSTEM_H_
 #define BASIC_ENGINE_SYSTEM_H_
 
+#include "ship_system_interface.h"
 #include "engine_system_interface.h"
 #include "game_data.h"
 
 // HOTAS sends commands here, and proper thrust forces
 // and moments generated here, and told to physics.
-class BasicEngineSystem : public EngineSystemInterface {
+class BasicEngineSystem : public EngineSystemInterface
+{
 public:
-    BasicEngineSystem() {}
+    BasicEngineSystem()
+    : fuel_tank_size_(20.0)
+    , remaining_fuel_(20.0)
+    , main_thruster_(0.0)
+    , left_thruster_(0.0)
+    , right_thruster_(0.0)
+    {
+        UpdateThrust();
+    }
     ~BasicEngineSystem() {}
     void MainThrustCommand(double value) {
-        GAMEDATA.SetThrust(20.0 * value, 0.0, 0.0);
+        if (remaining_fuel_ > 0.0) {
+            main_thruster_ = 20.0 * value;
+            left_thruster_ = 0.0;
+            right_thruster_ = 0.0;
+        }
+        UpdateThrust();
     }
     void ReverseThrustCommand(double value) {
         (void)value;
     }
     void RotateLeftCommand(double value) {
-        GAMEDATA.SetThrust(0.0, 0.0, value); // -1.0
+        if (remaining_fuel_ > 0.0) {
+            right_thruster_ = value;
+            main_thruster_ = 0.0;
+            left_thruster_ = 0.0;
+        }
+        UpdateThrust();
     }
     void RotateRightCommand(double value) {
-        GAMEDATA.SetThrust(0.0, value, 0.0); //  1.0
+        if (remaining_fuel_ > 0.0) {
+            left_thruster_ = value;
+            main_thruster_ = 0.0;
+            right_thruster_ = 0.0;
+        }
+        UpdateThrust();
     }
     void StopRotationCommand() {
-        GAMEDATA.SetThrust(0.0, 0.0, 0.0); //  0.0
+        StopThrusters();
+        UpdateThrust();
+    }
+    void StopThrusters() {
+        main_thruster_ = 0.0;
+        left_thruster_ = 0.0;
+        right_thruster_ = 0.0;
     }
     void StrafeLeftCommand(double value) {
         (void)value;
     }
     void StrafeRightCommand(double value) {
         (void)value;
+    }
+
+    void UpdateThrust() {
+        GAMEDATA.SetThrust(main_thruster_, left_thruster_, right_thruster_);
+    }
+
+    void Init() {}
+
+    void Update(double time_step) {
+        const double fuel_consumption_rate = 0.001; // units per second
+        if (remaining_fuel_ > 0.0) {
+            remaining_fuel_ -= time_step * fuel_consumption_rate * main_thruster_;
+            remaining_fuel_ -= time_step * fuel_consumption_rate * left_thruster_;
+            remaining_fuel_ -= time_step * fuel_consumption_rate * right_thruster_;
+            if (remaining_fuel_ < 0.0) {
+                remaining_fuel_ = 0.0;
+            }
+        }
+        else {
+            StopThrusters();
+        }
+
+        std::cout << remaining_fuel_ << std::endl;
     }
 
     double Refuel(double value) {
@@ -68,6 +122,9 @@ public:
 private:
     double fuel_tank_size_;
     double remaining_fuel_;
+    double main_thruster_;
+    double left_thruster_;
+    double right_thruster_;
 };
 
 #endif // BASIC_ENGINE_SYSTEM_H_
