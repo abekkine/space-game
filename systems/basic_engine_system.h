@@ -11,8 +11,8 @@ class BasicEngineSystem : public EngineSystemInterface
 {
 public:
     BasicEngineSystem()
-    : fuel_tank_size_(20.0)
-    , remaining_fuel_(20.0)
+    : fuel_tank_size_(0.1)
+    , remaining_fuel_(0.1)
     , main_thruster_(0.0)
     , left_thruster_(0.0)
     , right_thruster_(0.0)
@@ -82,8 +82,6 @@ public:
         else {
             StopThrusters();
         }
-
-        std::cout << remaining_fuel_ << std::endl;
     }
 
     double Refuel(double value) {
