@@ -7,6 +7,7 @@
 
 #include "game_data.h"
 #include "data_bus.h"
+#include "systems/ship_systems_manager.h"
 
 class Universe {
 public:
@@ -33,6 +34,9 @@ public:
 
         t_begin_ = std::chrono::steady_clock::now();
         t_end_ = t_begin_;
+
+        // TODO : check again, if this fits here.
+        SYSTEMSMGR.getEngineSystem()->Init();
     }
     void Box2DInit() {
         InitPhysics();
@@ -157,6 +161,10 @@ private:
         t_begin_ = std::chrono::steady_clock::now();
         double delta_time = std::chrono::duration<double> (t_begin_ - t_end_).count();
         world_->Step(delta_time, 12, 6);
+
+        // TODO : check again, if this fits here
+        SYSTEMSMGR.getEngineSystem()->Update(delta_time);
+
         t_end_ = t_begin_;
     }
     void RefreshPositions() {
