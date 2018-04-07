@@ -144,12 +144,12 @@ private:
         b2_player_body_->ApplyTorque(moment, true);
 
         // Get Speed of player
-        b2Vec2 v = b2_player_body_->GetLinearVelocity();
+        player_velocity_ = b2_player_body_->GetLinearVelocity();
 
         // Send player velocity to Data Bus.
         BD_Vector player_velocity;
-        player_velocity.x = v.x;
-        player_velocity.y = v.y;
+        player_velocity.x = player_velocity_.x;
+        player_velocity.y = player_velocity_.y;
         DATABUS.Publish(db_PlayerVelocity, &player_velocity);
     }
     void UpdatePlanet() {
@@ -174,6 +174,7 @@ private:
         player_.x = pos.x;
         player_.y = pos.y;
         player_.angle = b2_player_body_->GetAngle() * 180.0 / M_PI;
+        player_.speed = player_velocity_.Length();
         // Send it up
         game_data_->SetPlayer(player_);
 
@@ -203,6 +204,7 @@ private:
     b2BodyDef b2_planet_def_;
     b2Body * b2_player_body_;
     b2Body * b2_planet_body_;
+    b2Vec2 player_velocity_;
 
     std::thread thread_;
     GameData * game_data_;

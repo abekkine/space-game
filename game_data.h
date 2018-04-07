@@ -27,6 +27,7 @@ public:
                     {0.5, 0.16} }
         // , kShipArea(1.4744)
         , c{1.0, 1.0, 1.0}
+        , speed(0.0)
         {}
         ~Player() {}
         double Mass() {
@@ -40,6 +41,7 @@ public:
         double vertices[10][2];
         // const double kShipArea;
         float c[3];
+        double speed;
     };
     struct Planet {
         Planet()

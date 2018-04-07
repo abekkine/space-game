@@ -1,6 +1,7 @@
 #ifndef GAME_PLAY_H_
 #define GAME_PLAY_H_
 
+#include <math.h>
 #include <GLFW/glfw3.h>
 
 #include "game_definitions.h"
@@ -37,7 +38,9 @@ public:
         GAMEDATA.GetPlayer(&player_);
         GAMEDATA.GetPlanet(&planet_);
 
-        DISPLAY.WorldMode();
+        double s = player_.speed;
+        double f = 1.0 + (1.0 / (1.0 + exp(-s+5.0)));
+        DISPLAY.WorldMode(f);
 
         RenderPlayer();
 
