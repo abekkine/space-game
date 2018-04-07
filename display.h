@@ -92,10 +92,15 @@ public:
         glOrtho(0.0, width_, height_, 0.0, -1.0, 1.0);
         glMatrixMode(GL_MODELVIEW);
     }
-    void WorldMode() {
+    void WorldMode(double speed_factor) {
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrtho(vp_left_, vp_right_, vp_bottom_, vp_top_, -1.0, 1.0);
+        glOrtho(
+            speed_factor * vp_left_,
+            speed_factor * vp_right_,
+            speed_factor * vp_bottom_,
+            speed_factor * vp_top_,
+            -1.0, 1.0);
         glMatrixMode(GL_MODELVIEW);
     }
     void PreRender() {
