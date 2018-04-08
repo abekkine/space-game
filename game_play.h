@@ -54,6 +54,7 @@ public:
 
         glPopMatrix();
 
+        DISPLAY.UiMode();
         RenderHUD();
     }
     GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
