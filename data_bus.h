@@ -16,8 +16,13 @@ enum DataChannel {
     db_PlayerVelocity,
     db_PlayerThrust,
     db_PlayerGravity,
+    db_PlayerFuel,
     // [TODO] : add more channels here when needed...
     db_All = 255,
+};
+
+struct BD_Scalar : public BusDataInterface {
+    double value;
 };
 
 struct BD_Vector : public BusDataInterface {
