@@ -15,10 +15,12 @@
 #include "devices/hotas_device.h"
 #include "systems/ship_systems_manager.h"
 
+#include "planet.h"
+
 class GamePlay {
 private:
     GameData::Player player_;
-    GameData::Planet planet_;
+    Planet* planet_;
     Background background_;
     GenericHudDevice hud_;
     HOTASDevice hotas_;
@@ -36,7 +38,7 @@ public:
     }
     void Render() {
         GAMEDATA.GetPlayer(&player_);
-        GAMEDATA.GetPlanet(&planet_);
+        planet_ = GAMEDATA.GetPlanet();
 
         double s = player_.speed;
         double f = 1.0 + (1.0 / (1.0 + exp(-s+5.0)));
@@ -103,7 +105,6 @@ private:
     void RenderPlayer() {
 
         glLoadIdentity();
-        // Color
         glColor3fv(player_.c);
 
         glBegin(GL_TRIANGLE_FAN);
@@ -115,24 +116,7 @@ private:
     }
     void RenderUniverse() {
 
-        glTranslated(planet_.x, planet_.y, 0.0);
-        glRotated(planet_.angle, 0.0, 0.0, 1.0);
-        glColor3fv(planet_.c);
-
-        const double R = planet_.radius;
-        glBegin(GL_TRIANGLE_FAN);
-        glVertex2d(0.0, 0.0);
-        for (double a=0.0; a < 2.0 * M_PI; a+=0.05) {
-            glVertex2d(R * cos(a), R * sin(a));
-        }
-        glVertex2d(R, 0.0);
-        glEnd();
-
-        glPointSize(3.0);
-        glColor3f(1.0, 1.0, 1.0);
-        glBegin(GL_POINTS);
-        glVertex2d(0.0, R*0.99);
-        glEnd();
+        planet_->Render();
     }
 
     void RenderBackground() {
