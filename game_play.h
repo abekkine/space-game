@@ -19,14 +19,18 @@
 
 class GamePlay {
 private:
+    double debug_scale_;
     GameData::Player player_;
+    int num_planets_;
     Planet* planet_;
     Background background_;
     GenericHudDevice hud_;
     HOTASDevice hotas_;
 
 public:
-    GamePlay() {}
+    GamePlay() {
+        debug_scale_ = 1.0;
+    }
     ~GamePlay() {}
     void Init() {
         // Create ship systems
@@ -38,11 +42,12 @@ public:
     }
     void Render() {
         GAMEDATA.GetPlayer(&player_);
+        num_planets_ = GAMEDATA.GetNumPlanets();
         planet_ = GAMEDATA.GetPlanet();
 
         double s = player_.speed;
         double f = 1.0 + (1.0 / (1.0 + exp(-s+5.0)));
-        DISPLAY.WorldMode(f);
+        DISPLAY.WorldMode(debug_scale_ * f);
 
         RenderPlayer();
 
@@ -96,6 +101,14 @@ public:
             case GLFW_KEY_G:
                 hotas_.ToggleLandingGear();
                 break;
+            case GLFW_KEY_V:
+                if (debug_scale_ > 50.0) {
+                    debug_scale_ = 1.0;
+                }
+                else {
+                    debug_scale_ = 100.0;
+                }
+                break;
         }
 
         return state;
@@ -116,7 +129,11 @@ private:
     }
     void RenderUniverse() {
 
-        planet_->Render();
+        for (int i=0; i<num_planets_; ++i) {
+            glPushMatrix();
+            planet_[i].Render();
+            glPopMatrix();
+        }
     }
 
     void RenderBackground() {

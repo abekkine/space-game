@@ -63,6 +63,16 @@ public:
         *player = player_;
     }
 
+    int num_planets_;
+    void SetNumPlanets(int num) {
+        std::lock_guard<std::mutex> lock(planet_mutex_);
+        num_planets_ = num;
+    }
+    int GetNumPlanets() {
+        std::lock_guard<std::mutex> lock(planet_mutex_);
+        return num_planets_;
+    }
+
     void SetPlanet(Planet * planet) {
         std::lock_guard<std::mutex> lock(planet_mutex_);
         planet_ = planet;

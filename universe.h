@@ -15,6 +15,7 @@ class Universe {
 public:
     Universe()
     : kGravityConstant(0.5)
+    , kNumPlanets(3)
     {}
     ~Universe() {
         thread_.join();
@@ -26,11 +27,22 @@ public:
         player_.angle = 10.0;
         game_data_->SetPlayer(player_);
 
-        planet_ = new Planet();
-        planet_->SetPosition(0.0, -100.0);
-        planet_->SetAngle(0.0);
-        planet_->SetRadius(90.0);
+        planet_ = new Planet[kNumPlanets];
+
+        planet_[0].SetPosition(0.0, -100.0);
+        planet_[0].SetAngle(0.0);
+        planet_[0].SetRadius(90.0);
+
+        planet_[1].SetPosition(1000.0, 500.0);
+        planet_[1].SetAngle(10.0);
+        planet_[1].SetRadius(60.0);
+
+        planet_[2].SetPosition(-500.0, -50.0);
+        planet_[2].SetAngle(90.0);
+        planet_[2].SetRadius(40.0);
+
         game_data_->SetPlanet(planet_);
+        game_data_->SetNumPlanets(kNumPlanets);
 
         Box2DInit();
 
@@ -55,7 +67,9 @@ public:
     }
     void InitPlanet() {
 
-        planet_->Init(world_);
+        for(int i=0; i<kNumPlanets; ++i) {
+            planet_[i].Init(world_);
+        }
     }
     void InitPlayer() {
         b2FixtureDef b2_fixture;
@@ -102,9 +116,15 @@ private:
     }
     void UpdateGravity() {
         // Gravity
-        b2Vec2 g_factor = planet_->GetGravityFactor(player_.x, player_.y);
+        b2Vec2 g_factor;
 
-        gravity_ = kGravityConstant * player_.Mass() * g_factor;
+        gravity_ = b2Vec2(0.0, 0.0);
+        for (int i=0; i<kNumPlanets; ++i) {
+
+            g_factor = planet_[i].GetGravityFactor(player_.x, player_.y);
+
+            gravity_ += kGravityConstant * player_.Mass() * g_factor;
+        }
 
         // Send player gravity to Data Bus.
         BD_Vector player_gravity;
@@ -136,7 +156,9 @@ private:
     }
     void UpdatePlanet() {
 
-        planet_->Update();
+        for (int i=0; i<kNumPlanets; ++i) {
+            planet_[i].Update();
+        }
     }
     void Step() {
         // Advance physics
@@ -175,6 +197,7 @@ private:
 
 private:
     const double kGravityConstant;
+    const int kNumPlanets;
     b2Vec2 gravity_;
     std::chrono::time_point<std::chrono::steady_clock> t_begin_;
     std::chrono::time_point<std::chrono::steady_clock> t_end_;
