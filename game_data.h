@@ -5,6 +5,7 @@
 
 #include "singleton.h"
 
+#include "game_definitions.h"
 #include "data_bus.h"
 
 class GameData : public Singleton<GameData> {
@@ -137,14 +138,26 @@ public:
     }
     // END DEBUG
 
+    void SetState(GameDefinitions::GameStateEnum state) {
+        std::lock_guard<std::mutex> lock(state_mutex_);
+        game_state_ = state;
+    }
+    GameDefinitions::GameStateEnum GetState() {
+        std::lock_guard<std::mutex> lock(state_mutex_);
+        return game_state_;
+    }
+
 private:
     std::mutex player_mutex_;
     std::mutex planet_mutex_;
     std::mutex thrust_mutex_;
+    std::mutex state_mutex_;
 
     Player player_;
     Planet planet_;
     Thrust thrust_;
+
+    GameDefinitions::GameStateEnum game_state_;
 };
 
 #define GAMEDATA GameData::Instance()

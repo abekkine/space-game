@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "game_definitions.h"
+#include "game_data.h"
 #include "menu.h"
 #include "game_play.h"
 
@@ -13,7 +14,9 @@ public:
     : state_(GameDefinitions::gameState_InMenu)
     , menu_(0)
     , gameplay_(0)
-    {}
+    {
+        GAMEDATA.SetState(state_);
+    }
     ~GameState() {
         delete menu_;
         delete gameplay_;
@@ -46,6 +49,7 @@ public:
     }
     void ProcessKey(int key, bool action) {
         state_ = key_processors_[state_](key, action);
+        GAMEDATA.SetState(state_);
     }
 
 private:
