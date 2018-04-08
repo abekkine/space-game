@@ -160,7 +160,12 @@ private:
         // Advance physics
         t_begin_ = std::chrono::steady_clock::now();
         double delta_time = std::chrono::duration<double> (t_begin_ - t_end_).count();
-        world_->Step(delta_time, 12, 6);
+        if (game_data_->GetState() != GameDefinitions::gameState_InGame) {
+            world_->Step(0.0, 12, 6);
+        }
+        else {
+            world_->Step(delta_time, 12, 6);
+        }
 
         // TODO : check again, if this fits here
         SYSTEMSMGR.getEngineSystem()->Update(delta_time);
