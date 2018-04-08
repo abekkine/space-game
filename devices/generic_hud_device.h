@@ -27,6 +27,8 @@ public:
             std::bind(&GenericHudDevice::hndPlayerVelocity, this, _1));
         bus_->Subscribe(db_PlayerThrust,
             std::bind(&GenericHudDevice::hndPlayerThrust, this, _1));
+        bus_->Subscribe(db_PlayerFuel,
+            std::bind(&GenericHudDevice::hndFuelQuantity, this, _1));
 
         DISPLAY.GetSize(scr_width_, scr_height_);
         hud_position_x_ = scr_width_ >> 1;
@@ -92,8 +94,34 @@ public:
             glVertex2d(vx, vy);
         glEnd();
         glPopMatrix();
-
         glPopMatrix();
+
+        // Fuel Gauge
+        int fw = 120;
+        int fh = 20;
+        int t = 30;
+        int fl = fw * fuel;
+
+        glPushMatrix();
+        glTranslated(scr_width_ - fw -t, t, 0.0);
+        glColor3f(0.0, 1.0, 0.0);
+        glBegin(GL_QUADS);
+        glVertex2i(0, 0);
+        glVertex2i(fl, 0);
+        glVertex2i(fl, fh);
+        glVertex2i(0, fh);
+        glEnd();
+        glPopMatrix();
+
+        glColor3f(1.0, 1.0, 1.0);
+        glLineWidth(2.0);
+        glBegin(GL_LINE_LOOP);
+        glVertex2i(scr_width_ - fw - t, t);
+        glVertex2i(scr_width_ - t, t);
+        glVertex2i(scr_width_ - t, t + fh);
+        glVertex2i(scr_width_ - fw - t, t + fh);
+        glEnd();
+
     }
 private: // Handlers
     void hndPlayerPosition(BusDataInterface *data) {
@@ -125,7 +153,14 @@ private: // Handlers
             ty = v->y;
         }
     }
+    void hndFuelQuantity(BusDataInterface *data) {
+        BD_Scalar *f = static_cast<BD_Scalar *>(data);
+        if (f != 0) {
+            fuel = f->value;
+        }
+    }
 private:
+    double fuel;
     double px, py, pa;
     double gx, gy;
     double tx, ty;

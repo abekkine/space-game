@@ -4,6 +4,7 @@
 #include "ship_system_interface.h"
 #include "engine_system_interface.h"
 #include "game_data.h"
+#include "data_bus.h"
 
 // HOTAS sends commands here, and proper thrust forces
 // and moments generated here, and told to physics.
@@ -78,6 +79,9 @@ public:
             if (remaining_fuel_ < 0.0) {
                 remaining_fuel_ = 0.0;
             }
+            BD_Scalar fuel;
+            fuel.value = remaining_fuel_ / fuel_tank_size_;
+            DATABUS.Publish(db_PlayerFuel, &fuel);
         }
         else {
             StopThrusters();
