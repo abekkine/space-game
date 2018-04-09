@@ -14,8 +14,8 @@
 class Universe {
 public:
     Universe()
-    : kGravityConstant(0.5)
-    , kNumPlanets(3)
+    //, kNumPlanets(3)
+    : kNumPlanets(2)
     {}
     ~Universe() {
         thread_.join();
@@ -36,10 +36,11 @@ public:
         planet_[1].SetPosition(1000.0, 500.0);
         planet_[1].SetAngle(10.0);
         planet_[1].SetRadius(60.0);
+//        planet_[1].SetOrbit(planet_[0].Mass(), 0.0, -100.0, GameDefinitions::od_Clockwise);
 
-        planet_[2].SetPosition(-500.0, -50.0);
-        planet_[2].SetAngle(90.0);
-        planet_[2].SetRadius(40.0);
+//        planet_[2].SetPosition(-500.0, -50.0);
+//        planet_[2].SetAngle(90.0);
+//        planet_[2].SetRadius(40.0);
 
         game_data_->SetPlanet(planet_);
         game_data_->SetNumPlanets(kNumPlanets);
@@ -123,7 +124,7 @@ private:
 
             g_factor = planet_[i].GetGravityFactor(player_.x, player_.y);
 
-            gravity_ += kGravityConstant * player_.Mass() * g_factor;
+            gravity_ += player_.Mass() * g_factor;
         }
 
         // Send player gravity to Data Bus.
@@ -196,7 +197,6 @@ private:
     }
 
 private:
-    const double kGravityConstant;
     const int kNumPlanets;
     b2Vec2 gravity_;
     std::chrono::time_point<std::chrono::steady_clock> t_begin_;

@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <Box2D.h>
 
+#include "game_definitions.h"
+
 class Planet {
 public:
     Planet()
@@ -37,7 +39,7 @@ public:
         double r2 = dx*dx + dy*dy;
         double r = sqrt(r2);
 
-        double gmr2 = Mass() / (r2 * r);
+        double gmr2 = GameDefinitions::kGravityConstant * Mass() / (r2 * r);
         double fx = gmr2 * dx;
         double fy = gmr2 * dy;
 
