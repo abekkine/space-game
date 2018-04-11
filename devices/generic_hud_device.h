@@ -3,9 +3,23 @@
 
 #include <GLFW/glfw3.h>
 
+#include <mutex>
+
 #include "ship_device.h"
 
 class GenericHudDevice : public ShipDevice {
+private:
+    struct Detection {
+        Detection(double a, double b, double c, double d)
+        : u1(a)
+        , v1(b)
+        , u2(c)
+        , v2(d)
+        {}
+        double u1, v1;
+        double u2, v2;
+    };
+    std::mutex d_mutex_;
 public:
     GenericHudDevice()
     : ShipDevice()
@@ -29,8 +43,8 @@ public:
             std::bind(&GenericHudDevice::hndPlayerThrust, this, _1));
         bus_->Subscribe(db_PlayerFuel,
             std::bind(&GenericHudDevice::hndFuelQuantity, this, _1));
-        bus_->Subscribe(db_RadarData,
-            std::bind(&GenericHudDevice::hndRadarData, this, _1));
+        bus_->Subscribe(db_DetectionList,
+            std::bind(&GenericHudDevice::hndRadarDetections, this, _1));
 
         DISPLAY.GetSize(scr_width_, scr_height_);
         hud_position_x_ = scr_width_ >> 1;
@@ -96,18 +110,26 @@ public:
             glVertex2d(0.0, 0.0);
             glVertex2d(vx, vy);
         glEnd();
+        glPopMatrix();
 
         // [TODO]
-        // Planet
-        glColor3f(1.0, 0.0, 0.0);
-        glBegin(GL_LINES);
-            glVertex2d(0.0, 0.0);
-            glVertex2d(detection_u_, detection_v_);
-        glEnd();
+        // Detections
+        {
+            glPushMatrix();
+            glScaled(hud_size_, hud_size_, 1.0);
+            std::lock_guard<std::mutex> lock(d_mutex_);
+            glColor3f(1.0, 0.5, 0.5);
+            glBegin(GL_LINES);
+            for (auto d : detection_list_) {
+                    glVertex2d(0.0, 0.0);
+                    glVertex2d(d->u1, d->v1);
+                    glVertex2d(0.0, 0.0);
+                    glVertex2d(d->u2, d->v2);
+            }
+            glEnd();
+            glPopMatrix();
+        }
         // [END]
-
-        glPopMatrix();
-        // End
 
         glPopMatrix();
 
@@ -142,10 +164,20 @@ private:
     double detection_size_;
     double detection_u_;
     double detection_v_;
-    void AddDetection(double size, double u, double v) {
-        detection_size_ = size;
-        detection_u_ = u;
-        detection_v_ = v;
+    void AddDetections(int num_detections, double* detections) {
+        std::lock_guard<std::mutex> lock(d_mutex_);
+        for (auto d : detection_list_) delete d;
+        detection_list_.clear();
+        Detection * d = 0;
+        for (int i=0; i<num_detections; ++i) {
+            d = new Detection(
+                detections[4*i + 0],
+                detections[4*i + 1],
+                detections[4*i + 2],
+                detections[4*i + 3]
+            );
+            detection_list_.push_back(d);
+        }
     }
 private: // Handlers
     void hndPlayerPosition(BusDataInterface *data) {
@@ -183,10 +215,10 @@ private: // Handlers
             fuel = f->value;
         }
     }
-    void hndRadarData(BusDataInterface *data) {
-        BD_RadarData *r = static_cast<BD_RadarData *>(data);
-        if (r != 0) {
-             AddDetection(r->cross_section, r->u, r->v);
+    void hndRadarDetections(BusDataInterface *data) {
+        BD_RadarDetectionList *d = static_cast<BD_RadarDetectionList *>(data);
+        if (d != 0) {
+            AddDetections(d->num_detections, d->data);
         }
     }
 private:
@@ -203,6 +235,7 @@ private:
     int big_marker_size_;
     int small_marker_size_;
     int vector_scale_;
+    std::vector<Detection *> detection_list_;
 };
 
 #endif // GENERIC_HUD_DEVICE_H_

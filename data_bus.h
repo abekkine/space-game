@@ -17,7 +17,8 @@ enum DataChannel {
     db_PlayerThrust,
     db_PlayerGravity,
     db_PlayerFuel,
-    db_RadarData,
+    db_Detection,
+    db_DetectionList,
     // [TODO] : add more channels here when needed...
     db_All = 255,
 };
@@ -35,9 +36,19 @@ struct BD_BasicPosition : public BusDataInterface {
     double angle;
 };
 
-struct BD_RadarData : public BusDataInterface {
+struct BD_RadarDetection : public BusDataInterface {
     double cross_section;
     double u, v;
+};
+
+// data[ 0] -> u1, data[   1] -> v1, data[   2] -> u2, data[   3] -> v2
+// data[ 4] -> u1, data[   5] -> v1, data[   6] -> u2, data[   7] -> v2
+// ...
+// data[4n] -> u1, data[4n+1] -> v1, data[4n+2] -> u2, data[4n+3] -> v2
+// num_detections = 4(n+1)
+struct BD_RadarDetectionList : public BusDataInterface {
+    int num_detections;
+    double *data;
 };
 
 typedef std::function<void(BusDataInterface *)> BusDataHandler;

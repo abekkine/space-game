@@ -27,13 +27,21 @@ public:
         // [END]
         (void)time_step;
 
-        if (planets_ != 0) {
-            BD_RadarData radarData;
-            radarData.cross_section = 1.0;
-            b2Vec2 distance = planets_[0].GetDistance(plr_x_, plr_y_);
-            radarData.u = distance.x / distance.Length();
-            radarData.v = distance.y / distance.Length();
-            DATABUS.Publish(db_RadarData, &radarData);
+        if (planets_ != 0 && num_planets_ > 0) {
+            BD_RadarDetectionList detections;
+            detections.num_detections = num_planets_;
+            detections.data = new double[4*num_planets_];
+
+            b2Vec2 horizon;
+            for (int i=0; i<num_planets_; ++i) {
+                horizon = planets_[i].GetHorizonVector(1.0, plr_x_, plr_y_);
+                detections.data[4*i+0] = horizon.x;
+                detections.data[4*i+1] = horizon.y;
+                horizon = planets_[i].GetHorizonVector(-1.0, plr_x_, plr_y_);
+                detections.data[4*i+2] = horizon.x;
+                detections.data[4*i+3] = horizon.y;
+            }
+            DATABUS.Publish(db_DetectionList, &detections);
         }
     }
 

@@ -48,6 +48,17 @@ public:
     b2Vec2 GetDistance(double x, double y) {
         return b2Vec2(x_ - x, y_ - y);
     }
+    b2Vec2 GetHorizonVector(double dir, double x, double y) {
+        b2Vec2 d(x_ - x, y_ - y);
+        double dlen = d.Length();
+        d = (1.0 / dlen) * d;
+        double sint = radius_ / dlen;
+        double cost = sqrt(1.0 - sint*sint);
+        return b2Vec2(
+            d.x * cost + d.y * sint * dir,
+            -d.x * sint * dir + d.y * cost
+        );
+    }
     void Init(b2World * world) {
         b2BodyDef def;
         def.type = b2_kinematicBody;
