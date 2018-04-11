@@ -14,8 +14,7 @@
 class Universe {
 public:
     Universe()
-    //, kNumPlanets(3)
-    : kNumPlanets(2)
+    : kNumPlanets(3)
     {}
     ~Universe() {
         thread_.join();
@@ -27,22 +26,21 @@ public:
         player_.angle = 10.0;
         game_data_->SetPlayer(player_);
 
-        planet_ = new Planet[kNumPlanets];
+        planets_ = new Planet[kNumPlanets];
 
-        planet_[0].SetPosition(0.0, -100.0);
-        planet_[0].SetAngle(0.0);
-        planet_[0].SetRadius(90.0);
+        planets_[0].SetPosition(0.0, -100.0);
+        planets_[0].SetAngle(0.0);
+        planets_[0].SetRadius(90.0);
 
-        planet_[1].SetPosition(1000.0, 500.0);
-        planet_[1].SetAngle(10.0);
-        planet_[1].SetRadius(60.0);
-//        planet_[1].SetOrbit(planet_[0].Mass(), 0.0, -100.0, GameDefinitions::od_Clockwise);
+        planets_[1].SetPosition(1000.0, 500.0);
+        planets_[1].SetAngle(10.0);
+        planets_[1].SetRadius(60.0);
 
-//        planet_[2].SetPosition(-500.0, -50.0);
-//        planet_[2].SetAngle(90.0);
-//        planet_[2].SetRadius(40.0);
+        planets_[2].SetPosition(-500.0, -50.0);
+        planets_[2].SetAngle(90.0);
+        planets_[2].SetRadius(40.0);
 
-        game_data_->SetPlanet(planet_);
+        game_data_->SetPlanets(planets_);
         game_data_->SetNumPlanets(kNumPlanets);
 
         Box2DInit();
@@ -69,7 +67,7 @@ public:
     void InitPlanet() {
 
         for(int i=0; i<kNumPlanets; ++i) {
-            planet_[i].Init(world_);
+            planets_[i].Init(world_);
         }
     }
     void InitPlayer() {
@@ -122,7 +120,7 @@ private:
         gravity_ = b2Vec2(0.0, 0.0);
         for (int i=0; i<kNumPlanets; ++i) {
 
-            g_factor = planet_[i].GetGravityFactor(player_.x, player_.y);
+            g_factor = planets_[i].GetGravityFactor(player_.x, player_.y);
 
             gravity_ += player_.Mass() * g_factor;
         }
@@ -158,7 +156,7 @@ private:
     void UpdatePlanet() {
 
         for (int i=0; i<kNumPlanets; ++i) {
-            planet_[i].Update();
+            planets_[i].Update();
         }
     }
     void Step() {
@@ -209,7 +207,7 @@ private:
     std::thread thread_;
     GameData * game_data_;
     GameData::Player player_;
-    Planet * planet_;
+    Planet * planets_;
 };
 
 #endif  // UNIVERSE_H_

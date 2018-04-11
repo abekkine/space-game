@@ -43,7 +43,7 @@ public:
     void Render() {
         GAMEDATA.GetPlayer(&player_);
         num_planets_ = GAMEDATA.GetNumPlanets();
-        planet_ = GAMEDATA.GetPlanet();
+        planet_ = GAMEDATA.GetPlanets();
 
         double s = player_.speed;
         double f = 1.0 + (1.0 / (1.0 + exp(-s+5.0)));

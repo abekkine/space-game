@@ -51,7 +51,7 @@ public:
 public:
     explicit GameData(token)
     : player_{}
-    , planet_(0)
+    , planets_(0)
     {}
     ~GameData() {}
     void SetPlayer(const Player & player) {
@@ -73,13 +73,13 @@ public:
         return num_planets_;
     }
 
-    void SetPlanet(Planet * planet) {
+    void SetPlanets(Planet * planets) {
         std::lock_guard<std::mutex> lock(planet_mutex_);
-        planet_ = planet;
+        planets_ = planets;
     }
-    Planet* GetPlanet() {
+    Planet* GetPlanets() {
         std::lock_guard<std::mutex> lock(planet_mutex_);
-        return planet_;
+        return planets_;
     }
 
     void SetThrust(double m, double l, double r) {
@@ -144,7 +144,7 @@ private:
     std::mutex state_mutex_;
 
     Player player_;
-    Planet* planet_;
+    Planet* planets_;
     Thrust thrust_;
 
     GameDefinitions::GameStateEnum game_state_;
