@@ -1,7 +1,6 @@
 #ifndef BASIC_ENGINE_SYSTEM_H_
 #define BASIC_ENGINE_SYSTEM_H_
 
-#include "ship_system_interface.h"
 #include "engine_system_interface.h"
 #include "game_data.h"
 #include "data_bus.h"

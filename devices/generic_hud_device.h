@@ -29,6 +29,8 @@ public:
             std::bind(&GenericHudDevice::hndPlayerThrust, this, _1));
         bus_->Subscribe(db_PlayerFuel,
             std::bind(&GenericHudDevice::hndFuelQuantity, this, _1));
+        bus_->Subscribe(db_RadarData,
+            std::bind(&GenericHudDevice::hndRadarData, this, _1));
 
         DISPLAY.GetSize(scr_width_, scr_height_);
         hud_position_x_ = scr_width_ >> 1;
@@ -72,6 +74,7 @@ public:
             glVertex2i(hud_size_ + 1, 0.0);
         glEnd();
 
+        // Platform/Ownship Vectors
         glPushMatrix();
         glScaled(vector_scale_, vector_scale_, 1.0);
         glLineWidth(2.0);
@@ -93,7 +96,19 @@ public:
             glVertex2d(0.0, 0.0);
             glVertex2d(vx, vy);
         glEnd();
+
+        // [TODO]
+        // Planet
+        glColor3f(1.0, 0.0, 0.0);
+        glBegin(GL_LINES);
+            glVertex2d(0.0, 0.0);
+            glVertex2d(detection_u_, detection_v_);
+        glEnd();
+        // [END]
+
         glPopMatrix();
+        // End
+
         glPopMatrix();
 
         // Fuel Gauge
@@ -122,6 +137,15 @@ public:
         glVertex2i(scr_width_ - fw - t, t + fh);
         glEnd();
 
+    }
+private:
+    double detection_size_;
+    double detection_u_;
+    double detection_v_;
+    void AddDetection(double size, double u, double v) {
+        detection_size_ = size;
+        detection_u_ = u;
+        detection_v_ = v;
     }
 private: // Handlers
     void hndPlayerPosition(BusDataInterface *data) {
@@ -157,6 +181,12 @@ private: // Handlers
         BD_Scalar *f = static_cast<BD_Scalar *>(data);
         if (f != 0) {
             fuel = f->value;
+        }
+    }
+    void hndRadarData(BusDataInterface *data) {
+        BD_RadarData *r = static_cast<BD_RadarData *>(data);
+        if (r != 0) {
+             AddDetection(r->cross_section, r->u, r->v);
         }
     }
 private:

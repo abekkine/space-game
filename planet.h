@@ -45,6 +45,9 @@ public:
 
         return b2Vec2(fx, fy);
     }
+    b2Vec2 GetDistance(double x, double y) {
+        return b2Vec2(x_ - x, y_ - y);
+    }
     void Init(b2World * world) {
         b2BodyDef def;
         def.type = b2_kinematicBody;
