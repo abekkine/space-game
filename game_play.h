@@ -15,32 +15,45 @@
 #include "devices/hotas_device.h"
 #include "systems/ship_systems_manager.h"
 
+#include "planet.h"
+
 class GamePlay {
 private:
+    double debug_scale_;
     GameData::Player player_;
-    GameData::Planet planet_;
+    int num_planets_;
+    Planet* planet_;
     Background background_;
     GenericHudDevice hud_;
     HOTASDevice hotas_;
+    BasicRadarSystem * radar_;
 
 public:
-    GamePlay() {}
+    GamePlay() {
+        debug_scale_ = 1.0;
+        radar_ = 0;
+    }
     ~GamePlay() {}
     void Init() {
         // Create ship systems
         SYSTEMSMGR.createEngineSystem();
+        // [TODO]
+        radar_ = SYSTEMSMGR.getRadarSystem();
+        // [END]
 
         background_.Init();
         hud_.Init();
         hotas_.Init();
+        radar_->Init();
     }
     void Render() {
         GAMEDATA.GetPlayer(&player_);
-        GAMEDATA.GetPlanet(&planet_);
+        num_planets_ = GAMEDATA.GetNumPlanets();
+        planet_ = GAMEDATA.GetPlanets();
 
         double s = player_.speed;
         double f = 1.0 + (1.0 / (1.0 + exp(-s+5.0)));
-        DISPLAY.WorldMode(f);
+        DISPLAY.WorldMode(debug_scale_ * f);
 
         RenderPlayer();
 
@@ -56,6 +69,10 @@ public:
 
         DISPLAY.UiMode();
         RenderHUD();
+
+        // [TODO] : not here
+        radar_->Update(0.02);
+        // [END]
     }
     GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
         GameDefinitions::GameStateEnum state = GameDefinitions::gameState_InGame;
@@ -94,6 +111,14 @@ public:
             case GLFW_KEY_G:
                 hotas_.ToggleLandingGear();
                 break;
+            case GLFW_KEY_V:
+                if (debug_scale_ > 50.0) {
+                    debug_scale_ = 1.0;
+                }
+                else {
+                    debug_scale_ = 100.0;
+                }
+                break;
         }
 
         return state;
@@ -103,7 +128,6 @@ private:
     void RenderPlayer() {
 
         glLoadIdentity();
-        // Color
         glColor3fv(player_.c);
 
         glBegin(GL_TRIANGLE_FAN);
@@ -115,24 +139,11 @@ private:
     }
     void RenderUniverse() {
 
-        glTranslated(planet_.x, planet_.y, 0.0);
-        glRotated(planet_.angle, 0.0, 0.0, 1.0);
-        glColor3fv(planet_.c);
-
-        const double R = planet_.radius;
-        glBegin(GL_TRIANGLE_FAN);
-        glVertex2d(0.0, 0.0);
-        for (double a=0.0; a < 2.0 * M_PI; a+=0.05) {
-            glVertex2d(R * cos(a), R * sin(a));
+        for (int i=0; i<num_planets_; ++i) {
+            glPushMatrix();
+            planet_[i].Render();
+            glPopMatrix();
         }
-        glVertex2d(R, 0.0);
-        glEnd();
-
-        glPointSize(3.0);
-        glColor3f(1.0, 1.0, 1.0);
-        glBegin(GL_POINTS);
-        glVertex2d(0.0, R*0.99);
-        glEnd();
     }
 
     void RenderBackground() {

@@ -3,9 +3,20 @@
 
 #include <GLFW/glfw3.h>
 
+#include <mutex>
+
 #include "ship_device.h"
 
 class GenericHudDevice : public ShipDevice {
+private:
+    struct Detection {
+        Detection(double c, double h)
+        : center(c)
+        , horizon(h)
+        {}
+        double center, horizon;
+    };
+    std::mutex d_mutex_;
 public:
     GenericHudDevice()
     : ShipDevice()
@@ -29,6 +40,8 @@ public:
             std::bind(&GenericHudDevice::hndPlayerThrust, this, _1));
         bus_->Subscribe(db_PlayerFuel,
             std::bind(&GenericHudDevice::hndFuelQuantity, this, _1));
+        bus_->Subscribe(db_DetectionList,
+            std::bind(&GenericHudDevice::hndRadarDetections, this, _1));
 
         DISPLAY.GetSize(scr_width_, scr_height_);
         hud_position_x_ = scr_width_ >> 1;
@@ -72,6 +85,7 @@ public:
             glVertex2i(hud_size_ + 1, 0.0);
         glEnd();
 
+        // Platform/Ownship Vectors
         glPushMatrix();
         glScaled(vector_scale_, vector_scale_, 1.0);
         glLineWidth(2.0);
@@ -94,6 +108,18 @@ public:
             glVertex2d(vx, vy);
         glEnd();
         glPopMatrix();
+
+        // Detections
+        {
+            glPushMatrix();
+            glScaled(hud_size_, hud_size_, 1.0);
+            std::lock_guard<std::mutex> lock(d_mutex_);
+            for (auto d : detection_list_) {
+                RenderArc(d->center, d->horizon);
+            }
+            glPopMatrix();
+        }
+
         glPopMatrix();
 
         // Fuel Gauge
@@ -122,6 +148,36 @@ public:
         glVertex2i(scr_width_ - fw - t, t + fh);
         glEnd();
 
+    }
+    void RenderArc(double center_angle, double horizon_angle) {
+        double a_begin = (center_angle - horizon_angle);
+        double a_end = (center_angle + horizon_angle);
+        const double a_step = 0.01;
+        glLineWidth(5.0);
+        glColor3f(0.0, 1.0, 0.0);
+        glBegin(GL_LINES);
+        for (double a=a_begin; a<=a_end; a+=a_step) {
+            glVertex2d(cos(a), sin(a));
+        }
+        glEnd();
+    }
+private:
+    double detection_size_;
+    double detection_u_;
+    double detection_v_;
+    void AddDetections(int num_detections, double* detections) {
+        std::lock_guard<std::mutex> lock(d_mutex_);
+        for (auto d : detection_list_) delete d;
+        detection_list_.clear();
+        Detection * d = 0;
+        for (int i=0; i<num_detections; ++i) {
+            d = new Detection(
+                detections[2*i + 0],
+                detections[2*i + 1]
+            );
+            detection_list_.push_back(d);
+        }
+        delete [] detections;
     }
 private: // Handlers
     void hndPlayerPosition(BusDataInterface *data) {
@@ -159,6 +215,12 @@ private: // Handlers
             fuel = f->value;
         }
     }
+    void hndRadarDetections(BusDataInterface *data) {
+        BD_RadarDetectionList *d = static_cast<BD_RadarDetectionList *>(data);
+        if (d != 0) {
+            AddDetections(d->num_detections, d->data);
+        }
+    }
 private:
     double fuel;
     double px, py, pa;
@@ -173,6 +235,7 @@ private:
     int big_marker_size_;
     int small_marker_size_;
     int vector_scale_;
+    std::vector<Detection *> detection_list_;
 };
 
 #endif // GENERIC_HUD_DEVICE_H_

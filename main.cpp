@@ -9,6 +9,9 @@ int main(int argc, char * argv[]) {
         game->Init(argc, argv);
         game->Run();
     }
+    catch (std::string eMsg) {
+        std::cerr << eMsg << '\n';
+    }
     catch (std::exception & e) {
         std::cerr << "Error : " << e.what() << '\n';
     }

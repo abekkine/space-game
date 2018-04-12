@@ -9,10 +9,12 @@
 #include "data_bus.h"
 #include "systems/ship_systems_manager.h"
 
+#include "planet.h"
+
 class Universe {
 public:
     Universe()
-    : kGravityConstant(0.5)
+    : kNumPlanets(3)
     {}
     ~Universe() {
         thread_.join();
@@ -24,11 +26,22 @@ public:
         player_.angle = 10.0;
         game_data_->SetPlayer(player_);
 
-        planet_.x = 0.0;
-        planet_.y = -100.0;
-        planet_.angle = 0.0;
-        planet_.radius = 90.0;
-        game_data_->SetPlanet(planet_);
+        planets_ = new Planet[kNumPlanets];
+
+        planets_[0].SetPosition(0.0, -100.0);
+        planets_[0].SetAngle(0.0);
+        planets_[0].SetRadius(90.0);
+
+        planets_[1].SetPosition(1000.0, 500.0);
+        planets_[1].SetAngle(10.0);
+        planets_[1].SetRadius(60.0);
+
+        planets_[2].SetPosition(-500.0, -50.0);
+        planets_[2].SetAngle(90.0);
+        planets_[2].SetRadius(40.0);
+
+        game_data_->SetPlanets(planets_);
+        game_data_->SetNumPlanets(kNumPlanets);
 
         Box2DInit();
 
@@ -52,21 +65,10 @@ public:
         world_ = new b2World(gravity);
     }
     void InitPlanet() {
-        b2_planet_def_.type = b2_kinematicBody;
-        b2_planet_def_.position.Set(planet_.x, planet_.y);
-        b2_planet_body_ = world_->CreateBody(&b2_planet_def_);
 
-        b2CircleShape planet_disc;
-        // [TODO] : why (0.0, 0.0)
-        planet_disc.m_p.Set(0.0, 0.0);
-        planet_disc.m_radius = planet_.radius;
-
-        b2FixtureDef b2_fixture;
-        b2_fixture.density = planet_.density;
-        b2_fixture.friction = 0.7;
-
-        b2_fixture.shape = &planet_disc;
-        b2_planet_body_->CreateFixture(&b2_fixture);
+        for(int i=0; i<kNumPlanets; ++i) {
+            planets_[i].Init(world_);
+        }
     }
     void InitPlayer() {
         b2FixtureDef b2_fixture;
@@ -113,21 +115,20 @@ private:
     }
     void UpdateGravity() {
         // Gravity
-        double dx = planet_.x - player_.x;
-        double dy = planet_.y - player_.y;
-        double r2 = dx*dx + dy*dy;
-        double r = sqrt(r2);
+        b2Vec2 g_factor;
 
-        double gmr2 = kGravityConstant * planet_.Mass() * player_.Mass() / (r2 * r);
-        double fx = gmr2 * dx;
-        double fy = gmr2 * dy;
-        b2Vec2 gravity(fx, fy);
-        gravity_ = b2Vec2(fx, fy);
+        gravity_ = b2Vec2(0.0, 0.0);
+        for (int i=0; i<kNumPlanets; ++i) {
+
+            g_factor = planets_[i].GetGravityFactor(player_.x, player_.y);
+
+            gravity_ += player_.Mass() * g_factor;
+        }
 
         // Send player gravity to Data Bus.
         BD_Vector player_gravity;
-        player_gravity.x = fx;
-        player_gravity.y = fy;
+        player_gravity.x = gravity_.x;
+        player_gravity.y = gravity_.y;
         DATABUS.Publish(db_PlayerGravity, &player_gravity);
     }
     void UpdatePlayer() {
@@ -154,7 +155,9 @@ private:
     }
     void UpdatePlanet() {
 
-        b2_planet_body_->SetAngularVelocity(0.2 * M_PI / 180.0);
+        for (int i=0; i<kNumPlanets; ++i) {
+            planets_[i].Update();
+        }
     }
     void Step() {
         // Advance physics
@@ -189,32 +192,22 @@ private:
         player_pos.y = player_.y;
         player_pos.angle = player_.angle;
         DATABUS.Publish(db_PlayerPosition, &player_pos);
-
-        // Planet
-        pos = b2_planet_body_->GetPosition();
-        planet_.x = pos.x;
-        planet_.y = pos.y;
-        planet_.angle = b2_planet_body_->GetAngle() * 180.0 / M_PI;
-        // Send it up
-        game_data_->SetPlanet(planet_);
     }
 
 private:
-    const double kGravityConstant;
+    const int kNumPlanets;
     b2Vec2 gravity_;
     std::chrono::time_point<std::chrono::steady_clock> t_begin_;
     std::chrono::time_point<std::chrono::steady_clock> t_end_;
     b2World * world_;
     b2BodyDef b2_player_def_;
-    b2BodyDef b2_planet_def_;
     b2Body * b2_player_body_;
-    b2Body * b2_planet_body_;
     b2Vec2 player_velocity_;
 
     std::thread thread_;
     GameData * game_data_;
     GameData::Player player_;
-    GameData::Planet planet_;
+    Planet * planets_;
 };
 
 #endif  // UNIVERSE_H_

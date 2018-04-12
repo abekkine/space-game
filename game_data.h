@@ -7,6 +7,7 @@
 
 #include "game_definitions.h"
 #include "data_bus.h"
+#include "planet.h"
 
 class GameData : public Singleton<GameData> {
 public:
@@ -26,7 +27,6 @@ public:
                     {0.54, -0.46},
                     {0.68, 0.14},
                     {0.5, 0.16} }
-        // , kShipArea(1.4744)
         , c{1.0, 1.0, 1.0}
         , speed(0.0)
         {}
@@ -40,29 +40,8 @@ public:
         double density;
         int n;
         double vertices[10][2];
-        // const double kShipArea;
         float c[3];
         double speed;
-    };
-    struct Planet {
-        Planet()
-        : x(0.0)
-        , y(0.0)
-        , angle(0.0)
-        , mass(1.0)
-        , density(1.0)
-        , radius(50.0)
-        , c{1.0, 0.0, 0.0}
-        {}
-        double Mass() {
-            return M_PI * radius * radius * density;
-        }
-        double x, y;
-        double angle;
-        double mass;
-        double density;
-        double radius;
-        float c[3];
     };
     struct Thrust {
         Thrust() : x(0.0), y(0.0), moment(0.0) {}
@@ -72,25 +51,37 @@ public:
 public:
     explicit GameData(token)
     : player_{}
-    , planet_{}
+    , planets_(0)
     {}
     ~GameData() {}
     void SetPlayer(const Player & player) {
         std::lock_guard<std::mutex> lock(player_mutex_);
         player_ = player;
     }
-    void SetPlanet(const Planet & planet) {
-        std::lock_guard<std::mutex> lock(planet_mutex_);
-        planet_ = planet;
-    }
     void GetPlayer(Player * player) {
         std::lock_guard<std::mutex> lock(player_mutex_);
         *player = player_;
     }
-    void GetPlanet(Planet * planet) {
+
+    int num_planets_;
+    void SetNumPlanets(int num) {
         std::lock_guard<std::mutex> lock(planet_mutex_);
-        *planet = planet_;
+        num_planets_ = num;
     }
+    int GetNumPlanets() {
+        std::lock_guard<std::mutex> lock(planet_mutex_);
+        return num_planets_;
+    }
+
+    void SetPlanets(Planet * planets) {
+        std::lock_guard<std::mutex> lock(planet_mutex_);
+        planets_ = planets;
+    }
+    Planet* GetPlanets() {
+        std::lock_guard<std::mutex> lock(planet_mutex_);
+        return planets_;
+    }
+
     void SetThrust(double m, double l, double r) {
         std::lock_guard<std::mutex> lock(thrust_mutex_);
         thrust_.x = m * cos(0.5 * M_PI + (player_.angle * M_PI / 180.0));
@@ -111,7 +102,7 @@ public:
         std::lock_guard<std::mutex> lock(thrust_mutex_);
         return thrust_.moment;
     }
-    // DEBUG
+
     double gx, gy;
     std::mutex g_mutex;
     void SetGravityDebug(double x, double y) {
@@ -136,7 +127,6 @@ public:
         x = vx;
         y = vy;
     }
-    // END DEBUG
 
     void SetState(GameDefinitions::GameStateEnum state) {
         std::lock_guard<std::mutex> lock(state_mutex_);
@@ -154,7 +144,7 @@ private:
     std::mutex state_mutex_;
 
     Player player_;
-    Planet planet_;
+    Planet* planets_;
     Thrust thrust_;
 
     GameDefinitions::GameStateEnum game_state_;

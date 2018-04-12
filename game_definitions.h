@@ -3,6 +3,13 @@
 
 namespace GameDefinitions {
 
+const double kGravityConstant = 0.5;
+
+enum OrbitDirEnum {
+    od_Clockwise,
+    od_CounterClockwise
+};
+
 enum GameStateEnum {
     gameState_InMenu,
     gameState_InGame,
@@ -17,29 +24,8 @@ enum MenuItemEnum {
     menuItem_SIZE
 };
 
-MenuItemEnum & operator++ (MenuItemEnum & m) {
-    switch (m) {
-        case menuItem_NewGame: return m = menuItem_Continue;
-        case menuItem_Continue: return m = menuItem_Settings;
-        case menuItem_Settings: return m = menuItem_Quit;
-        case menuItem_Quit: return m = menuItem_Quit;
-        default:
-            return m;
-            break;
-    }
-}
-
-MenuItemEnum & operator-- (MenuItemEnum & m) {
-    switch (m) {
-        case menuItem_NewGame: return m = menuItem_NewGame;
-        case menuItem_Continue: return m = menuItem_NewGame;
-        case menuItem_Settings: return m = menuItem_Continue;
-        case menuItem_Quit: return m = menuItem_Settings;
-        default:
-            return m;
-            break;
-    }
-}
+MenuItemEnum & operator++ (MenuItemEnum & m);
+MenuItemEnum & operator-- (MenuItemEnum & m);
 
 }  // namespace GameDefinitions
 
