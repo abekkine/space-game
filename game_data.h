@@ -44,8 +44,8 @@ public:
         double speed;
     };
     struct Thrust {
-        Thrust() : x(0.0), y(0.0), moment(0.0) {}
-        double x, y, moment;
+        Thrust() : force(0.0), moment(0.0) {}
+        double force, moment;
     };
 
 public:
@@ -84,19 +84,16 @@ public:
 
     void SetThrust(double m, double l, double r) {
         std::lock_guard<std::mutex> lock(thrust_mutex_);
-        thrust_.x = m * cos(0.5 * M_PI + (player_.angle * M_PI / 180.0));
-        thrust_.y = m * sin(0.5 * M_PI + (player_.angle * M_PI / 180.0));
+        thrust_.force = m;
         thrust_.moment = r - l;
 
-        BD_Vector player_thrust;
-        player_thrust.x = thrust_.x;
-        player_thrust.y = thrust_.y;
+        BD_Scalar player_thrust;
+        player_thrust.value = thrust_.force;
         DATABUS.Publish(db_PlayerThrust, &player_thrust);
     }
-    void GetThrust(double & thrust_x, double & thrust_y) {
+    double GetThrust() {
         std::lock_guard<std::mutex> lock(thrust_mutex_);
-        thrust_x = thrust_.x;
-        thrust_y = thrust_.y;
+        return thrust_.force;
     }
     double GetMoment() {
         std::lock_guard<std::mutex> lock(thrust_mutex_);
