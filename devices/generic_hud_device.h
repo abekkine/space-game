@@ -10,14 +10,11 @@
 class GenericHudDevice : public ShipDevice {
 private:
     struct Detection {
-        Detection(double a, double b, double c, double d)
-        : u1(a)
-        , v1(b)
-        , u2(c)
-        , v2(d)
+        Detection(double c, double h)
+        : center(c)
+        , horizon(h)
         {}
-        double u1, v1;
-        double u2, v2;
+        double center, horizon;
     };
     std::mutex d_mutex_;
 public:
@@ -112,24 +109,16 @@ public:
         glEnd();
         glPopMatrix();
 
-        // [TODO]
         // Detections
         {
             glPushMatrix();
             glScaled(hud_size_, hud_size_, 1.0);
             std::lock_guard<std::mutex> lock(d_mutex_);
-            glColor3f(1.0, 0.5, 0.5);
-            glBegin(GL_LINES);
             for (auto d : detection_list_) {
-                    glVertex2d(0.0, 0.0);
-                    glVertex2d(d->u1, d->v1);
-                    glVertex2d(0.0, 0.0);
-                    glVertex2d(d->u2, d->v2);
+                RenderArc(d->center, d->horizon);
             }
-            glEnd();
             glPopMatrix();
         }
-        // [END]
 
         glPopMatrix();
 
@@ -160,6 +149,18 @@ public:
         glEnd();
 
     }
+    void RenderArc(double center_angle, double horizon_angle) {
+        double a_begin = (center_angle - horizon_angle);
+        double a_end = (center_angle + horizon_angle);
+        const double a_step = 0.01;
+        glLineWidth(5.0);
+        glColor3f(0.0, 1.0, 0.0);
+        glBegin(GL_LINES);
+        for (double a=a_begin; a<=a_end; a+=a_step) {
+            glVertex2d(cos(a), sin(a));
+        }
+        glEnd();
+    }
 private:
     double detection_size_;
     double detection_u_;
@@ -171,13 +172,12 @@ private:
         Detection * d = 0;
         for (int i=0; i<num_detections; ++i) {
             d = new Detection(
-                detections[4*i + 0],
-                detections[4*i + 1],
-                detections[4*i + 2],
-                detections[4*i + 3]
+                detections[2*i + 0],
+                detections[2*i + 1]
             );
             detection_list_.push_back(d);
         }
+        delete [] detections;
     }
 private: // Handlers
     void hndPlayerPosition(BusDataInterface *data) {

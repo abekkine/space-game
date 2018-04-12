@@ -1,6 +1,7 @@
 #ifndef PLANET_H_
 #define PLANET_H_
 
+#include <math.h>
 #include <GLFW/glfw3.h>
 #include <Box2D.h>
 
@@ -48,16 +49,11 @@ public:
     b2Vec2 GetDistance(double x, double y) {
         return b2Vec2(x_ - x, y_ - y);
     }
-    b2Vec2 GetHorizonVector(double dir, double x, double y) {
+    double GetHorizonAngle(double x, double y) {
         b2Vec2 d(x_ - x, y_ - y);
-        double dlen = d.Length();
-        d = (1.0 / dlen) * d;
-        double sint = radius_ / dlen;
-        double cost = sqrt(1.0 - sint*sint);
-        return b2Vec2(
-            d.x * cost + d.y * sint * dir,
-            -d.x * sint * dir + d.y * cost
-        );
+        double sint = radius_ / d.Length();
+        double t = asin(sint);
+        return t;
     }
     void Init(b2World * world) {
         b2BodyDef def;
