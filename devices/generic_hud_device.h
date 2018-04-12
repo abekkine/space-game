@@ -22,7 +22,7 @@ public:
     : ShipDevice()
     {
         gx = gy = 0.0;
-        tx = ty = 0.0;
+        thrust = 0.0;
         vx = vy = 0.0;
         px = py = pa = 0.0;
     }
@@ -93,7 +93,7 @@ public:
         glColor3f(0.0, 1.0, 0.0);
         glBegin(GL_LINES);
             glVertex2d(0.0, 0.0);
-            glVertex2d(tx, ty);
+            glVertex2d(thrust * cos(0.5 * M_PI + pa * M_PI / 180.0), thrust * sin(0.5 * M_PI + pa * M_PI / 180.0));
         glEnd();
         // Gravity : yellow
         glColor3f(1.0, 0.5, 0.0);
@@ -203,10 +203,9 @@ private: // Handlers
         }
     }
     void hndPlayerThrust(BusDataInterface *data) {
-        BD_Vector *v = static_cast<BD_Vector *>(data);
-        if (v != 0) {
-            tx = v->x;
-            ty = v->y;
+        BD_Scalar *s = static_cast<BD_Scalar *>(data);
+        if (s != 0) {
+            thrust = s->value;
         }
     }
     void hndFuelQuantity(BusDataInterface *data) {
@@ -225,7 +224,7 @@ private:
     double fuel;
     double px, py, pa;
     double gx, gy;
-    double tx, ty;
+    double thrust;
     double vx, vy;
     int scr_width_;
     int scr_height_;

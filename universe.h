@@ -136,10 +136,13 @@ private:
         b2_player_body_->ApplyForceToCenter(gravity_, true);
 
         // Thrust
-        double main_thrust_x;
-        double main_thrust_y;
-        game_data_->GetThrust(main_thrust_x, main_thrust_y);
-        b2_player_body_->ApplyForceToCenter(b2Vec2(main_thrust_x, main_thrust_y), true);
+        double thrust_force = game_data_->GetThrust();
+        b2_player_body_->ApplyForceToCenter(
+            b2Vec2(
+                thrust_force * cos(0.5 * M_PI + b2_player_body_->GetAngle()),
+                thrust_force * sin(0.5 * M_PI + b2_player_body_->GetAngle())
+            ),
+            true);
         // Moment
         double moment = game_data_->GetMoment();
         b2_player_body_->ApplyTorque(moment, true);
