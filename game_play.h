@@ -55,8 +55,6 @@ public:
         double f = 1.0 + (1.0 / (1.0 + exp(-s+5.0)));
         DISPLAY.WorldMode(debug_scale_ * f);
 
-        RenderPlayer();
-
         glPushMatrix();
 
         glRotated(player_.angle, 0.0, 0.0, -1.0);
@@ -66,6 +64,8 @@ public:
         RenderUniverse();
 
         glPopMatrix();
+
+        RenderPlayer();
 
         DISPLAY.UiMode();
         RenderHUD();
