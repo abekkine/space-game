@@ -3,9 +3,6 @@
 
 #include "player.h"
 
-// Render at x = 3995.42, y = -13099.8
-// span = 100.0
-// x' = 3900.0, y' = -13000.0
 class Background {
 private:
     const double kSpan;
@@ -19,7 +16,7 @@ public:
     Background()
     : kSpan(100.0)
     , kStep(10.0)
-    , kFarFactor(0.6)
+    , kFarFactor(0.2)
     , kNumNearPoints(600)
     , kNumFarPoints(1000)
     , near_points_{}

@@ -13,6 +13,7 @@ public:
     : x_(0.0)
     , y_(0.0)
     , angle_(0.0)
+    , angular_velocity_(0.0)
     , mass_(1.0)
     , density_(1.0)
     , radius_(50.0)
@@ -31,8 +32,18 @@ public:
     void SetAngle(double value) {
         angle_ = value;
     }
+    void SetAngularVelocity(double value) {
+        angular_velocity_ = value;
+    }
     void SetRadius(double value) {
         radius_ = value;
+    }
+    void SetColor(double value) {
+        uint16_t colorbits = static_cast<uint16_t>(value);
+        colorbits &= 0xfff;
+        color_[0] = (colorbits >> 8) / 15.0;
+        color_[1] = ((colorbits >> 4) & 0xf) / 15.0;
+        color_[2] = (colorbits & 0xf) / 15.0;
     }
     b2Vec2 GetGravityFactor(double x, double y) {
         double dx = x_ - x;
@@ -74,7 +85,7 @@ public:
         physics_body_->CreateFixture(&fixture);
     }
     void Update() {
-        physics_body_->SetAngularVelocity(0.2 * M_PI / 180.0);
+        physics_body_->SetAngularVelocity(angular_velocity_ * M_PI / 180.0);
         b2Vec2 pos = physics_body_->GetPosition();
         x_ = pos.x;
         y_ = pos.y;
@@ -86,9 +97,10 @@ public:
         glColor3fv(color_);
 
         const double R = radius_;
+        const double a_step = 5.0 / (M_PI * R);
         glBegin(GL_TRIANGLE_FAN);
         glVertex2d(0.0, 0.0);
-        for (double a=0.0; a < 2.0 * M_PI; a+=0.05) {
+        for (double a=0.0; a < 2.0 * M_PI; a+=a_step) {
             glVertex2d(R * cos(a), R * sin(a));
         }
         glVertex2d(R, 0.0);
@@ -104,6 +116,7 @@ private:
     double x_;
     double y_;
     double angle_;
+    double angular_velocity_;
     double mass_;
     double density_;
     double radius_;

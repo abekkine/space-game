@@ -31,19 +31,20 @@ public:
 
         planets_ = new Planet[kNumPlanets];
 
-        double u[] = {
-            0.0, 0.0, 0.0, 100.0, // Earth
-            600.0, 0.0, 0.0, 25.0, // Moon
-            -19900.0, -11500.0, 0.0, 1000.0, // Sun
-            -4900.0, -11500.0, 0.0, 90.0, // Venus
-            13000.0, -11500.0, 0.0, 50.0, //Mars
-            0.0
+        double u[][6] = {
+            { 0.0, 0.0, 0.0, 100.0, 0.2, 435.0 }, // Earth
+            { 600.0, 0.0, 0.0, 25.0, 0.01, 2730.0 }, // Moon
+            { -19900.0, -11500.0, 0.0, 1000.0, 1.0, 3984.0 }, // Sun
+            { -4900.0, -11500.0, 0.0, 90.0, 0.1, 1742.0 }, // Venus
+            { 13000.0, -11500.0, 0.0, 50.0, 0.15, 3172.0 } //Mars
         };
 
         for (int i=0; i<kNumPlanets; ++i) {
-            planets_[i].SetPosition(u[4*i + 0], u[4*i + 1]);
-            planets_[i].SetAngle(u[4*i + 2]);
-            planets_[i].SetRadius(u[4*i + 3]);
+            planets_[i].SetPosition(u[i][0], u[i][1]);
+            planets_[i].SetAngle(u[i][2]);
+            planets_[i].SetRadius(u[i][3]);
+            planets_[i].SetAngularVelocity(u[i][4]);
+            planets_[i].SetColor(u[i][5]);
         }
 
         game_data_->SetPlanets(planets_);

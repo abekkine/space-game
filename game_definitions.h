@@ -3,7 +3,7 @@
 
 namespace GameDefinitions {
 
-const double kGravityConstant = 0.5;
+const double kGravityConstant = 0.7;
 
 enum OrbitDirEnum {
     od_Clockwise,

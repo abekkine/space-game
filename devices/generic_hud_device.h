@@ -154,20 +154,23 @@ public:
         double a_end = (center_angle + horizon_angle);
         const double a_step = 0.01;
 
-        glPointSize(5.0);
-        glColor4f(1.0, 1.0, 1.0, 0.8);
-        glBegin(GL_POINTS);
-            glVertex2d(cos(a_begin), sin(a_begin));
-        glEnd();
+        if ((a_end - a_begin) < a_step) {
 
-        glLineWidth(5.0);
-        glColor4f(0.0, 1.0, 0.0, 0.5);
-        // glBegin(GL_LINES);
-        glBegin(GL_LINE_STRIP);
-        for (double a=a_begin; a<=a_end; a+=a_step) {
-            glVertex2d(cos(a), sin(a));
+            glPointSize(5.0);
+            glColor4f(1.0, 1.0, 1.0, 0.8);
+            glBegin(GL_POINTS);
+                glVertex2d(cos(a_begin), sin(a_begin));
+            glEnd();
         }
-        glEnd();
+        else {
+            glLineWidth(5.0);
+            glColor4f(0.0, 1.0, 0.0, 0.5);
+            glBegin(GL_LINE_STRIP);
+            for (double a=a_begin; a<=a_end; a+=a_step) {
+                glVertex2d(cos(a), sin(a));
+            }
+            glEnd();
+        }
     }
 private:
     double detection_size_;
