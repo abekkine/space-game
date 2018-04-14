@@ -14,31 +14,37 @@
 class Universe {
 public:
     Universe()
-    : kNumPlanets(3)
+    : kNumPlanets(5)
     {}
     ~Universe() {
+
+        delete [] planets_;
+
         thread_.join();
     }
     void Init() {
         game_data_ = &GAMEDATA;
         player_.x = 0.0;
-        player_.y = 0.0;
-        player_.angle = 10.0;
+        player_.y = 100.0;
+        player_.angle = 0.0;
         game_data_->SetPlayer(player_);
 
         planets_ = new Planet[kNumPlanets];
 
-        planets_[0].SetPosition(0.0, -100.0);
-        planets_[0].SetAngle(0.0);
-        planets_[0].SetRadius(90.0);
+        double u[] = {
+            0.0, 0.0, 0.0, 100.0, // Earth
+            600.0, 0.0, 0.0, 25.0, // Moon
+            -19900.0, -11500.0, 0.0, 1000.0, // Sun
+            -4900.0, -11500.0, 0.0, 90.0, // Venus
+            13000.0, -11500.0, 0.0, 50.0, //Mars
+            0.0
+        };
 
-        planets_[1].SetPosition(1000.0, 500.0);
-        planets_[1].SetAngle(10.0);
-        planets_[1].SetRadius(60.0);
-
-        planets_[2].SetPosition(-500.0, -50.0);
-        planets_[2].SetAngle(90.0);
-        planets_[2].SetRadius(40.0);
+        for (int i=0; i<kNumPlanets; ++i) {
+            planets_[i].SetPosition(u[4*i + 0], u[4*i + 1]);
+            planets_[i].SetAngle(u[4*i + 2]);
+            planets_[i].SetRadius(u[4*i + 3]);
+        }
 
         game_data_->SetPlanets(planets_);
         game_data_->SetNumPlanets(kNumPlanets);
