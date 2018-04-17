@@ -4,6 +4,7 @@
 #include <functional>
 #include <unordered_map>
 #include <vector>
+#include <mutex>
 
 #include "singleton.h"
 struct BusDataInterface {
@@ -13,6 +14,7 @@ struct BusDataInterface {
 enum DataChannel {
     db_None = 0,
     db_PlayerPosition,
+    db_PlayerAngle,
     db_PlayerVelocity,
     db_PlayerThrust,
     db_PlayerGravity,
@@ -63,6 +65,7 @@ public:
         }
     }
     void Publish(DataChannel channel, BusDataInterface * data) {
+        std::lock_guard<std::mutex> lock(bus_mutex_);
         if (CheckChannel(channel)) {
             for (auto handler : subscribers_[channel]) {
                 handler(data);
@@ -70,6 +73,7 @@ public:
         }
     }
     void Subscribe(DataChannel channel, BusDataHandler handler) {
+        std::lock_guard<std::mutex> lock(bus_mutex_);
         if (false == CheckChannel(channel)) {
             BusDataHandlerList v;
             subscribers_[channel] = v;
@@ -78,6 +82,7 @@ public:
     }
 
 private:
+    std::mutex bus_mutex_;
     std::unordered_map<DataChannel, BusDataHandlerList, std::hash<int>> subscribers_;
 };
 

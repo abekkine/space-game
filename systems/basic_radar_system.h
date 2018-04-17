@@ -3,13 +3,14 @@
 
 #include "ship_system_interface.h"
 
-#include "game_data.h"
 #include "data_bus.h"
 #include "planet.h"
 
+#include "object_manager.h"
+
 #include <math.h>
 
-// Queries planet information from GAMEDATA and
+// Queries planet information and
 // Sends processed detections into DATABUS.
 class BasicRadarSystem : public ShipSystemInterface {
 public:
@@ -21,12 +22,11 @@ public:
         using std::placeholders::_1;
         DATABUS.Subscribe(db_PlayerPosition,
             std::bind(&BasicRadarSystem::hndPlayerPosition, this, _1));
+
+        num_planets_ = *((int *)OBJMGR.Get("nplanets"));
+        planets_ = static_cast<Planet *>(OBJMGR.Get("planets"));
     }
     void Update(double time_step) {
-        // [TODO] : not here.
-        num_planets_ = GAMEDATA.GetNumPlanets();
-        planets_ = GAMEDATA.GetPlanets();
-        // [END]
         (void)time_step;
 
         if (planets_ != 0 && num_planets_ > 0) {
@@ -60,7 +60,6 @@ private:
 private:
     int num_planets_;
     Planet* planets_;
-    GameData::Player player_;
     double plr_x_;
     double plr_y_;
 };

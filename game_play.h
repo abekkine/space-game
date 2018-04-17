@@ -7,7 +7,6 @@
 #include "game_definitions.h"
 #include "display.h"
 #include "texture.h"
-#include "game_data.h"
 #include "background.h"
 
 #include "data_bus.h"
@@ -16,11 +15,13 @@
 #include "systems/ship_systems_manager.h"
 
 #include "planet.h"
+#include "space_ship.h"
+
+#include "object_manager.h"
 
 class GamePlay {
 private:
     double debug_scale_;
-    GameData::Player player_;
     int num_planets_;
     Planet* planet_;
     Background background_;
@@ -36,7 +37,6 @@ public:
     ~GamePlay() {}
     void Init() {
         // Create ship systems
-        SYSTEMSMGR.createEngineSystem();
         // [TODO]
         radar_ = SYSTEMSMGR.getRadarSystem();
         // [END]
@@ -45,20 +45,36 @@ public:
         hud_.Init();
         hotas_.Init();
         radar_->Init();
+
+        ship_ = static_cast<SpaceShip*>(OBJMGR.Get("ship"));
+        num_planets_ = *(static_cast<int*>(OBJMGR.Get("nplanets")));
+        planet_ = static_cast<Planet *>(OBJMGR.Get("planets"));
+    }
+
+    SpaceShip* ship_;
+    double ship_angle_;
+    double ship_x_;
+    double ship_y_;
+    double ship_speed_;
+    double speed_scale_;
+    void RefreshPlayerParams() {
+        ship_speed_ = ship_->GetSpeed();
+        ship_angle_ = ship_->GetAngle();
+        b2Vec2 p = ship_->GetPosition();
+        ship_x_ = p.x;
+        ship_y_ = p.y;
+        speed_scale_ = 1.0 + (1.0 / (1.0 + exp(-ship_speed_+5.0)));
     }
     void Render() {
-        GAMEDATA.GetPlayer(&player_);
-        num_planets_ = GAMEDATA.GetNumPlanets();
-        planet_ = GAMEDATA.GetPlanets();
 
-        double s = player_.speed;
-        double f = 1.0 + (1.0 / (1.0 + exp(-s+5.0)));
-        DISPLAY.WorldMode(debug_scale_ * f);
+        RefreshPlayerParams();
+
+        DISPLAY.WorldMode(debug_scale_ * speed_scale_);
 
         glPushMatrix();
 
-        glRotated(player_.angle, 0.0, 0.0, -1.0);
-        glTranslated(-player_.x, -player_.y, 0.0);
+        glRotated(ship_angle_, 0.0, 0.0, -1.0);
+        glTranslated(-ship_x_, -ship_y_, 0.0);
 
         RenderBackground();
         RenderUniverse();
@@ -127,15 +143,8 @@ public:
 private:
     void RenderPlayer() {
 
-        glLoadIdentity();
-        glColor3fv(player_.c);
+        ship_->Render();
 
-        glBegin(GL_TRIANGLE_FAN);
-        glVertex2d(0.0, 0.0);
-        for (int i=0; i<player_.n; ++i)
-        glVertex2d(player_.vertices[i][0], player_.vertices[i][1]);
-        glVertex2d(player_.vertices[0][0], player_.vertices[0][1]);
-        glEnd();
     }
     void RenderUniverse() {
 
@@ -147,7 +156,7 @@ private:
     }
 
     void RenderBackground() {
-        background_.Render(player_);
+        background_.Render(ship_x_, ship_y_, ship_angle_);
     }
 
     void RenderHUD() {

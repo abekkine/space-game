@@ -5,30 +5,87 @@
 
 #include <thread>
 
-#include "game_data.h"
-#include "data_bus.h"
-#include "systems/ship_systems_manager.h"
-
+// #include "data_bus.h"
+#include "space_ship.h"
 #include "planet.h"
+
+#include "object_manager.h"
+
+class ShipContactListener : public b2ContactListener {
+    void BeginContact(b2Contact * contact) {
+        void * userData = 0;
+
+        userData = contact->GetFixtureA()->GetBody()->GetUserData();
+        if (userData != 0) {
+            SpaceShip * ship = static_cast<SpaceShip *>(userData);
+            if (ship) {
+                // TODO : Process contact begin (fixture A).
+                std::cout << "Ship contact begin (a)\n";
+            }
+        }
+
+        userData = contact->GetFixtureB()->GetBody()->GetUserData();
+        if (userData != 0) {
+            SpaceShip * ship = static_cast<SpaceShip *>(userData);
+            if (ship) {
+                // TODO : Process contact begin (fixture B).
+                std::cout << "Ship contact begin (b)\n";
+            }
+        }
+    }
+
+    void EndContact(b2Contact * contact) {
+        void * userData = 0;
+
+        userData = contact->GetFixtureA()->GetBody()->GetUserData();
+        if (userData != 0) {
+            SpaceShip * ship = static_cast<SpaceShip *>(userData);
+            if (ship) {
+                // TODO : Process contact end (fixture A).
+                std::cout << "Ship contact end (a)\n";
+            }
+        }
+
+        userData = contact->GetFixtureB()->GetBody()->GetUserData();
+        if (userData != 0) {
+            SpaceShip * ship = static_cast<SpaceShip *>(userData);
+            if (ship) {
+                // TODO : Process contact end (fixture B).
+                std::cout << "Ship contact end (b)\n";
+            }
+        }
+    }
+};
 
 class Universe {
 public:
     Universe()
     : kNumPlanets(5)
+    , world_(0)
+    , space_ship_(0)
+    , planets_(0)
+    , state_(GameDefinitions::gameState_InMenu)
     {}
     ~Universe() {
 
+        delete space_ship_;
         delete [] planets_;
 
         thread_.join();
     }
-    void Init() {
-        game_data_ = &GAMEDATA;
-        player_.x = 0.0;
-        player_.y = 100.0;
-        player_.angle = 0.0;
-        game_data_->SetPlayer(player_);
 
+    void SetState(GameDefinitions::GameStateEnum state) {
+        state_ = state;
+    }
+
+    void Init() {
+        // Instantiate player ship.
+        space_ship_ = new SpaceShip();
+        space_ship_->SetPosition(0.0, 100.0);
+        space_ship_->SetAngle(0.0);
+        OBJMGR.Set("ship", space_ship_);
+
+        // Instantiate planets.
         planets_ = new Planet[kNumPlanets];
 
         double u[][6] = {
@@ -47,16 +104,15 @@ public:
             planets_[i].SetColor(u[i][5]);
         }
 
-        game_data_->SetPlanets(planets_);
-        game_data_->SetNumPlanets(kNumPlanets);
+        OBJMGR.Set("planets", planets_);
+        OBJMGR.Set("nplanets", (void *)&kNumPlanets);
 
+        // Initialize physics.
         Box2DInit();
 
+        // Initialize timer.
         t_begin_ = std::chrono::steady_clock::now();
         t_end_ = t_begin_;
-
-        // TODO : check again, if this fits here.
-        SYSTEMSMGR.getEngineSystem()->Init();
     }
     void Box2DInit() {
         InitPhysics();
@@ -78,26 +134,8 @@ public:
         }
     }
     void InitPlayer() {
-        b2FixtureDef b2_fixture;
 
-        b2_player_def_.type = b2_dynamicBody;
-        b2_player_def_.angularVelocity = 0.0;
-        b2_player_def_.angle = player_.angle * M_PI / 180.0;
-        b2_player_def_.position.Set(player_.x, player_.y);
-        b2_player_body_ = world_->CreateBody(&b2_player_def_);
-        // player shape
-        b2Vec2 v[8];
-        for (int i=0; i<8; ++i) {
-            v[i].Set(player_.vertices[i][0], player_.vertices[i][1]);
-        }
-        b2PolygonShape player_shape;
-        player_shape.Set(v, 8);
-
-        b2_fixture.shape = &player_shape;
-        b2_fixture.density = player_.density;
-        b2_fixture.friction = 0.7;
-
-        b2_player_body_->CreateFixture(&b2_fixture);
+        space_ship_->Init(world_);
     }
     void Run() {
 
@@ -107,61 +145,34 @@ public:
 private:
     void ThreadLoop() {
         while (true) {
-            RefreshPositions();
+            t_begin_ = std::chrono::steady_clock::now();
+            double delta_time = std::chrono::duration<double> (t_begin_ - t_end_).count();
 
             UpdateGravity();
 
-            UpdatePlayer();
+            UpdatePlayer(delta_time);
 
             UpdatePlanet();
 
-            Step();
+            Step(delta_time);
+
+            t_end_ = t_begin_;
 
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
     void UpdateGravity() {
         // Gravity
-        b2Vec2 g_factor;
-
-        gravity_ = b2Vec2(0.0, 0.0);
+        b2Vec2 g = b2Vec2(0.0, 0.0);
         for (int i=0; i<kNumPlanets; ++i) {
 
-            g_factor = planets_[i].GetGravityFactor(player_.x, player_.y);
-
-            gravity_ += player_.Mass() * g_factor;
+            g += planets_[i].GetGravityAcceleration(space_ship_->GetPosition());
         }
-
-        // Send player gravity to Data Bus.
-        BD_Vector player_gravity;
-        player_gravity.x = gravity_.x;
-        player_gravity.y = gravity_.y;
-        DATABUS.Publish(db_PlayerGravity, &player_gravity);
+        space_ship_->SetGravityAcceleration(g);
     }
-    void UpdatePlayer() {
-        // Gravity
-        b2_player_body_->ApplyForceToCenter(gravity_, true);
+    void UpdatePlayer(double delta_time) {
 
-        // Thrust
-        double thrust_force = game_data_->GetThrust();
-        b2_player_body_->ApplyForceToCenter(
-            b2Vec2(
-                thrust_force * cos(0.5 * M_PI + b2_player_body_->GetAngle()),
-                thrust_force * sin(0.5 * M_PI + b2_player_body_->GetAngle())
-            ),
-            true);
-        // Moment
-        double moment = game_data_->GetMoment();
-        b2_player_body_->ApplyTorque(moment, true);
-
-        // Get Speed of player
-        player_velocity_ = b2_player_body_->GetLinearVelocity();
-
-        // Send player velocity to Data Bus.
-        BD_Vector player_velocity;
-        player_velocity.x = player_velocity_.x;
-        player_velocity.y = player_velocity_.y;
-        DATABUS.Publish(db_PlayerVelocity, &player_velocity);
+        space_ship_->Update(delta_time);
     }
     void UpdatePlanet() {
 
@@ -169,55 +180,26 @@ private:
             planets_[i].Update();
         }
     }
-    void Step() {
+    void Step(double delta_time) {
         // Advance physics
-        t_begin_ = std::chrono::steady_clock::now();
-        double delta_time = std::chrono::duration<double> (t_begin_ - t_end_).count();
-        if (game_data_->GetState() != GameDefinitions::gameState_InGame) {
+        if (state_ != GameDefinitions::gameState_InGame) {
             world_->Step(0.0, 12, 6);
         }
         else {
             world_->Step(delta_time, 12, 6);
         }
-
-        // TODO : check again, if this fits here
-        SYSTEMSMGR.getEngineSystem()->Update(delta_time);
-
-        t_end_ = t_begin_;
-    }
-    void RefreshPositions() {
-        // Player
-        b2Vec2 pos;
-        pos = b2_player_body_->GetPosition();
-        player_.x = pos.x;
-        player_.y = pos.y;
-        player_.angle = b2_player_body_->GetAngle() * 180.0 / M_PI;
-        player_.speed = player_velocity_.Length();
-        // Send it up
-        game_data_->SetPlayer(player_);
-
-        // Send player gravity to Data Bus.
-        BD_BasicPosition player_pos;
-        player_pos.x = player_.x;
-        player_pos.y = player_.y;
-        player_pos.angle = player_.angle;
-        DATABUS.Publish(db_PlayerPosition, &player_pos);
     }
 
 private:
     const int kNumPlanets;
-    b2Vec2 gravity_;
     std::chrono::time_point<std::chrono::steady_clock> t_begin_;
     std::chrono::time_point<std::chrono::steady_clock> t_end_;
     b2World * world_;
-    b2BodyDef b2_player_def_;
-    b2Body * b2_player_body_;
-    b2Vec2 player_velocity_;
 
     std::thread thread_;
-    GameData * game_data_;
-    GameData::Player player_;
+    SpaceShip * space_ship_;
     Planet * planets_;
+    GameDefinitions::GameStateEnum state_;
 };
 
 #endif  // UNIVERSE_H_

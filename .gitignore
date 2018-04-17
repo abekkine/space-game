@@ -2,6 +2,7 @@ spaceGame
 .imdone/
 *.o
 *.gch
+core
 *.json
 .*sw*
 .sconsign.dblite

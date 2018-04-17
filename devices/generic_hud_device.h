@@ -32,6 +32,8 @@ public:
         using std::placeholders::_1;
         bus_->Subscribe(db_PlayerPosition,
             std::bind(&GenericHudDevice::hndPlayerPosition, this, _1));
+        bus_->Subscribe(db_PlayerAngle,
+            std::bind(&GenericHudDevice::hndPlayerAngle, this, _1));
         bus_->Subscribe(db_PlayerGravity,
             std::bind(&GenericHudDevice::hndPlayerGravity, this, _1));
         bus_->Subscribe(db_PlayerVelocity,
@@ -196,7 +198,12 @@ private: // Handlers
         if (p != 0) {
             px = p->x;
             py = p->y;
-            pa = p->angle;
+        }
+    }
+    void hndPlayerAngle(BusDataInterface *data) {
+        BD_Scalar *a = static_cast<BD_Scalar *>(data);
+        if (a != 0) {
+            pa = a->value;
         }
     }
     void hndPlayerGravity(BusDataInterface *data) {

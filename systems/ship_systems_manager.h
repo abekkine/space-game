@@ -14,11 +14,10 @@ public:
     // [END]
     {}
     ~ShipSystemsManager() {}
-    void createEngineSystem() {
-        // Decide which engine to create by ship configuration
-        ship_engine_ = new BasicEngineSystem();
-    }
     EngineSystemInterface* getEngineSystem() {
+        if (ship_engine_ == 0) {
+            createEngineSystem();
+        }
         return ship_engine_;
     }
     // [TODO]
@@ -34,7 +33,11 @@ public:
         return radar_;
     }
     // [END]
-
+private:
+    void createEngineSystem() {
+        // Decide which engine to create by ship configuration
+        ship_engine_ = new BasicEngineSystem();
+    }
 private:
     EngineSystemInterface* ship_engine_;
     // [TODO]

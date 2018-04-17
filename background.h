@@ -35,13 +35,13 @@ public:
             near_points_[i] = drand48() * kSpan;
         }
     }
-    void Render(const GameData::Player & p) {
+    void Render(double x, double y, double angle) {
 
         if (near_points_ == 0 || far_points_ == 0) return;
 
         // Near layer.
-        double region_x_base = kSpan * floor(p.x / kSpan);
-        double region_y_base = kSpan * floor(p.y / kSpan);
+        double region_x_base = kSpan * floor(x / kSpan);
+        double region_y_base = kSpan * floor(y / kSpan);
         glColor3f(1.0, 1.0, 1.0);
         glPointSize(1.0);
         glBegin(GL_POINTS);
@@ -56,12 +56,12 @@ public:
         glEnd();
 
         // Far layer.
-        region_x_base = kSpan * floor(kFarFactor * p.x / kSpan);
-        region_y_base = kSpan * floor(kFarFactor * p.y / kSpan);
+        region_x_base = kSpan * floor(kFarFactor * x / kSpan);
+        region_y_base = kSpan * floor(kFarFactor * y / kSpan);
         glPushMatrix();
         glLoadIdentity();
-        glRotated(p.angle, 0.0, 0.0, -1.0);
-        glTranslated(-kFarFactor*p.x, -kFarFactor*p.y, 0.0);
+        glRotated(angle, 0.0, 0.0, -1.0);
+        glTranslated(-kFarFactor * x, -kFarFactor * y, 0.0);
         glColor3f(0.8, 0.8, 0.8);
         glPointSize(3.0);
         glBegin(GL_POINTS);

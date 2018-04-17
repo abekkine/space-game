@@ -2,7 +2,6 @@
 #define BASIC_ENGINE_SYSTEM_H_
 
 #include "engine_system_interface.h"
-#include "game_data.h"
 #include "data_bus.h"
 
 // HOTAS sends commands here, and proper thrust forces
@@ -11,7 +10,9 @@ class BasicEngineSystem : public EngineSystemInterface
 {
 public:
     BasicEngineSystem()
-    : fuel_tank_size_(50.0)
+    : thrustUpdateHandler_(0)
+    , momentUpdateHandler_(0)
+    , fuel_tank_size_(50.0)
     , remaining_fuel_(50.0)
     , main_thruster_(0.0)
     , left_thruster_(0.0)
@@ -20,6 +21,17 @@ public:
         UpdateThrust();
     }
     ~BasicEngineSystem() {}
+
+    std::function<void(double)> thrustUpdateHandler_;
+    void ThrustOutputHandler(std::function<void(double)> thrustOut) {
+        thrustUpdateHandler_ = thrustOut;
+    }
+
+    std::function<void(double)> momentUpdateHandler_;
+    void MomentOutputHandler(std::function<void(double)> momentOut) {
+        momentUpdateHandler_ = momentOut;
+    }
+
     void MainThrustCommand(double value) {
         if (remaining_fuel_ > 0.0) {
             main_thruster_ = 20.0 * value;
@@ -64,7 +76,13 @@ public:
     }
 
     void UpdateThrust() {
-        GAMEDATA.SetThrust(main_thruster_, left_thruster_, right_thruster_);
+        if (thrustUpdateHandler_ != 0) {
+            thrustUpdateHandler_(main_thruster_);
+        }
+
+        if (momentUpdateHandler_ != 0) {
+            momentUpdateHandler_(right_thruster_ - left_thruster_);
+        }
     }
 
     void Init() {}
