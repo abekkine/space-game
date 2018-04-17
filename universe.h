@@ -54,7 +54,7 @@ class ShipContactListener : public b2ContactListener {
             }
         }
     }
-};
+} shipContacts;
 
 class Universe {
 public:
@@ -123,8 +123,11 @@ public:
         InitPlayer();
     }
     void InitPhysics() {
+
         b2Vec2 gravity(0.0f, 0.0f);
         world_ = new b2World(gravity);
+
+        world_->SetContactListener(&shipContacts);
     }
     void InitPlanet() {
 
