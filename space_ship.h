@@ -2,12 +2,18 @@
 #define SPACE_SHIP_H_
 
 #include <Box2D.h>
+#include <GLFW/glfw3.h>
 
 #include <functional>
+
+#include "data_bus.h"
 
 #include "systems/engine_system_interface.h"
 #include "systems/radar_system_interface.h"
 #include "systems/ship_systems_manager.h"
+
+#include "devices/generic_hud_device.h"
+#include "devices/hotas_device.h"
 
 #define NUM_SHIP_VERTICES 8
 
@@ -16,6 +22,8 @@ private:
     // Replaceable ship systems
     EngineSystemInterface * engine_;
     RadarSystemInterface * radar_;
+    GenericHudDevice hud_;
+    HOTASDevice hotas_;
 private:
     double angle_;
     double mass_;
@@ -112,6 +120,9 @@ public:
         // Init engine system.
         engine_->Init();
         radar_->Init();
+
+        hud_.Init();
+        hotas_.Init();
     }
     // Begin -- Handlers for Engine system.
     void hndThrustOut(double value) {
@@ -160,6 +171,11 @@ public:
         radar_->Update(delta_time);
     }
     void Render() {
+        RenderShip();
+        DISPLAY.UiMode();
+        hud_.Render();
+    }
+    void RenderShip() {
         glLoadIdentity();
         glColor3fv(color_);
 
@@ -169,6 +185,39 @@ public:
         glVertex2d( vertices_[i].x, vertices_[i].y );
         glVertex2d( vertices_[0].x, vertices_[0].y );
         glEnd();
+    }
+    void HotasInput(int key, bool action) {
+        switch(key) {
+        case GLFW_KEY_W: // main thruster
+            if (action == true) {
+                // enable thruster.
+                hotas_.SetThrottle(1.0);
+            }
+            else {
+                // disable thruster.
+                hotas_.SetThrottle(0.0);
+            }
+            break;
+        case GLFW_KEY_A: // right thruster
+            if (action == true) {
+                hotas_.SetSteering(-1.0);
+            }
+            else {
+                hotas_.SetSteering(0.0);
+            }
+            break;
+        case GLFW_KEY_D: // left thruster
+            if (action == true) {
+                hotas_.SetSteering(1.0);
+            }
+            else {
+                hotas_.SetSteering(0.0);
+            }
+            break;
+        case GLFW_KEY_G:
+            hotas_.ToggleLandingGear();
+            break;
+        }
     }
 };
 
