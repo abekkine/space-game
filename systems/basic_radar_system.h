@@ -1,30 +1,20 @@
 #ifndef BASIC_RADAR_SYSTEM_H_
 #define BASIC_RADAR_SYSTEM_H_
 
-#include "ship_system_interface.h"
-
-#include "data_bus.h"
-#include "planet.h"
-
-#include "object_manager.h"
+#include "radar_system_interface.h"
 
 #include <math.h>
 
 // Queries planet information and
 // Sends processed detections into DATABUS.
-class BasicRadarSystem : public ShipSystemInterface {
+class BasicRadarSystem : public RadarSystemInterface {
 public:
     BasicRadarSystem() {}
     ~BasicRadarSystem() {}
     // From ShipSystemInterface
     void Init() {
-        
-        using std::placeholders::_1;
-        DATABUS.Subscribe(db_PlayerPosition,
-            std::bind(&BasicRadarSystem::hndPlayerPosition, this, _1));
 
-        num_planets_ = *((int *)OBJMGR.Get("nplanets"));
-        planets_ = static_cast<Planet *>(OBJMGR.Get("planets"));
+        RadarSystemInterface::Init();
     }
     void Update(double time_step) {
         (void)time_step;
@@ -47,21 +37,6 @@ public:
             DATABUS.Publish(db_DetectionList, &detections);
         }
     }
-
-private:
-    void hndPlayerPosition(BusDataInterface *data) {
-        BD_BasicPosition *p = static_cast<BD_BasicPosition *>(data);
-        if (p != 0) {
-            plr_x_ = p->x;
-            plr_y_ = p->y;
-        }
-    }
-
-private:
-    int num_planets_;
-    Planet* planets_;
-    double plr_x_;
-    double plr_y_;
 };
 
 #endif // BASIC_RADAR_SYSTEM_H_
