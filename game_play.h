@@ -27,24 +27,17 @@ private:
     Background background_;
     GenericHudDevice hud_;
     HOTASDevice hotas_;
-    BasicRadarSystem * radar_;
 
 public:
     GamePlay() {
         debug_scale_ = 1.0;
-        radar_ = 0;
     }
     ~GamePlay() {}
     void Init() {
-        // Create ship systems
-        // [TODO]
-        radar_ = SYSTEMSMGR.getRadarSystem();
-        // [END]
 
         background_.Init();
         hud_.Init();
         hotas_.Init();
-        radar_->Init();
 
         ship_ = static_cast<SpaceShip*>(OBJMGR.Get("ship"));
         num_planets_ = *(static_cast<int*>(OBJMGR.Get("nplanets")));
@@ -85,10 +78,6 @@ public:
 
         DISPLAY.UiMode();
         RenderHUD();
-
-        // [TODO] : not here
-        radar_->Update(0.02);
-        // [END]
     }
     GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
         GameDefinitions::GameStateEnum state = GameDefinitions::gameState_InGame;

@@ -5,7 +5,6 @@
 
 #include <thread>
 
-// #include "data_bus.h"
 #include "space_ship.h"
 #include "planet.h"
 

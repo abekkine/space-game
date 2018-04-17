@@ -5,6 +5,8 @@
 
 #include <functional>
 
+#include "systems/engine_system_interface.h"
+#include "systems/radar_system_interface.h"
 #include "systems/ship_systems_manager.h"
 
 #define NUM_SHIP_VERTICES 8
@@ -13,6 +15,7 @@ class SpaceShip {
 private:
     // Replaceable ship systems
     EngineSystemInterface * engine_;
+    RadarSystemInterface * radar_;
 private:
     double angle_;
     double mass_;
@@ -50,6 +53,7 @@ public:
     , color_{ 1.0, 1.0, 1.0 }
     {
         engine_ = SYSTEMSMGR.getEngineSystem();
+        radar_ = SYSTEMSMGR.getRadarSystem();
 
         using std::placeholders::_1;
         engine_->ThrustOutputHandler(std::bind(&SpaceShip::hndThrustOut, this, _1));
@@ -107,6 +111,7 @@ public:
 
         // Init engine system.
         engine_->Init();
+        radar_->Init();
     }
     // Begin -- Handlers for Engine system.
     void hndThrustOut(double value) {
@@ -151,8 +156,8 @@ public:
         s.value = angle_;
         DATABUS.Publish(db_PlayerAngle, &s);
 
-        // Move engine into space ship?
         engine_->Update(delta_time);
+        radar_->Update(delta_time);
     }
     void Render() {
         glLoadIdentity();
