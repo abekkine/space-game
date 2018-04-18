@@ -11,6 +11,29 @@
 #include "object_manager.h"
 
 class ShipContactListener : public b2ContactListener {
+
+    void PostSolve(b2Contact * contact, const b2ContactImpulse* impulse) {
+
+        void * userData = 0;
+        userData = contact->GetFixtureA()->GetBody()->GetUserData();
+        if (userData != 0) {
+            SpaceShip * ship = static_cast<SpaceShip *>(userData);
+            if (ship) {
+                // Process impulse
+                int count = contact->GetManifold()->pointCount;
+                float maxImpulse = 0.0;
+                for (int i=0; i<count; ++i) {
+                    maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
+                }
+
+                ship->ProcessImpulse(maxImpulse);
+            }
+        }
+        else {
+            std::cout << "userData is '0', mayba check fixture B?\n";
+        }
+    }
+
     void BeginContact(b2Contact * contact) {
         void * userData = 0;
 
@@ -18,18 +41,12 @@ class ShipContactListener : public b2ContactListener {
         if (userData != 0) {
             SpaceShip * ship = static_cast<SpaceShip *>(userData);
             if (ship) {
-                // TODO : Process contact begin (fixture A).
-                std::cout << "Ship contact begin (a)\n";
+                // Process contact begin (fixture A).
+                ship->BeginContact();
             }
         }
-
-        userData = contact->GetFixtureB()->GetBody()->GetUserData();
-        if (userData != 0) {
-            SpaceShip * ship = static_cast<SpaceShip *>(userData);
-            if (ship) {
-                // TODO : Process contact begin (fixture B).
-                std::cout << "Ship contact begin (b)\n";
-            }
+        else {
+            std::cout << "userData is '0', mayba check fixture B?\n";
         }
     }
 
@@ -40,18 +57,12 @@ class ShipContactListener : public b2ContactListener {
         if (userData != 0) {
             SpaceShip * ship = static_cast<SpaceShip *>(userData);
             if (ship) {
-                // TODO : Process contact end (fixture A).
-                std::cout << "Ship contact end (a)\n";
+                // Process contact end (fixture A).
+                ship->EndContact();
             }
         }
-
-        userData = contact->GetFixtureB()->GetBody()->GetUserData();
-        if (userData != 0) {
-            SpaceShip * ship = static_cast<SpaceShip *>(userData);
-            if (ship) {
-                // TODO : Process contact end (fixture B).
-                std::cout << "Ship contact end (b)\n";
-            }
+        else {
+            std::cout << "userData is '0', mayba check fixture B?\n";
         }
     }
 } shipContacts;

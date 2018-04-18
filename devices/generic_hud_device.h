@@ -21,12 +21,16 @@ public:
     GenericHudDevice()
     : ShipDevice()
     {
+        active_ = true;
         gx = gy = 0.0;
         thrust = 0.0;
         vx = vy = 0.0;
         px = py = pa = 0.0;
     }
     ~GenericHudDevice() {
+    }
+    void Disable() {
+        active_ = false;
     }
     void Init() {
         using std::placeholders::_1;
@@ -54,6 +58,10 @@ public:
         vector_scale_ = 0.01 * scr_height_;
     }
     void Render() {
+        if (!active_) {
+            return;
+        }
+
         glPushMatrix();
         glLoadIdentity();
 
@@ -239,6 +247,7 @@ private: // Handlers
         }
     }
 private:
+    bool active_;
     double fuel;
     double px, py, pa;
     double gx, gy;

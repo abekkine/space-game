@@ -10,23 +10,27 @@ class HOTASDevice : public ShipDevice {
 public:
     HOTASDevice()
     : ShipDevice()
+    , active_(true)
     , ship_engine_(0)
     {
     }
     ~HOTASDevice() {
     }
+    void Disable() {
+        active_ = false;
+    }
     void Init() {
         ship_engine_ = SYSTEMSMGR.getEngineSystem();
     }
     void SetThrottle(double value) {
-        if (ship_engine_ == 0) {
+        if (ship_engine_ == 0 || active_ == false) {
             return;
         }
 
         ship_engine_->MainThrustCommand(value);
     }
     void SetSteering(double value) {
-        if (ship_engine_ == 0) {
+        if (ship_engine_ == 0 || active_ == false) {
             return;
         }
 
@@ -46,6 +50,7 @@ public:
     void ToggleLandingGear() {}
 
 private:
+    bool active_;
     EngineSystemInterface* ship_engine_;
 };
 

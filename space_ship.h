@@ -24,6 +24,12 @@ private:
     RadarSystemInterface * radar_;
     GenericHudDevice hud_;
     HOTASDevice hotas_;
+
+    // TODO
+    const float kMaxHullStrength;
+    const float kImpulseThreshold;
+    float hull_strength_;
+
 private:
     double angle_;
     double mass_;
@@ -41,7 +47,12 @@ private:
     float color_[3];
 public:
     SpaceShip() 
-    : angle_(0.0)
+    : engine_(0)
+    , radar_(0)
+    , kMaxHullStrength(10.0)
+    , kImpulseThreshold(1.0)
+    , hull_strength_(kMaxHullStrength)
+    , angle_(0.0)
     , mass_(1.0)
     , density_(1.0)
     , thrust_force_(0.0)
@@ -95,6 +106,20 @@ public:
         mg.x = gravity_.x;
         mg.y = gravity_.y;
         DATABUS.Publish(db_PlayerGravity, &mg);
+    }
+    void ProcessImpulse(float impulse) {
+        // TODO
+        if (impulse > kImpulseThreshold) {
+            hull_strength_ -= impulse;
+            if (hull_strength_ <= 0.0) {
+                hud_.Disable();
+                hotas_.Disable();
+            }
+        }
+    }
+    void BeginContact() {
+    }
+    void EndContact() {
     }
 
     void Init(b2World * world) {
