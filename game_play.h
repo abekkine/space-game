@@ -7,72 +7,65 @@
 #include "game_definitions.h"
 #include "display.h"
 #include "texture.h"
-#include "game_data.h"
 #include "background.h"
 
-#include "data_bus.h"
-#include "devices/generic_hud_device.h"
-#include "devices/hotas_device.h"
-#include "systems/ship_systems_manager.h"
-
 #include "planet.h"
+#include "space_ship.h"
+
+#include "object_manager.h"
 
 class GamePlay {
 private:
     double debug_scale_;
-    GameData::Player player_;
     int num_planets_;
     Planet* planet_;
     Background background_;
-    GenericHudDevice hud_;
-    HOTASDevice hotas_;
-    BasicRadarSystem * radar_;
 
 public:
     GamePlay() {
         debug_scale_ = 1.0;
-        radar_ = 0;
     }
     ~GamePlay() {}
     void Init() {
-        // Create ship systems
-        SYSTEMSMGR.createEngineSystem();
-        // [TODO]
-        radar_ = SYSTEMSMGR.getRadarSystem();
-        // [END]
 
         background_.Init();
-        hud_.Init();
-        hotas_.Init();
-        radar_->Init();
+
+        ship_ = static_cast<SpaceShip*>(OBJMGR.Get("ship"));
+        num_planets_ = *(static_cast<int*>(OBJMGR.Get("nplanets")));
+        planet_ = static_cast<Planet *>(OBJMGR.Get("planets"));
+    }
+
+    SpaceShip* ship_;
+    double ship_angle_;
+    double ship_x_;
+    double ship_y_;
+    double ship_speed_;
+    double speed_scale_;
+    void RefreshPlayerParams() {
+        ship_speed_ = ship_->GetSpeed();
+        ship_angle_ = ship_->GetAngle();
+        b2Vec2 p = ship_->GetPosition();
+        ship_x_ = p.x;
+        ship_y_ = p.y;
+        speed_scale_ = 1.0 + (1.0 / (1.0 + exp(-ship_speed_+5.0)));
     }
     void Render() {
-        GAMEDATA.GetPlayer(&player_);
-        num_planets_ = GAMEDATA.GetNumPlanets();
-        planet_ = GAMEDATA.GetPlanets();
 
-        double s = player_.speed;
-        double f = 1.0 + (1.0 / (1.0 + exp(-s+5.0)));
-        DISPLAY.WorldMode(debug_scale_ * f);
+        RefreshPlayerParams();
+
+        DISPLAY.WorldMode(debug_scale_ * speed_scale_);
 
         glPushMatrix();
 
-        glRotated(player_.angle, 0.0, 0.0, -1.0);
-        glTranslated(-player_.x, -player_.y, 0.0);
+        glRotated(ship_angle_, 0.0, 0.0, -1.0);
+        glTranslated(-ship_x_, -ship_y_, 0.0);
 
         RenderBackground();
         RenderUniverse();
 
         glPopMatrix();
 
-        RenderPlayer();
-
-        DISPLAY.UiMode();
-        RenderHUD();
-
-        // [TODO] : not here
-        radar_->Update(0.02);
-        // [END]
+        RenderShip();
     }
     GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
         GameDefinitions::GameStateEnum state = GameDefinitions::gameState_InGame;
@@ -82,35 +75,6 @@ public:
             case GLFW_KEY_ESCAPE:
                 state = GameDefinitions::gameState_InMenu;
                 break;
-            case GLFW_KEY_W: // main thruster
-                if (action == true) {
-                    // enable thruster.
-                    hotas_.SetThrottle(1.0);
-                }
-                else {
-                    // disable thruster.
-                    hotas_.SetThrottle(0.0);
-                }
-                break;
-            case GLFW_KEY_A: // right thruster
-                if (action == true) {
-                    hotas_.SetSteering(-1.0);
-                }
-                else {
-                    hotas_.SetSteering(0.0);
-                }
-                break;
-            case GLFW_KEY_D: // left thruster
-                if (action == true) {
-                    hotas_.SetSteering(1.0);
-                }
-                else {
-                    hotas_.SetSteering(0.0);
-                }
-                break;
-            case GLFW_KEY_G:
-                hotas_.ToggleLandingGear();
-                break;
             case GLFW_KEY_V:
                 if (debug_scale_ > 50.0) {
                     debug_scale_ = 1.0;
@@ -119,23 +83,21 @@ public:
                     debug_scale_ = 100.0;
                 }
                 break;
+
+            default:
+                ship_->HotasInput(key, action);
+                break;
+
         }
 
         return state;
     }
 
 private:
-    void RenderPlayer() {
+    void RenderShip() {
 
-        glLoadIdentity();
-        glColor3fv(player_.c);
+        ship_->Render();
 
-        glBegin(GL_TRIANGLE_FAN);
-        glVertex2d(0.0, 0.0);
-        for (int i=0; i<player_.n; ++i)
-        glVertex2d(player_.vertices[i][0], player_.vertices[i][1]);
-        glVertex2d(player_.vertices[0][0], player_.vertices[0][1]);
-        glEnd();
     }
     void RenderUniverse() {
 
@@ -147,11 +109,7 @@ private:
     }
 
     void RenderBackground() {
-        background_.Render(player_);
-    }
-
-    void RenderHUD() {
-        hud_.Render();
+        background_.Render(ship_x_, ship_y_, ship_angle_);
     }
 };
 

@@ -12,6 +12,7 @@ clean_list.append( 'version.h' )
 env.Clean( 'default', clean_list )
 
 env.Append( CPPPATH = [ '.' ] )
+env.Append( CPPPATH = [ '..' ] )
 env.Append( CPPPATH = [ './3rd-party' ] )
 env.Append( CPPPATH = [ '/usr/include/SDL' ] )
 env.Append( CPPPATH = [ '/usr/include/freetype2' ] )

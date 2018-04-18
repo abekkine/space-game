@@ -21,6 +21,7 @@ public:
     GenericHudDevice()
     : ShipDevice()
     {
+        active_ = true;
         gx = gy = 0.0;
         thrust = 0.0;
         vx = vy = 0.0;
@@ -28,10 +29,15 @@ public:
     }
     ~GenericHudDevice() {
     }
+    void Disable() {
+        active_ = false;
+    }
     void Init() {
         using std::placeholders::_1;
         bus_->Subscribe(db_PlayerPosition,
             std::bind(&GenericHudDevice::hndPlayerPosition, this, _1));
+        bus_->Subscribe(db_PlayerAngle,
+            std::bind(&GenericHudDevice::hndPlayerAngle, this, _1));
         bus_->Subscribe(db_PlayerGravity,
             std::bind(&GenericHudDevice::hndPlayerGravity, this, _1));
         bus_->Subscribe(db_PlayerVelocity,
@@ -52,6 +58,10 @@ public:
         vector_scale_ = 0.01 * scr_height_;
     }
     void Render() {
+        if (!active_) {
+            return;
+        }
+
         glPushMatrix();
         glLoadIdentity();
 
@@ -196,7 +206,12 @@ private: // Handlers
         if (p != 0) {
             px = p->x;
             py = p->y;
-            pa = p->angle;
+        }
+    }
+    void hndPlayerAngle(BusDataInterface *data) {
+        BD_Scalar *a = static_cast<BD_Scalar *>(data);
+        if (a != 0) {
+            pa = a->value;
         }
     }
     void hndPlayerGravity(BusDataInterface *data) {
@@ -232,6 +247,7 @@ private: // Handlers
         }
     }
 private:
+    bool active_;
     double fuel;
     double px, py, pa;
     double gx, gy;

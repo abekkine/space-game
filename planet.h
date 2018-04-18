@@ -45,9 +45,9 @@ public:
         color_[1] = ((colorbits >> 4) & 0xf) / 15.0;
         color_[2] = (colorbits & 0xf) / 15.0;
     }
-    b2Vec2 GetGravityFactor(double x, double y) {
-        double dx = x_ - x;
-        double dy = y_ - y;
+    b2Vec2 GetGravityAcceleration(b2Vec2 pos) {
+        double dx = x_ - pos.x;
+        double dy = y_ - pos.y;
         double r2 = dx*dx + dy*dy;
         double r = sqrt(r2);
 

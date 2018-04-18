@@ -9,37 +9,32 @@ class ShipSystemsManager : public Singleton<ShipSystemsManager> {
 public:
     explicit ShipSystemsManager(token)
     : ship_engine_(0)
-    // [TODO]
     , radar_(0)
-    // [END]
     {}
     ~ShipSystemsManager() {}
+    EngineSystemInterface* getEngineSystem() {
+        if (ship_engine_ == 0) {
+            createEngineSystem();
+        }
+        return ship_engine_;
+    }
+    BasicRadarSystem* getRadarSystem() {
+        if (radar_ == 0) {
+            createRadarSystem();
+        }
+        return radar_;
+    }
+private:
     void createEngineSystem() {
         // Decide which engine to create by ship configuration
         ship_engine_ = new BasicEngineSystem();
     }
-    EngineSystemInterface* getEngineSystem() {
-        return ship_engine_;
-    }
-    // [TODO]
     void createRadarSystem() {
         radar_ = new BasicRadarSystem();
     }
-    BasicRadarSystem* getRadarSystem() {
-
-        if (radar_ == 0) {
-            createRadarSystem();
-        }
-
-        return radar_;
-    }
-    // [END]
-
 private:
     EngineSystemInterface* ship_engine_;
-    // [TODO]
     BasicRadarSystem * radar_;
-    // [END]
 };
 
 #define SYSTEMSMGR ShipSystemsManager::Instance()
