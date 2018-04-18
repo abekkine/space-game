@@ -36,7 +36,7 @@ private:
     double density_;
     double thrust_force_;
     double moment_;
-    
+
     b2Vec2 position_;
     b2Vec2 velocity_;
     b2Vec2 gravity_;
@@ -46,7 +46,7 @@ private:
 
     float color_[3];
 public:
-    SpaceShip() 
+    SpaceShip()
     : engine_(0)
     , radar_(0)
     , kMaxHullStrength(10.0)
@@ -152,10 +152,6 @@ public:
     // Begin -- Handlers for Engine system.
     void hndThrustOut(double value) {
         thrust_force_ = value;
-
-        BD_Scalar thrust;
-        thrust.value = thrust_force_;
-        DATABUS.Publish(db_PlayerThrust, &thrust);
     }
     void hndMomentOut(double value) {
         moment_ = value;
@@ -172,7 +168,9 @@ public:
         physics_body_->ApplyTorque(moment_, true);
         // Get velocity for devices.
         velocity_ = physics_body_->GetLinearVelocity();
-
+        double speed = velocity_.Length();
+        double lf = GameDefinitions::LorentzFactor(speed);
+        physics_body_->GetFixtureList()->SetDensity( density_ / lf );
         // Get position.
         position_ = physics_body_->GetPosition();
         angle_ = physics_body_->GetAngle() * 180.0 / M_PI;
@@ -191,6 +189,10 @@ public:
         BD_Scalar s;
         s.value = angle_;
         DATABUS.Publish(db_PlayerAngle, &s);
+
+        BD_Scalar thrust;
+        thrust.value = thrust_force_ * lf;
+        DATABUS.Publish(db_PlayerThrust, &thrust);
 
         engine_->Update(delta_time);
         radar_->Update(delta_time);
