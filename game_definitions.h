@@ -3,7 +3,9 @@
 
 namespace GameDefinitions {
 
+const double kEpsilon = 0.001;
 const double kGravityConstant = 0.7;
+const double kSpeedOfLight = 180.0;
 
 enum OrbitDirEnum {
     od_Clockwise,
@@ -26,6 +28,8 @@ enum MenuItemEnum {
 
 MenuItemEnum & operator++ (MenuItemEnum & m);
 MenuItemEnum & operator-- (MenuItemEnum & m);
+
+double LorentzFactor(double v);
 
 }  // namespace GameDefinitions
 

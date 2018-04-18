@@ -1,5 +1,7 @@
 #include "game_definitions.h"
 
+#include <math.h>
+
 namespace GameDefinitions {
 
 MenuItemEnum & operator++ (MenuItemEnum & m) {
@@ -24,6 +26,18 @@ MenuItemEnum & operator-- (MenuItemEnum & m) {
             return m;
             break;
     }
+}
+
+double LorentzFactor(double v) {
+    double lf;
+    double r = v / kSpeedOfLight;
+    if (r > 1.0) {
+        lf = kEpsilon;
+    }
+    else {
+        lf = sqrt(1.0 - r*r);
+    }
+    return lf;
 }
 
 } // namespace GameDefinitions
