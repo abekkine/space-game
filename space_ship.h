@@ -101,7 +101,16 @@ public:
         return velocity_.Length();
     }
     double Mass() {
-        return 1.4744 * density_;
+        double volume = 0.0;
+        double hull_volume = 1.4744;
+        double fuel_volume = 0.0;
+
+        if (engine_ != 0) {
+            fuel_volume = engine_->FuelVolume();
+        }
+        volume = fuel_volume + hull_volume;
+
+        return volume * density_;
     }
     void SetGravityAcceleration(const b2Vec2 & g) {
         gravity_ = Mass() * g;

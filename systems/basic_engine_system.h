@@ -12,8 +12,9 @@ public:
     BasicEngineSystem()
     : thrustUpdateHandler_(0)
     , momentUpdateHandler_(0)
-    , fuel_tank_size_(50.0)
-    , remaining_fuel_(50.0)
+    , kFuelVolumePerQuantity(0.1)
+    , fuel_tank_size_(5.0)
+    , remaining_fuel_(5.0)
     , main_thruster_(0.0)
     , left_thruster_(0.0)
     , right_thruster_(0.0)
@@ -138,8 +139,13 @@ public:
     double FuelQuery() {
         return remaining_fuel_;
     }
+    double FuelVolume() {
+
+        return kFuelVolumePerQuantity * remaining_fuel_;
+    }
 
 private:
+    const double kFuelVolumePerQuantity;
     double fuel_tank_size_;
     double remaining_fuel_;
     double main_thruster_;
