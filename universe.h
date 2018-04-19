@@ -7,6 +7,7 @@
 
 #include "space_ship.h"
 #include "planet.h"
+#include "effects_manager.h"
 
 #include "object_manager.h"
 
@@ -74,6 +75,7 @@ public:
     , world_(0)
     , space_ship_(0)
     , planets_(0)
+    , effects_(0)
     , state_(GameDefinitions::gameState_InMenu)
     {}
     ~Universe() {
@@ -89,6 +91,10 @@ public:
     }
 
     void Init() {
+        effects_ = new EffectsManager();
+        effects_->Init();
+        OBJMGR.Set("effects", effects_);
+
         // Instantiate player ship.
         space_ship_ = new SpaceShip();
         space_ship_->SetPosition(0.0, 100.0);
@@ -167,6 +173,8 @@ private:
 
             UpdatePlanet();
 
+            UpdateEffects(delta_time);
+
             Step(delta_time);
 
             t_end_ = t_begin_;
@@ -186,6 +194,10 @@ private:
     void UpdatePlayer(double delta_time) {
 
         space_ship_->Update(delta_time);
+    }
+    void UpdateEffects(double delta_time) {
+
+        effects_->Update(delta_time);
     }
     void UpdatePlanet() {
 
@@ -212,6 +224,7 @@ private:
     std::thread thread_;
     SpaceShip * space_ship_;
     Planet * planets_;
+    EffectsManager * effects_;
     GameDefinitions::GameStateEnum state_;
 };
 

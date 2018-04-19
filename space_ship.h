@@ -6,6 +6,9 @@
 
 #include <functional>
 
+#include "effects_manager.h"
+#include "object_manager.h"
+
 #include "data_bus.h"
 
 #include "systems/engine_system_interface.h"
@@ -24,6 +27,7 @@ private:
     RadarSystemInterface * radar_;
     GenericHudDevice hud_;
     HOTASDevice hotas_;
+    EffectsManager * effects_;
 
     // TODO
     const float kMaxHullStrength;
@@ -49,6 +53,7 @@ public:
     SpaceShip()
     : engine_(0)
     , radar_(0)
+    , effects_(0)
     , kMaxHullStrength(10.0)
     , kImpulseThreshold(1.0)
     , hull_strength_(kMaxHullStrength)
@@ -148,6 +153,8 @@ public:
 
         hud_.Init();
         hotas_.Init();
+
+        effects_ = static_cast<EffectsManager*>(OBJMGR.Get("effects"));
     }
     // Begin -- Handlers for Engine system.
     void hndThrustOut(double value) {
@@ -161,11 +168,24 @@ public:
         // Gravity
         physics_body_->ApplyForceToCenter(gravity_, true);
         // Thrust
-        thrust_.x = thrust_force_ * cos(0.5 * M_PI + physics_body_->GetAngle());
-        thrust_.y = thrust_force_ * sin(0.5 * M_PI + physics_body_->GetAngle());
-        physics_body_->ApplyForceToCenter(thrust_, true);
-        // Moment
-        physics_body_->ApplyTorque(moment_, true);
+        if (hull_strength_ > 0.0) {
+            thrust_.x = thrust_force_ * cos(0.5 * M_PI + physics_body_->GetAngle());
+            thrust_.y = thrust_force_ * sin(0.5 * M_PI + physics_body_->GetAngle());
+            physics_body_->ApplyForceToCenter(thrust_, true);
+
+            effects_->MainThruster(thrust_, position_, velocity_);
+
+            // Moment
+            physics_body_->ApplyTorque(moment_, true);
+
+            effects_->BowThruster(moment_, angle_, position_, velocity_);
+        }
+        else {
+            thrust_force_ = 0.0;
+            moment_ = 0.0;
+            thrust_.x = 0.0;
+            thrust_.y = 0.0;
+        }
         // Get velocity for devices.
         velocity_ = physics_body_->GetLinearVelocity();
         double speed = velocity_.Length();
