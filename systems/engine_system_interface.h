@@ -19,6 +19,7 @@ public:
     virtual double Refuel(double value) = 0;
     virtual double DumpFuel(double value) = 0;
     virtual double FuelQuery() = 0;
+    virtual double FuelVolume() = 0;
 // Output handlers
     virtual void ThrustOutputHandler(std::function<void(double)> thrustOut) = 0;
     virtual void MomentOutputHandler(std::function<void(double)> momentOut) = 0;
