@@ -17,6 +17,7 @@ public:
     , mass_(1.0)
     , density_(1.0)
     , radius_(50.0)
+    , core_radius_(49.0)
     , color_{1.0, 0.0, 0.0}
     {
         identifier_ = counter_++;
@@ -37,6 +38,9 @@ public:
     }
     void SetRadius(double value) {
         radius_ = value;
+    }
+    void SetCoreRadius(double value) {
+        core_radius_ = value;
     }
     void SetColor(double value) {
         uint16_t colorbits = static_cast<uint16_t>(value);
@@ -75,10 +79,11 @@ public:
         b2CircleShape shape;
         // [TODO] : why (0.0, 0.0)
         shape.m_p.Set(0.0, 0.0);
-        shape.m_radius = radius_;
+        shape.m_radius = core_radius_;
 
+        double r_rate = radius_ / core_radius_;
         b2FixtureDef fixture;
-        fixture.density = density_;
+        fixture.density = density_ * r_rate * r_rate;
         fixture.friction = 0.7;
 
         fixture.shape = &shape;
@@ -120,6 +125,7 @@ private:
     double mass_;
     double density_;
     double radius_;
+    double core_radius_;
     float color_[3];
 
     b2Body * physics_body_;
