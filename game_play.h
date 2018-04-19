@@ -11,6 +11,7 @@
 
 #include "planet.h"
 #include "space_ship.h"
+#include "effects_manager.h"
 
 #include "object_manager.h"
 
@@ -19,6 +20,7 @@ private:
     double debug_scale_;
     int num_planets_;
     Planet* planet_;
+    EffectsManager* effects_;
     Background background_;
 
 public:
@@ -33,6 +35,7 @@ public:
         ship_ = static_cast<SpaceShip*>(OBJMGR.Get("ship"));
         num_planets_ = *(static_cast<int*>(OBJMGR.Get("nplanets")));
         planet_ = static_cast<Planet *>(OBJMGR.Get("planets"));
+        effects_ = static_cast<EffectsManager *>(OBJMGR.Get("effects"));
     }
 
     SpaceShip* ship_;
@@ -62,6 +65,7 @@ public:
 
         RenderBackground();
         RenderUniverse();
+        RenderEffects();
 
         glPopMatrix();
 
@@ -106,6 +110,10 @@ private:
             planet_[i].Render();
             glPopMatrix();
         }
+    }
+    void RenderEffects() {
+
+        effects_->Render();
     }
 
     void RenderBackground() {
