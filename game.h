@@ -1,6 +1,8 @@
 #ifndef GAME_H_
 #define GAME_H_
 
+#include <thread>
+
 #include "game_definitions.h"
 #include "display.h"
 #include "game_play.h"
@@ -66,6 +68,8 @@ public:
             render_states_[state_]();
 
             DISPLAY.PostRender();
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
 
         DISPLAY.Quit();
