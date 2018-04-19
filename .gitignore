@@ -1,6 +1,8 @@
 spaceGame
+space_game/
 .imdone/
 *.o
+*.tbz2
 *.gch
 core
 *.json
