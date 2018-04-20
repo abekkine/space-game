@@ -20,7 +20,7 @@ enum DataChannel {
     db_PlayerGravity,
     db_PlayerFuel,
     db_DetectionList,
-    // [TODO] : add more channels here when needed...
+    // Add more when needed...
     db_All = 255,
 };
 
@@ -49,7 +49,6 @@ struct BD_RadarDetectionList : public BusDataInterface {
 
 typedef std::function<void(BusDataInterface *)> BusDataHandler;
 typedef std::vector<BusDataHandler> BusDataHandlerList;
-
 
 // [TODO] : DataBus may not be a Singleton, since it's part
 //        : of space ship. It would be passed to ship
