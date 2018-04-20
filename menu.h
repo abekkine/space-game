@@ -134,7 +134,6 @@ private:
     }
 
     GameDefinitions::GameStateEnum ActionNewGame() {
-        std::cout << "[TODO] New Game selected\n";
         return GameDefinitions::gameState_InGame;
     }
     GameDefinitions::GameStateEnum ActionContinue() {
@@ -146,7 +145,6 @@ private:
         return GameDefinitions::gameState_InMenu;
     }
     GameDefinitions::GameStateEnum ActionQuit() {
-        std::cout << "[TODO] Quit selected\n";
         DISPLAY.RequestQuit();
         return GameDefinitions::gameState_InMenu;
     }

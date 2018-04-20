@@ -77,7 +77,7 @@ public:
         physics_body_ = world->CreateBody(&def);
 
         b2CircleShape shape;
-        // [TODO] : why (0.0, 0.0)
+        // Circle position relative to body.
         shape.m_p.Set(0.0, 0.0);
         shape.m_radius = core_radius_;
 
