@@ -99,6 +99,14 @@ public:
         state_ = state;
     }
 
+    struct CelestialBodyDef {
+        double x, y;
+        double angle;
+        double radius;
+        double coreRadius;
+        double angularVelocity;
+        double color;
+    };
     void Init() {
         effects_ = new EffectsManager();
         effects_->Init();
@@ -113,9 +121,7 @@ public:
         // Instantiate planets.
         planets_ = new Planet[kNumPlanets];
 
-        // [TODO] : It would be better to use a readable struct for
-        //        : planet's initialization.
-        double u[][7] = {
+        CelestialBodyDef u[] = {
             {      0.0,      0.0, 0.0,  100.0,  99.7,  0.20,  435.0 }, // Earth
             {    600.0,      0.0, 0.0,   25.0,  24.9,  0.01, 2730.0 }, // Moon
             { -19900.0, -11500.0, 0.0, 1000.0, 100.0,  1.00, 3984.0 }, // Sun
@@ -124,12 +130,12 @@ public:
         };
 
         for (int i=0; i<kNumPlanets; ++i) {
-            planets_[i].SetPosition(u[i][0], u[i][1]);
-            planets_[i].SetAngle(u[i][2]);
-            planets_[i].SetRadius(u[i][3]);
-            planets_[i].SetCoreRadius(u[i][4]);
-            planets_[i].SetAngularVelocity(u[i][5]);
-            planets_[i].SetColor(u[i][6]);
+            planets_[i].SetPosition(u[i].x, u[i].y);
+            planets_[i].SetAngle(u[i].angle);
+            planets_[i].SetRadius(u[i].radius);
+            planets_[i].SetCoreRadius(u[i].coreRadius);
+            planets_[i].SetAngularVelocity(u[i].angularVelocity);
+            planets_[i].SetColor(u[i].color);
         }
 
         // [TODO] : Planets & numPlanets would be passed inside a single object.
