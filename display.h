@@ -56,7 +56,10 @@ public:
         }
 
         // [TODO] : Would read window position from config file.
-        glfwSetWindowPos(window_, 10, 10);
+        int window_x, window_y;
+        window_x = CONFIG.GetParam<int>({"window", "x"}, 10);
+        window_y = CONFIG.GetParam<int>({"window", "y"}, 10);
+        glfwSetWindowPos(window_, window_x, window_y);
 
         glfwMakeContextCurrent(window_);
 
@@ -66,7 +69,13 @@ public:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // [TODO] : Put antialiasing setting into config file / or settings menu?
-        glEnable(GL_MULTISAMPLE);
+        bool enable_aa;
+        enable_aa = CONFIG.GetParam<bool>({"display", "antialias"}, false);
+        if (enable_aa) {
+            glEnable(GL_MULTISAMPLE);
+        } else {
+            glDisable(GL_MULTISAMPLE);
+        }
     }
     void GetSize(int & width, int & height) {
         width = width_;

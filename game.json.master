@@ -3,7 +3,14 @@
         "width" : 1024,
         "height" : 576,
         "fullscreen" : false
+        "antialias" : true
     },
+
+    "window" : {
+        "x" : 500,
+        "y" : 500
+    },
+
     "world" : {
         "size" : 1000.0
     }
