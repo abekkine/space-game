@@ -8,71 +8,8 @@
 #include "space_ship.h"
 #include "planet.h"
 #include "effects_manager.h"
-
 #include "object_manager.h"
-
-// [TODO] : Contact listener would be moved into a separate file,
-//        : and would be renamed w/o 'Ship' prefix, since it listens
-//        : for all contacts in physics world.
-//        : If, only ship contacts will be processed here, name
-//        : would stay, however if other body contacts need to be
-//        : processed, name should change.
-class ShipContactListener : public b2ContactListener {
-
-    void PostSolve(b2Contact * contact, const b2ContactImpulse* impulse) {
-
-        void * userData = 0;
-        userData = contact->GetFixtureA()->GetBody()->GetUserData();
-        if (userData != 0) {
-            SpaceShip * ship = static_cast<SpaceShip *>(userData);
-            if (ship) {
-                // Process impulse
-                int count = contact->GetManifold()->pointCount;
-                float maxImpulse = 0.0;
-                for (int i=0; i<count; ++i) {
-                    maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
-                }
-
-                ship->ProcessImpulse(maxImpulse);
-            }
-        }
-        else {
-            std::cout << "userData is '0', maybe check fixture B?\n";
-        }
-    }
-
-    void BeginContact(b2Contact * contact) {
-        void * userData = 0;
-
-        userData = contact->GetFixtureA()->GetBody()->GetUserData();
-        if (userData != 0) {
-            SpaceShip * ship = static_cast<SpaceShip *>(userData);
-            if (ship) {
-                // Process contact begin (fixture A).
-                ship->BeginContact();
-            }
-        }
-        else {
-            std::cout << "userData is '0', maybe check fixture B?\n";
-        }
-    }
-
-    void EndContact(b2Contact * contact) {
-        void * userData = 0;
-
-        userData = contact->GetFixtureA()->GetBody()->GetUserData();
-        if (userData != 0) {
-            SpaceShip * ship = static_cast<SpaceShip *>(userData);
-            if (ship) {
-                // Process contact end (fixture A).
-                ship->EndContact();
-            }
-        }
-        else {
-            std::cout << "userData is '0', mayba check fixture B?\n";
-        }
-    }
-} shipContacts;
+#include "collision_handler.h"
 
 class Universe {
 public:
@@ -89,6 +26,7 @@ public:
         // [TODO] : Not all allocated objects are being deleted.
         //        : + effects_
         //        : + world_
+        //        : + collision_handler_
         delete space_ship_;
         delete [] planets_;
 
@@ -165,7 +103,9 @@ public:
         b2Vec2 gravity(0.0f, 0.0f);
         world_ = new b2World(gravity);
 
-        world_->SetContactListener(&shipContacts);
+        collision_handler_ = new CollisionHandler();
+
+        world_->SetContactListener(collision_handler_);
     }
     void InitPlanet() {
 
@@ -250,6 +190,7 @@ private:
     SpaceShip * space_ship_;
     Planet * planets_;
     EffectsManager * effects_;
+    CollisionHandler * collision_handler_;
     GameDefinitions::GameStateEnum state_;
 };
 
