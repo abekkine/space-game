@@ -1,8 +1,6 @@
 #ifndef BACKGROUND_H_
 #define BACKGROUND_H_
 
-#include "player.h"
-
 class Background {
 private:
     const double kSpan;
