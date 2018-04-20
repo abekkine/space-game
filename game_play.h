@@ -21,8 +21,7 @@ private:
     int num_planets_;
     Planet* planet_;
     EffectsManager* effects_;
-    // [TODO] : Allocate from heap, instead of stack?
-    Background background_;
+    Background* background_;
 
 public:
     GamePlay() {
@@ -31,7 +30,8 @@ public:
     ~GamePlay() {}
     void Init() {
 
-        background_.Init();
+        background_ = new Background();
+        background_->Init();
 
         ship_ = static_cast<SpaceShip*>(OBJMGR.Get("ship"));
         num_planets_ = *(static_cast<int*>(OBJMGR.Get("nplanets")));
@@ -119,7 +119,7 @@ private:
     }
 
     void RenderBackground() {
-        background_.Render(ship_x_, ship_y_, ship_angle_);
+        background_->Render(ship_x_, ship_y_, ship_angle_);
     }
 };
 
