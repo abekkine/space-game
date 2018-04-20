@@ -11,6 +11,7 @@
 #include "effects_manager.h"
 #include "object_manager.h"
 #include "collision_handler.h"
+#include "game_timer.h"
 
 class Universe {
 public:
@@ -96,10 +97,8 @@ public:
         // Player creation
         space_ship_->Init(world_);
 
-        // [TODO] : It would be convenient to encapsulate timer.
         // Initialize timer.
-        t_begin_ = std::chrono::steady_clock::now();
-        t_end_ = t_begin_;
+        timer_.Init();
     }
     void Run() {
 
@@ -116,9 +115,8 @@ public:
 private:
     void ThreadLoop() {
         while (true) {
-            // [TODO] : Timer encapsulation?
-            t_begin_ = std::chrono::steady_clock::now();
-            double delta_time = std::chrono::duration<double> (t_begin_ - t_end_).count();
+
+            double delta_time = timer_.GetElapsed();
 
             UpdateGravity();
 
@@ -138,11 +136,8 @@ private:
                 world_->Step(delta_time, 12, 6);
             }
 
-            t_end_ = t_begin_;
-
-            // [TODO] : Encapsulate with timer stuff?
             // [TODO] : Also, no magic numbers (10)?
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            GameTimer::Sleep(10);
         }
     }
     void UpdateGravity() {
@@ -157,8 +152,6 @@ private:
 
 private:
     const int kNumPlanets;
-    std::chrono::time_point<std::chrono::steady_clock> t_begin_;
-    std::chrono::time_point<std::chrono::steady_clock> t_end_;
     b2World * world_;
 
     std::thread thread_;
@@ -167,6 +160,8 @@ private:
     EffectsManager * effects_;
     CollisionHandler * collision_handler_;
     GameDefinitions::GameStateEnum state_;
+
+    GameTimer timer_;
 };
 
 #endif  // UNIVERSE_H_
