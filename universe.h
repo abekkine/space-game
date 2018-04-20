@@ -1,6 +1,7 @@
 #ifndef UNIVERSE_H_
 #define UNIVERSE_H_
 
+#include <GLFW/glfw3.h>
 #include <Box2D.h>
 
 #include <thread>
@@ -120,6 +121,13 @@ public:
     void Run() {
 
         thread_ = std::thread(&Universe::ThreadLoop, this);
+    }
+    void Render() {
+        for (int i=0; i<kNumPlanets; ++i) {
+            glPushMatrix();
+            planets_[i].Render();
+            glPopMatrix();
+        }
     }
 
 private:
