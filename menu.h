@@ -47,7 +47,6 @@ public:
 
         text_ = new Text();
         text_->AddFont("menu", "fonts/menu_font.ttf");
-        // [TODO] : Project references two different 'freemono' fonts.
         text_->AddFont("version", "fonts/mono/FreeMono.ttf");
 
         InitMenuItems();
