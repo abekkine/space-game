@@ -1,7 +1,7 @@
 #ifndef STATES_H_
 #define STATES_H_
 
-// [TODO]
+// [TODO] : Discard unused classes.
 class States {
 public:
     States() {}

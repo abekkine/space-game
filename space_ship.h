@@ -29,7 +29,7 @@ private:
     HOTASDevice hotas_;
     EffectsManager * effects_;
 
-    // TODO
+    // [TODO] : Hull would be a separate class?
     const float kMaxHullStrength;
     const float kImpulseThreshold;
     float hull_strength_;
@@ -122,7 +122,7 @@ public:
         DATABUS.Publish(db_PlayerGravity, &mg);
     }
     void ProcessImpulse(float impulse) {
-        // TODO
+
         if (impulse > kImpulseThreshold) {
             hull_strength_ -= impulse;
             if (hull_strength_ <= 0.0) {

@@ -37,14 +37,16 @@ public:
 
         width_ = CONFIG.GetParam<int>({"display", "width"}, 1024);
         height_ = CONFIG.GetParam<int>({"display", "height"}, 576);
+        // [TODO] : There are issues with full screen mode; desktop resolution
+        //        : does not go back to normal.
         bool fullscreen = CONFIG.GetParam<bool>({"display", "fullscreen"}, false);
         size_ = CONFIG.GetParam<double>({"world", "size"}, 100.0);
         SetupViewport();
 
         if (fullscreen) {
-            window_ = glfwCreateWindow(width_, height_, "Testing", glfwGetPrimaryMonitor(), NULL);
+            window_ = glfwCreateWindow(width_, height_, "Space Game", glfwGetPrimaryMonitor(), NULL);
         } else {
-            window_ = glfwCreateWindow(width_, height_, "Testing", NULL, NULL);
+            window_ = glfwCreateWindow(width_, height_, "Space Game", NULL, NULL);
         }
 
         if (!window_) {
@@ -53,6 +55,7 @@ public:
             throw GameException(GameException::eGLFWError, message);
         }
 
+        // [TODO] : Would read window position from config file.
         glfwSetWindowPos(window_, 10, 10);
 
         glfwMakeContextCurrent(window_);
@@ -62,6 +65,7 @@ public:
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+        // [TODO] : Put antialiasing setting into config file / or settings menu?
         glEnable(GL_MULTISAMPLE);
     }
     void GetSize(int & width, int & height) {
@@ -71,6 +75,7 @@ public:
     void SetupViewport() {
         vp_left_ = -0.5 * size_ + vp_center_x_;
         vp_right_ = 0.5 * size_ + vp_center_x_;
+        // [TODO] : Following two lines would fail on portrait orientation.
         vp_top_ = vp_center_y_ + 0.5 * height_ * size_ / static_cast<double>(width_);
         vp_bottom_ = vp_center_y_ - 0.5 * height_ * size_ / static_cast<double>(width_);
     }
@@ -80,11 +85,6 @@ public:
         quit_request = glfwWindowShouldClose(window_);
 
         return quit_request;
-    }
-    void CenterAt(double x, double y) {
-        vp_center_x_ = x;
-        vp_center_y_ = y;
-        SetupViewport();
     }
     void UiMode() {
         glMatrixMode(GL_PROJECTION);

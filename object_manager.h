@@ -5,6 +5,8 @@
 
 #include <unordered_map>
 
+// [TODO] : For multi-threaded access to held objects,
+//        : provide necessary lock mechanisms.
 class ObjectManager : public Singleton<ObjectManager> {
 public:
     explicit ObjectManager(token) {}

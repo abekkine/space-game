@@ -11,6 +11,12 @@
 
 #include "object_manager.h"
 
+// [TODO] : Contact listener would be moved into a separate file,
+//        : and would be renamed w/o 'Ship' prefix, since it listens
+//        : for all contacts in physics world.
+//        : If, only ship contacts will be processed here, name
+//        : would stay, however if other body contacts need to be
+//        : processed, name should change.
 class ShipContactListener : public b2ContactListener {
 
     void PostSolve(b2Contact * contact, const b2ContactImpulse* impulse) {
@@ -31,7 +37,7 @@ class ShipContactListener : public b2ContactListener {
             }
         }
         else {
-            std::cout << "userData is '0', mayba check fixture B?\n";
+            std::cout << "userData is '0', maybe check fixture B?\n";
         }
     }
 
@@ -47,7 +53,7 @@ class ShipContactListener : public b2ContactListener {
             }
         }
         else {
-            std::cout << "userData is '0', mayba check fixture B?\n";
+            std::cout << "userData is '0', maybe check fixture B?\n";
         }
     }
 
@@ -80,6 +86,9 @@ public:
     {}
     ~Universe() {
 
+        // [TODO] : Not all allocated objects are being deleted.
+        //        : + effects_
+        //        : + world_
         delete space_ship_;
         delete [] planets_;
 
@@ -104,6 +113,8 @@ public:
         // Instantiate planets.
         planets_ = new Planet[kNumPlanets];
 
+        // [TODO] : It would be better to use a readable struct for
+        //        : planet's initialization.
         double u[][7] = {
             {      0.0,      0.0, 0.0,  100.0,  99.7,  0.20,  435.0 }, // Earth
             {    600.0,      0.0, 0.0,   25.0,  24.9,  0.01, 2730.0 }, // Moon
@@ -121,12 +132,14 @@ public:
             planets_[i].SetColor(u[i][6]);
         }
 
+        // [TODO] : Planets & numPlanets would be passed inside a single object.
         OBJMGR.Set("planets", planets_);
         OBJMGR.Set("nplanets", (void *)&kNumPlanets);
 
         // Initialize physics.
         Box2DInit();
 
+        // [TODO] : It would be convenient to encapsulate timer.
         // Initialize timer.
         t_begin_ = std::chrono::steady_clock::now();
         t_end_ = t_begin_;
@@ -142,6 +155,7 @@ public:
     }
     void InitPhysics() {
 
+        // No gravity, since gravity will be modeled manually.
         b2Vec2 gravity(0.0f, 0.0f);
         world_ = new b2World(gravity);
 
@@ -165,6 +179,7 @@ public:
 private:
     void ThreadLoop() {
         while (true) {
+            // [TODO] : Timer encapsulation?
             t_begin_ = std::chrono::steady_clock::now();
             double delta_time = std::chrono::duration<double> (t_begin_ - t_end_).count();
 
@@ -180,6 +195,8 @@ private:
 
             t_end_ = t_begin_;
 
+            // [TODO] : Encapsulate with timer stuff?
+            // [TODO] : Also, no magic numbers (10)?
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
@@ -192,6 +209,7 @@ private:
         }
         space_ship_->SetGravityAcceleration(g);
     }
+    // [TODO] : Consider removing functions for single line calls.
     void UpdatePlayer(double delta_time) {
 
         space_ship_->Update(delta_time);

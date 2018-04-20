@@ -50,6 +50,10 @@ struct BD_RadarDetectionList : public BusDataInterface {
 typedef std::function<void(BusDataInterface *)> BusDataHandler;
 typedef std::vector<BusDataHandler> BusDataHandlerList;
 
+
+// [TODO] : DataBus may not be a Singleton, since it's part
+//        : of space ship. It would be passed to ship
+//        : systems during initialization.
 class DataBus : public Singleton<DataBus> {
 public:
     explicit DataBus(token) {
@@ -80,8 +84,13 @@ public:
         }
         subscribers_[channel].push_back(handler);
     }
+    // [TODO] : An unsubscribe method would be needed for data bus,
+    //        : for devices need to be disconnected.
+    void Unsubscribe() {}
 
 private:
+    // [TODO] : Unless there isn't multi-threaded access to
+    //        : data bus, no mutex would be needed.
     std::mutex bus_mutex_;
     std::unordered_map<DataChannel, BusDataHandlerList, std::hash<int>> subscribers_;
 };

@@ -21,6 +21,7 @@ private:
     int num_planets_;
     Planet* planet_;
     EffectsManager* effects_;
+    // [TODO] : Allocate from heap, instead of stack?
     Background background_;
 
 public:
@@ -105,6 +106,7 @@ private:
     }
     void RenderUniverse() {
 
+        // [TODO] : Render method from universe class may be used instead.
         for (int i=0; i<num_planets_; ++i) {
             glPushMatrix();
             planet_[i].Render();
