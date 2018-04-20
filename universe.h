@@ -82,41 +82,24 @@ public:
         OBJMGR.Set("nplanets", (void *)&kNumPlanets);
 
         // Initialize physics.
-        Box2DInit();
+        // No gravity, since gravity will be modeled manually.
+        b2Vec2 gravity(0.0f, 0.0f);
+        world_ = new b2World(gravity);
+        collision_handler_ = new CollisionHandler();
+        world_->SetContactListener(collision_handler_);
+
+        // Planet creation
+        for(int i=0; i<kNumPlanets; ++i) {
+            planets_[i].Init(world_);
+        }
+
+        // Player creation
+        space_ship_->Init(world_);
 
         // [TODO] : It would be convenient to encapsulate timer.
         // Initialize timer.
         t_begin_ = std::chrono::steady_clock::now();
         t_end_ = t_begin_;
-    }
-    void Box2DInit() {
-        InitPhysics();
-
-        // Planet creation
-        InitPlanet();
-
-        // Player creation
-        InitPlayer();
-    }
-    void InitPhysics() {
-
-        // No gravity, since gravity will be modeled manually.
-        b2Vec2 gravity(0.0f, 0.0f);
-        world_ = new b2World(gravity);
-
-        collision_handler_ = new CollisionHandler();
-
-        world_->SetContactListener(collision_handler_);
-    }
-    void InitPlanet() {
-
-        for(int i=0; i<kNumPlanets; ++i) {
-            planets_[i].Init(world_);
-        }
-    }
-    void InitPlayer() {
-
-        space_ship_->Init(world_);
     }
     void Run() {
 
@@ -139,13 +122,21 @@ private:
 
             UpdateGravity();
 
-            UpdatePlayer(delta_time);
+            space_ship_->Update(delta_time);
 
-            UpdatePlanet();
+            for (int i=0; i<kNumPlanets; ++i) {
+                planets_[i].Update();
+            }
 
-            UpdateEffects(delta_time);
+            effects_->Update(delta_time);
 
-            Step(delta_time);
+            // Advance physics
+            if (state_ != GameDefinitions::gameState_InGame) {
+                world_->Step(0.0, 12, 6);
+            }
+            else {
+                world_->Step(delta_time, 12, 6);
+            }
 
             t_end_ = t_begin_;
 
@@ -162,30 +153,6 @@ private:
             g += planets_[i].GetGravityAcceleration(space_ship_->GetPosition());
         }
         space_ship_->SetGravityAcceleration(g);
-    }
-    // [TODO] : Consider removing functions for single line calls.
-    void UpdatePlayer(double delta_time) {
-
-        space_ship_->Update(delta_time);
-    }
-    void UpdateEffects(double delta_time) {
-
-        effects_->Update(delta_time);
-    }
-    void UpdatePlanet() {
-
-        for (int i=0; i<kNumPlanets; ++i) {
-            planets_[i].Update();
-        }
-    }
-    void Step(double delta_time) {
-        // Advance physics
-        if (state_ != GameDefinitions::gameState_InGame) {
-            world_->Step(0.0, 12, 6);
-        }
-        else {
-            world_->Step(delta_time, 12, 6);
-        }
     }
 
 private:
