@@ -24,6 +24,10 @@ public:
     , vp_bottom_(-1.0)
     , vp_center_x_(0.0)
     , vp_center_y_(0.0)
+    , vp_left_offset_(0.0)
+    , vp_right_offset_(0.0)
+    , vp_top_offset_(0.0)
+    , vp_bottom_offset_(0.0)
     , width_(0)
     , height_(0)
     {}
@@ -41,6 +45,7 @@ public:
         //        : does not go back to normal.
         bool fullscreen = CONFIG.GetParam<bool>({"display", "fullscreen"}, false);
         size_ = CONFIG.GetParam<double>({"world", "size"}, 100.0);
+        AdjustViewportOffsets();
         SetupViewport();
 
         if (fullscreen) {
@@ -55,7 +60,6 @@ public:
             throw GameException(GameException::eGLFWError, message);
         }
 
-        // [TODO] : Would read window position from config file.
         int window_x, window_y;
         window_x = CONFIG.GetParam<int>({"window", "x"}, 10);
         window_y = CONFIG.GetParam<int>({"window", "y"}, 10);
@@ -68,7 +72,6 @@ public:
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        // [TODO] : Put antialiasing setting into config file / or settings menu?
         bool enable_aa;
         enable_aa = CONFIG.GetParam<bool>({"display", "antialias"}, false);
         if (enable_aa) {
@@ -81,12 +84,24 @@ public:
         width = width_;
         height = height_;
     }
+    void AdjustViewportOffsets() {
+        if (width_ > height_) {
+            vp_left_offset_ = -0.5 * size_;
+            vp_right_offset_ = 0.5 * size_;
+            vp_top_offset_ = 0.5 * size_ * height_ / width_;
+            vp_bottom_offset_ = -0.5 * size_ * height_ / width_; 
+        } else {
+            vp_left_offset_ = -0.5 * size_ * width_ / height_;
+            vp_right_offset_ = 0.5 * size_ * width_ / height_;
+            vp_top_offset_ = 0.5 * size_;
+            vp_bottom_offset_ = -0.5 * size_;
+        }
+    }
     void SetupViewport() {
-        vp_left_ = -0.5 * size_ + vp_center_x_;
-        vp_right_ = 0.5 * size_ + vp_center_x_;
-        // [TODO] : Following two lines would fail on portrait orientation.
-        vp_top_ = vp_center_y_ + 0.5 * height_ * size_ / static_cast<double>(width_);
-        vp_bottom_ = vp_center_y_ - 0.5 * height_ * size_ / static_cast<double>(width_);
+        vp_left_ = vp_center_x_ + vp_left_offset_;
+        vp_right_ = vp_center_x_ + vp_right_offset_;
+        vp_top_ = vp_center_y_ + vp_top_offset_;
+        vp_bottom_ = vp_center_y_ + vp_bottom_offset_;
     }
     bool QuitRequested() {
         bool quit_request;
@@ -141,6 +156,10 @@ public:
     double vp_bottom_;
     double vp_center_x_;
     double vp_center_y_;
+    double vp_left_offset_;
+    double vp_right_offset_;
+    double vp_top_offset_;
+    double vp_bottom_offset_;
     int width_;
     int height_;
     double size_;
