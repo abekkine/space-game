@@ -24,12 +24,11 @@ public:
     {}
     ~Universe() {
 
-        // [TODO] : Not all allocated objects are being deleted.
-        //        : + effects_
-        //        : + world_
-        //        : + collision_handler_
-        //        : + solar_system_
+        delete collision_handler_;
+        delete solar_system_;
         delete space_ship_;
+        delete effects_;
+        delete world_;
 
         thread_.join();
     }
