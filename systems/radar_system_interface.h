@@ -10,9 +10,11 @@
 
 class RadarSystemInterface : public ShipSystemInterface {
 public:
+    virtual ~RadarSystemInterface() {}
+public:
 // Standard ship system interface
     virtual void Init(DataBus * bus) {
-        assert(bus_ != 0);
+        assert(bus != 0);
         bus_ = bus;
 
         using std::placeholders::_1;

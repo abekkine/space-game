@@ -9,6 +9,8 @@
 
 class EngineSystemInterface : public ShipSystemInterface {
 public:
+    virtual ~EngineSystemInterface() {}
+public:
 // Pilot commands
     virtual void MainThrustCommand(double value) = 0;
     virtual void ReverseThrustCommand(double value) = 0;

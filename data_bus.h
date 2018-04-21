@@ -19,6 +19,7 @@ enum DataChannel {
     db_PlayerGravity,
     db_PlayerFuel,
     db_DetectionList,
+    db_ShipDamage,
     // Add more when needed...
     db_All = 255,
 };

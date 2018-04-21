@@ -13,6 +13,7 @@
 
 #include "systems/engine_system_interface.h"
 #include "systems/radar_system_interface.h"
+#include "systems/hull_system_interface.h"
 #include "systems/ship_systems_manager.h"
 
 #include "devices/generic_hud_device.h"
@@ -28,12 +29,8 @@ private:
     HOTASDevice * hotas_;
     EngineSystemInterface * engine_;
     RadarSystemInterface * radar_;
+    HullSystemInterface * hull_;
     EffectsManager * effects_;
-
-    // [TODO] : Hull would be a separate class?
-    const float kMaxHullStrength;
-    const float kImpulseThreshold;
-    float hull_strength_;
 
     double angle_;
     double mass_;
@@ -49,6 +46,8 @@ private:
     b2Vec2 vertices_[NUM_SHIP_VERTICES];
 
     float color_[3];
+
+    bool destroyed_;
 public:
     SpaceShip()
     : data_bus_(0)
@@ -56,11 +55,8 @@ public:
     , hotas_(0)
     , engine_(0)
     , radar_(0)
+    , hull_(0)
     , effects_(0)
-
-    , kMaxHullStrength(10.0)
-    , kImpulseThreshold(1.0)
-    , hull_strength_(kMaxHullStrength)
 
     , angle_(0.0)
     , mass_(1.0)
@@ -82,6 +78,7 @@ public:
                  { 0.68,  0.14},
                  { 0.5 ,  0.16}}
     , color_{ 1.0, 1.0, 1.0 }
+    , destroyed_(false)
     {
         data_bus_ = new DataBus();
 
@@ -90,10 +87,12 @@ public:
 
         engine_ = SYSTEMSMGR.getEngineSystem();
         radar_ = SYSTEMSMGR.getRadarSystem();
+        hull_ = SYSTEMSMGR.getHullSystem();
 
         using std::placeholders::_1;
         engine_->ThrustOutputHandler(std::bind(&SpaceShip::hndThrustOut, this, _1));
         engine_->MomentOutputHandler(std::bind(&SpaceShip::hndMomentOut, this, _1));
+        hull_->SetDestructionCallback(std::bind(&SpaceShip::OnDestroy, this));
     }
     ~SpaceShip() {}
     void SetAngle(double angle) {
@@ -133,15 +132,14 @@ public:
         mg.y = gravity_.y;
         data_bus_->Publish(db_PlayerGravity, &mg);
     }
+    void OnDestroy() {
+        destroyed_ = true;
+        hud_->Disable();
+        hotas_->Disable();
+    }
     void ProcessImpulse(float impulse) {
 
-        if (impulse > kImpulseThreshold) {
-            hull_strength_ -= impulse;
-            if (hull_strength_ <= 0.0) {
-                hud_->Disable();
-                hotas_->Disable();
-            }
-        }
+        hull_->ApplyImpact(impulse);
     }
     void BeginContact() {
     }
@@ -174,6 +172,7 @@ public:
 
         hud_->Init(data_bus_);
         hotas_->Init(data_bus_);
+        hull_->Init(data_bus_);
 
         effects_ = static_cast<EffectsManager*>(OBJMGR.Get("effects"));
     }
@@ -189,7 +188,7 @@ public:
         // Gravity
         physics_body_->ApplyForceToCenter(gravity_, true);
         // Thrust
-        if (hull_strength_ > 0.0) {
+        if (!destroyed_) {
             thrust_.x = thrust_force_ * cos(0.5 * M_PI + physics_body_->GetAngle());
             thrust_.y = thrust_force_ * sin(0.5 * M_PI + physics_body_->GetAngle());
             physics_body_->ApplyForceToCenter(thrust_, true);
