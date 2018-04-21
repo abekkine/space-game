@@ -97,7 +97,7 @@ private:
                 world_->Step(delta_time, 12, 6);
             }
 
-            // [TODO] : Also, no magic numbers (10)?
+            // TODO : Also, no magic numbers (10)?
             GameTimer::Sleep(10);
         }
     }

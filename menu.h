@@ -137,11 +137,11 @@ private:
         return GameDefinitions::gameState_InGame;
     }
     GameDefinitions::GameStateEnum ActionContinue() {
-        std::cout << "[TODO] Continue selected\n";
+        // TODO : Implement load and continue.
         return GameDefinitions::gameState_InGame;
     }
     GameDefinitions::GameStateEnum ActionSettings() {
-        std::cout << "[TODO] Settings selected\n";
+        // TODO : Implement settings.
         return GameDefinitions::gameState_InMenu;
     }
     GameDefinitions::GameStateEnum ActionQuit() {

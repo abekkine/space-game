@@ -1,7 +1,7 @@
 #ifndef GAME_DEFINITIONS_H_
 #define GAME_DEFINITIONS_H_
 
-// [TODO] : A shorter name for this namespace.
+// TODO : A shorter name for this namespace.
 namespace GameDefinitions {
 
 const double kEpsilon = 0.001;

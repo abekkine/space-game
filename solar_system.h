@@ -53,7 +53,7 @@ public:
             planets_[i].SetColor(u[i].color);
         }
 
-        // [TODO] : Planets & numPlanets would be passed inside a single object.
+        // TODO : Planets & numPlanets would be passed inside a single object.
         OBJMGR.Set("planets", planets_);
         OBJMGR.Set("nplanets", (void *)&kNumPlanets);
 

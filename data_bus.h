@@ -88,8 +88,8 @@ public:
     void Unsubscribe() {}
 
 private:
-    // [TODO] : Unless there isn't multi-threaded access to
-    //        : data bus, no mutex would be needed.
+    // TODO : Unless there isn't multi-threaded access to
+    //      : data bus, no mutex would be needed.
     std::mutex bus_mutex_;
     std::unordered_map<DataChannel, BusDataHandlerList, std::hash<int>> subscribers_;
 };
