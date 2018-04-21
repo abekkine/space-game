@@ -6,15 +6,15 @@
 #include <math.h>
 
 // Queries planet information and
-// Sends processed detections into DATABUS.
+// Sends processed detections into data bus.
 class BasicRadarSystem : public RadarSystemInterface {
 public:
     BasicRadarSystem() {}
     ~BasicRadarSystem() {}
     // From ShipSystemInterface
-    void Init() {
+    void Init(DataBus * bus) {
 
-        RadarSystemInterface::Init();
+        RadarSystemInterface::Init(bus);
     }
     void Update(double time_step) {
         (void)time_step;
@@ -34,7 +34,7 @@ public:
                 detections.data[2*i+0] = c_angle;
                 detections.data[2*i+1] = h_angle;
             }
-            DATABUS.Publish(db_DetectionList, &detections);
+            bus_->Publish(db_DetectionList, &detections);
         }
     }
 };

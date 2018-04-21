@@ -2,6 +2,7 @@
 #define GENERIC_HUD_DEVICE_H_
 
 #include <GLFW/glfw3.h>
+#include <assert.h>
 
 #include <mutex>
 
@@ -32,7 +33,10 @@ public:
     void Disable() {
         active_ = false;
     }
-    void Init() {
+    void Init(DataBus* bus) {
+        assert(bus != 0);
+        bus_ = bus;
+
         using std::placeholders::_1;
         bus_->Subscribe(db_PlayerPosition,
             std::bind(&GenericHudDevice::hndPlayerPosition, this, _1));

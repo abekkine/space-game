@@ -3,16 +3,20 @@
 
 #include "ship_system_interface.h"
 
-#include "data_bus.h"
 #include "planet.h"
 #include "object_manager.h"
+
+#include <assert.h>
 
 class RadarSystemInterface : public ShipSystemInterface {
 public:
 // Standard ship system interface
-    virtual void Init() {
+    virtual void Init(DataBus * bus) {
+        assert(bus_ != 0);
+        bus_ = bus;
+
         using std::placeholders::_1;
-        DATABUS.Subscribe(db_PlayerPosition,
+        bus_->Subscribe(db_PlayerPosition,
             std::bind(&RadarSystemInterface::hndPlayerPosition, this, _1));
 
         num_planets_ = *((int *)OBJMGR.Get("nplanets"));

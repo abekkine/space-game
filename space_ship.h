@@ -22,11 +22,12 @@
 
 class SpaceShip {
 private:
+    DataBus * data_bus_;
     // Replaceable ship systems
+    GenericHudDevice * hud_;
+    HOTASDevice * hotas_;
     EngineSystemInterface * engine_;
     RadarSystemInterface * radar_;
-    GenericHudDevice hud_;
-    HOTASDevice hotas_;
     EffectsManager * effects_;
 
     // [TODO] : Hull would be a separate class?
@@ -34,7 +35,6 @@ private:
     const float kImpulseThreshold;
     float hull_strength_;
 
-private:
     double angle_;
     double mass_;
     double density_;
@@ -51,16 +51,23 @@ private:
     float color_[3];
 public:
     SpaceShip()
-    : engine_(0)
+    : data_bus_(0)
+    , hud_(0)
+    , hotas_(0)
+    , engine_(0)
     , radar_(0)
     , effects_(0)
+
     , kMaxHullStrength(10.0)
     , kImpulseThreshold(1.0)
     , hull_strength_(kMaxHullStrength)
+
     , angle_(0.0)
     , mass_(1.0)
     , density_(1.0)
     , thrust_force_(0.0)
+    , moment_(0.0)
+
     , position_{ 0.0, 0.0 }
     , velocity_{ 0.0, 0.0 }
     , gravity_{ 0.0, 0.0 }
@@ -76,6 +83,11 @@ public:
                  { 0.5 ,  0.16}}
     , color_{ 1.0, 1.0, 1.0 }
     {
+        data_bus_ = new DataBus();
+
+        hud_ = new GenericHudDevice();
+        hotas_ = new HOTASDevice();
+
         engine_ = SYSTEMSMGR.getEngineSystem();
         radar_ = SYSTEMSMGR.getRadarSystem();
 
@@ -119,15 +131,15 @@ public:
         BD_Vector mg;
         mg.x = gravity_.x;
         mg.y = gravity_.y;
-        DATABUS.Publish(db_PlayerGravity, &mg);
+        data_bus_->Publish(db_PlayerGravity, &mg);
     }
     void ProcessImpulse(float impulse) {
 
         if (impulse > kImpulseThreshold) {
             hull_strength_ -= impulse;
             if (hull_strength_ <= 0.0) {
-                hud_.Disable();
-                hotas_.Disable();
+                hud_->Disable();
+                hotas_->Disable();
             }
         }
     }
@@ -157,11 +169,11 @@ public:
         physics_body_->CreateFixture(&fixture);
 
         // Init engine system.
-        engine_->Init();
-        radar_->Init();
+        engine_->Init(data_bus_);
+        radar_->Init(data_bus_);
 
-        hud_.Init();
-        hotas_.Init();
+        hud_->Init(data_bus_);
+        hotas_->Init(data_bus_);
 
         effects_ = static_cast<EffectsManager*>(OBJMGR.Get("effects"));
     }
@@ -208,20 +220,20 @@ public:
         BD_Vector v;
         v.x = velocity_.x;
         v.y = velocity_.y;
-        DATABUS.Publish(db_PlayerVelocity, &v);
+        data_bus_->Publish(db_PlayerVelocity, &v);
 
         BD_Vector p;
         p.x = position_.x;
         p.y = position_.y;
-        DATABUS.Publish(db_PlayerPosition, &p);
+        data_bus_->Publish(db_PlayerPosition, &p);
 
         BD_Scalar s;
         s.value = angle_;
-        DATABUS.Publish(db_PlayerAngle, &s);
+        data_bus_->Publish(db_PlayerAngle, &s);
 
         BD_Scalar thrust;
         thrust.value = thrust_force_ * lf;
-        DATABUS.Publish(db_PlayerThrust, &thrust);
+        data_bus_->Publish(db_PlayerThrust, &thrust);
 
         engine_->Update(delta_time);
         radar_->Update(delta_time);
@@ -229,7 +241,7 @@ public:
     void Render() {
         RenderShip();
         DISPLAY.UiMode();
-        hud_.Render();
+        hud_->Render();
     }
     void RenderShip() {
         glLoadIdentity();
@@ -243,35 +255,36 @@ public:
         glEnd();
     }
     void HotasInput(int key, bool action) {
+        assert(hotas_ != 0);
         switch(key) {
         case GLFW_KEY_W: // main thruster
             if (action == true) {
                 // enable thruster.
-                hotas_.SetThrottle(1.0);
+                hotas_->SetThrottle(1.0);
             }
             else {
                 // disable thruster.
-                hotas_.SetThrottle(0.0);
+                hotas_->SetThrottle(0.0);
             }
             break;
         case GLFW_KEY_A: // right thruster
             if (action == true) {
-                hotas_.SetSteering(-1.0);
+                hotas_->SetSteering(-1.0);
             }
             else {
-                hotas_.SetSteering(0.0);
+                hotas_->SetSteering(0.0);
             }
             break;
         case GLFW_KEY_D: // left thruster
             if (action == true) {
-                hotas_.SetSteering(1.0);
+                hotas_->SetSteering(1.0);
             }
             else {
-                hotas_.SetSteering(0.0);
+                hotas_->SetSteering(0.0);
             }
             break;
         case GLFW_KEY_G:
-            hotas_.ToggleLandingGear();
+            hotas_->ToggleLandingGear();
             break;
         }
     }

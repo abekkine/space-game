@@ -19,7 +19,9 @@ public:
     void Disable() {
         active_ = false;
     }
-    void Init() {
+    void Init(DataBus * bus) {
+        assert(bus != 0);
+        bus_ = bus;
         ship_engine_ = SYSTEMSMGR.getEngineSystem();
     }
     void SetThrottle(double value) {

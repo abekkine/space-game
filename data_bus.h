@@ -6,7 +6,6 @@
 #include <vector>
 #include <mutex>
 
-#include "singleton.h"
 struct BusDataInterface {
     virtual ~BusDataInterface() {}
 };
@@ -50,13 +49,9 @@ struct BD_RadarDetectionList : public BusDataInterface {
 typedef std::function<void(BusDataInterface *)> BusDataHandler;
 typedef std::vector<BusDataHandler> BusDataHandlerList;
 
-// [TODO] : DataBus may not be a Singleton, since it's part
-//        : of space ship. It would be passed to ship
-//        : systems during initialization.
-class DataBus : public Singleton<DataBus> {
+class DataBus {
 public:
-    explicit DataBus(token) {
-    }
+    DataBus() {}
     ~DataBus() {}
     bool CheckChannel(DataChannel channel) {
         auto found = subscribers_.find(channel);
@@ -93,7 +88,5 @@ private:
     std::mutex bus_mutex_;
     std::unordered_map<DataChannel, BusDataHandlerList, std::hash<int>> subscribers_;
 };
-
-#define DATABUS DataBus::Instance()
 
 #endif // DATA_BUS_H_

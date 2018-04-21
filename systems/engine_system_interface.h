@@ -3,6 +3,8 @@
 
 #include "ship_system_interface.h"
 
+#include <assert.h>
+
 #include <functional>
 
 class EngineSystemInterface : public ShipSystemInterface {
@@ -25,7 +27,10 @@ public:
     virtual void MomentOutputHandler(std::function<void(double)> momentOut) = 0;
 
 // Standard ship system interface
-    virtual void Init() {}
+    virtual void Init(DataBus* bus) {
+        assert(bus != 0);
+        bus_ = bus;
+    }
     virtual void Update(double time_step) { (void)time_step; }
 };
 
