@@ -10,6 +10,7 @@ public:
     virtual void Init(DataBus* bus) = 0;
 protected:
     DataBus * bus_;
+    DataBus::Connection * bus_connection_;
 };
 
 #endif // SHIP_DEVICE_H_

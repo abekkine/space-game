@@ -32,15 +32,13 @@ public:
             if (integrity_ <= 0.0) {
                 on_destroyed_();
             }
-            else {
+            else if (bus_connection_ != 0) {
+                // TODO : Not used by any system, yet.
                 BD_Scalar damage_ratio;
                 damage_ratio.value = integrity_ / max_integrity_;
-                bus_->Publish(db_ShipDamage, &damage_ratio);
+                bus_connection_->Publish(db_ShipDamage, &damage_ratio);
             }
         }
-    }
-    void Update(double time_step) {
-        (void)time_step;
     }
 };
 

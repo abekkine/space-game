@@ -16,14 +16,18 @@
 #include "systems/hull_system_interface.h"
 #include "systems/ship_systems_manager.h"
 
+// TODO : Devices should be converted to systems.
 #include "devices/generic_hud_device.h"
 #include "devices/hotas_device.h"
+
+#include <assert.h>
 
 #define NUM_SHIP_VERTICES 8
 
 class SpaceShip {
 private:
     DataBus * data_bus_;
+    DataBus::Connection * bus_connection_;
     // Replaceable ship systems
     GenericHudDevice * hud_;
     HOTASDevice * hotas_;
@@ -51,6 +55,7 @@ private:
 public:
     SpaceShip()
     : data_bus_(0)
+    , bus_connection_(0)
     , hud_(0)
     , hotas_(0)
     , engine_(0)
@@ -81,6 +86,8 @@ public:
     , destroyed_(false)
     {
         data_bus_ = new DataBus();
+        // TODO : Ideally, SpaceShip class should not have any direct connections to ship systems / devices.
+        bus_connection_ = data_bus_->Connect("ship");
 
         hud_ = new GenericHudDevice();
         hotas_ = new HOTASDevice();
@@ -127,10 +134,13 @@ public:
         gravity_ = Mass() * g;
 
         // Send player gravity to Data Bus.
+        // TODO : This value should be published by a sensor device/system.
         BD_Vector mg;
         mg.x = gravity_.x;
         mg.y = gravity_.y;
-        data_bus_->Publish(db_PlayerGravity, &mg);
+        if (bus_connection_ != 0) {
+            bus_connection_->Publish(db_PlayerGravity, &mg);
+        }
     }
     void OnDestroy() {
         destroyed_ = true;
@@ -215,24 +225,35 @@ public:
         position_ = physics_body_->GetPosition();
         angle_ = physics_body_->GetAngle() * 180.0 / M_PI;
 
-        // Send player velocity to Data Bus.
-        BD_Vector v;
-        v.x = velocity_.x;
-        v.y = velocity_.y;
-        data_bus_->Publish(db_PlayerVelocity, &v);
+        if(bus_connection_ != 0) {
+            // Send player velocity to Data Bus.
+            // TODO : Should be published by a sensor device.
+            // Used by HUD system.
+            BD_Vector v;
+            v.x = velocity_.x;
+            v.y = velocity_.y;
+            bus_connection_->Publish(db_PlayerVelocity, &v);
 
-        BD_Vector p;
-        p.x = position_.x;
-        p.y = position_.y;
-        data_bus_->Publish(db_PlayerPosition, &p);
+            // TODO : Should be published by a sensor device.
+            // Used by HUD & Radar systems.
+            BD_Vector p;
+            p.x = position_.x;
+            p.y = position_.y;
+            bus_connection_->Publish(db_PlayerPosition, &p);
 
-        BD_Scalar s;
-        s.value = angle_;
-        data_bus_->Publish(db_PlayerAngle, &s);
+            // TODO : Should be published by a sensor device.
+            // Used by HUD system.
+            BD_Scalar s;
+            s.value = angle_;
+            bus_connection_->Publish(db_PlayerAngle, &s);
 
-        BD_Scalar thrust;
-        thrust.value = thrust_force_ * lf;
-        data_bus_->Publish(db_PlayerThrust, &thrust);
+            // TODO : Thrust value should be published by engine system itself.
+            // TODO : LF should affect acceleration value, not thrust.
+            // Used by HUD system.
+            BD_Scalar thrust;
+            thrust.value = thrust_force_ * lf;
+            bus_connection_->Publish(db_PlayerThrust, &thrust);
+        }
 
         engine_->Update(delta_time);
         radar_->Update(delta_time);
@@ -285,6 +306,24 @@ public:
         case GLFW_KEY_G:
             hotas_->ToggleLandingGear();
             break;
+
+#ifdef DISCONNECT_TEST
+        case GLFW_KEY_1: // hud
+            hud_->Disconnect();
+            break;
+        case GLFW_KEY_2: // ship
+            data_bus_->Disconnect("ship", bus_connection_);
+            break;
+        case GLFW_KEY_3: // engine
+            engine_->Disconnect();
+            break;
+        case GLFW_KEY_4: // hull
+            hull_->Disconnect();
+            break;
+        case GLFW_KEY_5: // radar
+            radar_->Disconnect();
+            break;
+#endif // DISCONNECT_TEST
         }
     }
 };

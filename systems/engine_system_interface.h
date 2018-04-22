@@ -32,8 +32,12 @@ public:
     virtual void Init(DataBus* bus) {
         assert(bus != 0);
         bus_ = bus;
+        bus_connection_ = bus_->Connect("engine");
     }
     virtual void Update(double time_step) { (void)time_step; }
+    virtual void Disconnect() {
+        bus_->Disconnect("engine", bus_connection_);
+    }
 };
 
 #endif // ENGINE_SYSTEM_INTERFACE_H_
