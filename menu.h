@@ -47,7 +47,6 @@ public:
 
         text_ = new Text();
         text_->AddFont("menu", "fonts/menu_font.ttf");
-        // [TODO] : Project references two different 'freemono' fonts.
         text_->AddFont("version", "fonts/mono/FreeMono.ttf");
 
         InitMenuItems();
@@ -135,19 +134,17 @@ private:
     }
 
     GameDefinitions::GameStateEnum ActionNewGame() {
-        std::cout << "[TODO] New Game selected\n";
         return GameDefinitions::gameState_InGame;
     }
     GameDefinitions::GameStateEnum ActionContinue() {
-        std::cout << "[TODO] Continue selected\n";
+        // TODO : Implement load and continue.
         return GameDefinitions::gameState_InGame;
     }
     GameDefinitions::GameStateEnum ActionSettings() {
-        std::cout << "[TODO] Settings selected\n";
+        // TODO : Implement settings.
         return GameDefinitions::gameState_InMenu;
     }
     GameDefinitions::GameStateEnum ActionQuit() {
-        std::cout << "[TODO] Quit selected\n";
         DISPLAY.RequestQuit();
         return GameDefinitions::gameState_InMenu;
     }

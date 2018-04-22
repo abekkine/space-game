@@ -13,28 +13,29 @@
 
 #include "systems/engine_system_interface.h"
 #include "systems/radar_system_interface.h"
+#include "systems/hull_system_interface.h"
 #include "systems/ship_systems_manager.h"
 
+// TODO : Devices should be converted to systems.
 #include "devices/generic_hud_device.h"
 #include "devices/hotas_device.h"
+
+#include <assert.h>
 
 #define NUM_SHIP_VERTICES 8
 
 class SpaceShip {
 private:
+    DataBus * data_bus_;
+    DataBus::Connection * bus_connection_;
     // Replaceable ship systems
+    GenericHudDevice * hud_;
+    HOTASDevice * hotas_;
     EngineSystemInterface * engine_;
     RadarSystemInterface * radar_;
-    GenericHudDevice hud_;
-    HOTASDevice hotas_;
+    HullSystemInterface * hull_;
     EffectsManager * effects_;
 
-    // [TODO] : Hull would be a separate class?
-    const float kMaxHullStrength;
-    const float kImpulseThreshold;
-    float hull_strength_;
-
-private:
     double angle_;
     double mass_;
     double density_;
@@ -49,18 +50,25 @@ private:
     b2Vec2 vertices_[NUM_SHIP_VERTICES];
 
     float color_[3];
+
+    bool destroyed_;
 public:
     SpaceShip()
-    : engine_(0)
+    : data_bus_(0)
+    , bus_connection_(0)
+    , hud_(0)
+    , hotas_(0)
+    , engine_(0)
     , radar_(0)
+    , hull_(0)
     , effects_(0)
-    , kMaxHullStrength(10.0)
-    , kImpulseThreshold(1.0)
-    , hull_strength_(kMaxHullStrength)
+
     , angle_(0.0)
     , mass_(1.0)
     , density_(1.0)
     , thrust_force_(0.0)
+    , moment_(0.0)
+
     , position_{ 0.0, 0.0 }
     , velocity_{ 0.0, 0.0 }
     , gravity_{ 0.0, 0.0 }
@@ -75,13 +83,23 @@ public:
                  { 0.68,  0.14},
                  { 0.5 ,  0.16}}
     , color_{ 1.0, 1.0, 1.0 }
+    , destroyed_(false)
     {
+        data_bus_ = new DataBus();
+        // TODO : Ideally, SpaceShip class should not have any direct connections to ship systems / devices.
+        bus_connection_ = data_bus_->Connect("ship");
+
+        hud_ = new GenericHudDevice();
+        hotas_ = new HOTASDevice();
+
         engine_ = SYSTEMSMGR.getEngineSystem();
         radar_ = SYSTEMSMGR.getRadarSystem();
+        hull_ = SYSTEMSMGR.getHullSystem();
 
         using std::placeholders::_1;
         engine_->ThrustOutputHandler(std::bind(&SpaceShip::hndThrustOut, this, _1));
         engine_->MomentOutputHandler(std::bind(&SpaceShip::hndMomentOut, this, _1));
+        hull_->SetDestructionCallback(std::bind(&SpaceShip::OnDestroy, this));
     }
     ~SpaceShip() {}
     void SetAngle(double angle) {
@@ -116,20 +134,22 @@ public:
         gravity_ = Mass() * g;
 
         // Send player gravity to Data Bus.
+        // TODO : This value should be published by a sensor device/system.
         BD_Vector mg;
         mg.x = gravity_.x;
         mg.y = gravity_.y;
-        DATABUS.Publish(db_PlayerGravity, &mg);
+        if (bus_connection_ != 0) {
+            bus_connection_->Publish(db_PlayerGravity, &mg);
+        }
+    }
+    void OnDestroy() {
+        destroyed_ = true;
+        hud_->Disable();
+        hotas_->Disable();
     }
     void ProcessImpulse(float impulse) {
 
-        if (impulse > kImpulseThreshold) {
-            hull_strength_ -= impulse;
-            if (hull_strength_ <= 0.0) {
-                hud_.Disable();
-                hotas_.Disable();
-            }
-        }
+        hull_->ApplyImpact(impulse);
     }
     void BeginContact() {
     }
@@ -157,11 +177,12 @@ public:
         physics_body_->CreateFixture(&fixture);
 
         // Init engine system.
-        engine_->Init();
-        radar_->Init();
+        engine_->Init(data_bus_);
+        radar_->Init(data_bus_);
 
-        hud_.Init();
-        hotas_.Init();
+        hud_->Init(data_bus_);
+        hotas_->Init(data_bus_);
+        hull_->Init(data_bus_);
 
         effects_ = static_cast<EffectsManager*>(OBJMGR.Get("effects"));
     }
@@ -177,7 +198,7 @@ public:
         // Gravity
         physics_body_->ApplyForceToCenter(gravity_, true);
         // Thrust
-        if (hull_strength_ > 0.0) {
+        if (!destroyed_) {
             thrust_.x = thrust_force_ * cos(0.5 * M_PI + physics_body_->GetAngle());
             thrust_.y = thrust_force_ * sin(0.5 * M_PI + physics_body_->GetAngle());
             physics_body_->ApplyForceToCenter(thrust_, true);
@@ -204,24 +225,35 @@ public:
         position_ = physics_body_->GetPosition();
         angle_ = physics_body_->GetAngle() * 180.0 / M_PI;
 
-        // Send player velocity to Data Bus.
-        BD_Vector v;
-        v.x = velocity_.x;
-        v.y = velocity_.y;
-        DATABUS.Publish(db_PlayerVelocity, &v);
+        if(bus_connection_ != 0) {
+            // Send player velocity to Data Bus.
+            // TODO : Should be published by a sensor device.
+            // Used by HUD system.
+            BD_Vector v;
+            v.x = velocity_.x;
+            v.y = velocity_.y;
+            bus_connection_->Publish(db_PlayerVelocity, &v);
 
-        BD_Vector p;
-        p.x = position_.x;
-        p.y = position_.y;
-        DATABUS.Publish(db_PlayerPosition, &p);
+            // TODO : Should be published by a sensor device.
+            // Used by HUD & Radar systems.
+            BD_Vector p;
+            p.x = position_.x;
+            p.y = position_.y;
+            bus_connection_->Publish(db_PlayerPosition, &p);
 
-        BD_Scalar s;
-        s.value = angle_;
-        DATABUS.Publish(db_PlayerAngle, &s);
+            // TODO : Should be published by a sensor device.
+            // Used by HUD system.
+            BD_Scalar s;
+            s.value = angle_;
+            bus_connection_->Publish(db_PlayerAngle, &s);
 
-        BD_Scalar thrust;
-        thrust.value = thrust_force_ * lf;
-        DATABUS.Publish(db_PlayerThrust, &thrust);
+            // TODO : Thrust value should be published by engine system itself.
+            // TODO : LF should affect acceleration value, not thrust.
+            // Used by HUD system.
+            BD_Scalar thrust;
+            thrust.value = thrust_force_ * lf;
+            bus_connection_->Publish(db_PlayerThrust, &thrust);
+        }
 
         engine_->Update(delta_time);
         radar_->Update(delta_time);
@@ -229,7 +261,7 @@ public:
     void Render() {
         RenderShip();
         DISPLAY.UiMode();
-        hud_.Render();
+        hud_->Render();
     }
     void RenderShip() {
         glLoadIdentity();
@@ -243,36 +275,55 @@ public:
         glEnd();
     }
     void HotasInput(int key, bool action) {
+        assert(hotas_ != 0);
         switch(key) {
         case GLFW_KEY_W: // main thruster
             if (action == true) {
                 // enable thruster.
-                hotas_.SetThrottle(1.0);
+                hotas_->SetThrottle(1.0);
             }
             else {
                 // disable thruster.
-                hotas_.SetThrottle(0.0);
+                hotas_->SetThrottle(0.0);
             }
             break;
         case GLFW_KEY_A: // right thruster
             if (action == true) {
-                hotas_.SetSteering(-1.0);
+                hotas_->SetSteering(-1.0);
             }
             else {
-                hotas_.SetSteering(0.0);
+                hotas_->SetSteering(0.0);
             }
             break;
         case GLFW_KEY_D: // left thruster
             if (action == true) {
-                hotas_.SetSteering(1.0);
+                hotas_->SetSteering(1.0);
             }
             else {
-                hotas_.SetSteering(0.0);
+                hotas_->SetSteering(0.0);
             }
             break;
         case GLFW_KEY_G:
-            hotas_.ToggleLandingGear();
+            hotas_->ToggleLandingGear();
             break;
+
+#ifdef DISCONNECT_TEST
+        case GLFW_KEY_1: // hud
+            hud_->Disconnect();
+            break;
+        case GLFW_KEY_2: // ship
+            data_bus_->Disconnect("ship", bus_connection_);
+            break;
+        case GLFW_KEY_3: // engine
+            engine_->Disconnect();
+            break;
+        case GLFW_KEY_4: // hull
+            hull_->Disconnect();
+            break;
+        case GLFW_KEY_5: // radar
+            radar_->Disconnect();
+            break;
+#endif // DISCONNECT_TEST
         }
     }
 };

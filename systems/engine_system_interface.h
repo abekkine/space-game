@@ -3,9 +3,13 @@
 
 #include "ship_system_interface.h"
 
+#include <assert.h>
+
 #include <functional>
 
 class EngineSystemInterface : public ShipSystemInterface {
+public:
+    virtual ~EngineSystemInterface() {}
 public:
 // Pilot commands
     virtual void MainThrustCommand(double value) = 0;
@@ -25,8 +29,15 @@ public:
     virtual void MomentOutputHandler(std::function<void(double)> momentOut) = 0;
 
 // Standard ship system interface
-    virtual void Init() {}
+    virtual void Init(DataBus* bus) {
+        assert(bus != 0);
+        bus_ = bus;
+        bus_connection_ = bus_->Connect("engine");
+    }
     virtual void Update(double time_step) { (void)time_step; }
+    virtual void Disconnect() {
+        bus_->Disconnect("engine", bus_connection_);
+    }
 };
 
 #endif // ENGINE_SYSTEM_INTERFACE_H_

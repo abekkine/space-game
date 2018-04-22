@@ -2,6 +2,7 @@
 #define GENERIC_HUD_DEVICE_H_
 
 #include <GLFW/glfw3.h>
+#include <assert.h>
 
 #include <mutex>
 
@@ -19,8 +20,9 @@ private:
     std::mutex d_mutex_;
 public:
     GenericHudDevice()
-    : ShipDevice()
     {
+        bus_ = 0;
+        bus_connection_ = 0;
         active_ = true;
         gx = gy = 0.0;
         thrust = 0.0;
@@ -32,22 +34,27 @@ public:
     void Disable() {
         active_ = false;
     }
-    void Init() {
-        using std::placeholders::_1;
-        bus_->Subscribe(db_PlayerPosition,
-            std::bind(&GenericHudDevice::hndPlayerPosition, this, _1));
-        bus_->Subscribe(db_PlayerAngle,
-            std::bind(&GenericHudDevice::hndPlayerAngle, this, _1));
-        bus_->Subscribe(db_PlayerGravity,
-            std::bind(&GenericHudDevice::hndPlayerGravity, this, _1));
-        bus_->Subscribe(db_PlayerVelocity,
-            std::bind(&GenericHudDevice::hndPlayerVelocity, this, _1));
-        bus_->Subscribe(db_PlayerThrust,
-            std::bind(&GenericHudDevice::hndPlayerThrust, this, _1));
-        bus_->Subscribe(db_PlayerFuel,
-            std::bind(&GenericHudDevice::hndFuelQuantity, this, _1));
-        bus_->Subscribe(db_DetectionList,
-            std::bind(&GenericHudDevice::hndRadarDetections, this, _1));
+    void Init(DataBus* bus) {
+        assert(bus != 0);
+        bus_ = bus;
+        bus_connection_ = bus_->Connect("hud");
+        if (bus_connection_ != 0) {
+            using std::placeholders::_1;
+            bus_connection_->Subscribe(db_PlayerPosition,
+                std::bind(&GenericHudDevice::hndPlayerPosition, this, _1));
+            bus_connection_->Subscribe(db_PlayerAngle,
+                std::bind(&GenericHudDevice::hndPlayerAngle, this, _1));
+            bus_connection_->Subscribe(db_PlayerGravity,
+                std::bind(&GenericHudDevice::hndPlayerGravity, this, _1));
+            bus_connection_->Subscribe(db_PlayerVelocity,
+                std::bind(&GenericHudDevice::hndPlayerVelocity, this, _1));
+            bus_connection_->Subscribe(db_PlayerThrust,
+                std::bind(&GenericHudDevice::hndPlayerThrust, this, _1));
+            bus_connection_->Subscribe(db_PlayerFuel,
+                std::bind(&GenericHudDevice::hndFuelQuantity, this, _1));
+            bus_connection_->Subscribe(db_DetectionList,
+                std::bind(&GenericHudDevice::hndRadarDetections, this, _1));
+        }
 
         DISPLAY.GetSize(scr_width_, scr_height_);
         hud_position_x_ = scr_width_ >> 1;
@@ -56,6 +63,9 @@ public:
         big_marker_size_ = 0.02 * scr_height_;
         small_marker_size_ = 0.01 * scr_height_;
         vector_scale_ = 0.01 * scr_height_;
+    }
+    void Disconnect() {
+        bus_->Disconnect("hud", bus_connection_);
     }
     void Render() {
         if (!active_) {

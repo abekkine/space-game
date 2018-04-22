@@ -8,8 +8,8 @@
 #include "game_play.h"
 #include "menu.h"
 #include "universe.h"
-
 #include "object_manager.h"
+#include "game_timer.h"
 
 class Game {
 public:
@@ -69,7 +69,7 @@ public:
 
             DISPLAY.PostRender();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            GameTimer::Sleep(10);
         }
 
         DISPLAY.Quit();

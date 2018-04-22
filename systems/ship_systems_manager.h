@@ -1,40 +1,40 @@
 #ifndef SHIP_SYSTEMS_MANAGER_H_
 #define SHIP_SYSTEMS_MANAGER_H_
 
-#include "engine_system_interface.h"
 #include "basic_engine_system.h"
 #include "basic_radar_system.h"
+#include "basic_hull_system.h"
 
 class ShipSystemsManager : public Singleton<ShipSystemsManager> {
 public:
     explicit ShipSystemsManager(token)
-    : ship_engine_(0)
+    : engine_(0)
     , radar_(0)
+    , hull_(0)
     {}
     ~ShipSystemsManager() {}
     EngineSystemInterface* getEngineSystem() {
-        if (ship_engine_ == 0) {
-            createEngineSystem();
+        if (engine_ == 0) {
+            engine_ = new BasicEngineSystem();
         }
-        return ship_engine_;
+        return engine_;
     }
-    BasicRadarSystem* getRadarSystem() {
+    RadarSystemInterface* getRadarSystem() {
         if (radar_ == 0) {
-            createRadarSystem();
+            radar_ = new BasicRadarSystem();
         }
         return radar_;
     }
-private:
-    void createEngineSystem() {
-        // Decide which engine to create by ship configuration
-        ship_engine_ = new BasicEngineSystem();
-    }
-    void createRadarSystem() {
-        radar_ = new BasicRadarSystem();
+    HullSystemInterface* getHullSystem() {
+        if (hull_ == 0) {
+            hull_ = new BasicHullSystem();
+        }
+        return hull_;
     }
 private:
-    EngineSystemInterface* ship_engine_;
-    BasicRadarSystem * radar_;
+    EngineSystemInterface* engine_;
+    RadarSystemInterface* radar_;
+    HullSystemInterface* hull_;
 };
 
 #define SYSTEMSMGR ShipSystemsManager::Instance()

@@ -6,7 +6,6 @@
 #include <vector>
 #include <mutex>
 
-#include "singleton.h"
 struct BusDataInterface {
     virtual ~BusDataInterface() {}
 };
@@ -20,6 +19,7 @@ enum DataChannel {
     db_PlayerGravity,
     db_PlayerFuel,
     db_DetectionList,
+    db_ShipDamage,
     // Add more when needed...
     db_All = 255,
 };
@@ -50,50 +50,74 @@ struct BD_RadarDetectionList : public BusDataInterface {
 typedef std::function<void(BusDataInterface *)> BusDataHandler;
 typedef std::vector<BusDataHandler> BusDataHandlerList;
 
-// [TODO] : DataBus may not be a Singleton, since it's part
-//        : of space ship. It would be passed to ship
-//        : systems during initialization.
-class DataBus : public Singleton<DataBus> {
+class DataBus {
 public:
-    explicit DataBus(token) {
-    }
+    struct Connection {
+        DataBus* bus_;
+        Connection(DataBus* bus) : bus_(bus) {
+            assert(bus_ != 0);
+        }
+        ~Connection() {}
+        bool CheckChannel(DataChannel channel) {
+            auto found = subscribers_.find(channel);
+            if (found != subscribers_.end()) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        void Subscribe(DataChannel channel, BusDataHandler handler) {
+            if (false == CheckChannel(channel)) {
+                BusDataHandlerList v;
+                subscribers_[channel] = v;
+            }
+            subscribers_[channel].push_back(handler);
+        }
+        void Publish(DataChannel channel, BusDataInterface * data) {
+            bus_->Send(channel, data);
+        }
+        std::unordered_map<DataChannel, BusDataHandlerList, std::hash<int>> subscribers_;
+    };
+public:
+    DataBus() {}
     ~DataBus() {}
-    bool CheckChannel(DataChannel channel) {
-        auto found = subscribers_.find(channel);
-        if (found != subscribers_.end()) {
-            return true;
+    Connection* Connect(std::string label) {
+        std::lock_guard<std::mutex> lock(bus_mutex_);
+        auto f = connections_.find(label);
+        if (f == connections_.end()) {
+            Connection *newConnection;
+            newConnection = new Connection(this);
+            connections_[label] = newConnection;
         }
-        else {
-            return false;
+        return connections_[label];
+    }
+    void Disconnect(std::string label, Connection*& conn) {
+        std::lock_guard<std::mutex> lock(bus_mutex_);
+        auto f= connections_.find(label);
+        if (f != connections_.end()) {
+            assert(conn == connections_[label]);
+            connections_.erase(label);
+            delete conn;
+            conn = 0;
         }
     }
-    void Publish(DataChannel channel, BusDataInterface * data) {
+    void Send(DataChannel channel, BusDataInterface * data) {
         std::lock_guard<std::mutex> lock(bus_mutex_);
-        if (CheckChannel(channel)) {
-            for (auto handler : subscribers_[channel]) {
-                handler(data);
+        for (auto c : connections_) {
+            if (c.second->CheckChannel(channel)) {
+                for (auto handler : c.second->subscribers_[channel]) {
+                    handler(data);
+                }
             }
         }
     }
-    void Subscribe(DataChannel channel, BusDataHandler handler) {
-        std::lock_guard<std::mutex> lock(bus_mutex_);
-        if (false == CheckChannel(channel)) {
-            BusDataHandlerList v;
-            subscribers_[channel] = v;
-        }
-        subscribers_[channel].push_back(handler);
-    }
-    // [TODO] : An unsubscribe method would be needed for data bus,
-    //        : for devices need to be disconnected.
-    void Unsubscribe() {}
 
 private:
-    // [TODO] : Unless there isn't multi-threaded access to
-    //        : data bus, no mutex would be needed.
+    // TODO : Unless there isn't multi-threaded access to
+    //      : data bus, no mutex would be needed.
     std::mutex bus_mutex_;
-    std::unordered_map<DataChannel, BusDataHandlerList, std::hash<int>> subscribers_;
+    std::unordered_map<std::string, Connection*> connections_;
 };
-
-#define DATABUS DataBus::Instance()
 
 #endif // DATA_BUS_H_

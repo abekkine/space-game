@@ -5,13 +5,12 @@
 
 class ShipDevice {
 public:
-    ShipDevice() {
-        bus_ = &DATABUS;
-    }
     virtual ~ShipDevice() {}
-    virtual void Init() = 0;
+    // TODO : Instead of init Connect / Disconnect (bus) methods would be provided.
+    virtual void Init(DataBus* bus) = 0;
 protected:
     DataBus * bus_;
+    DataBus::Connection * bus_connection_;
 };
 
 #endif // SHIP_DEVICE_H_

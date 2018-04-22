@@ -9,20 +9,16 @@
 #include "texture.h"
 #include "background.h"
 
-#include "planet.h"
+#include "universe.h"
 #include "space_ship.h"
 #include "effects_manager.h"
-
 #include "object_manager.h"
 
 class GamePlay {
 private:
     double debug_scale_;
-    int num_planets_;
-    Planet* planet_;
     EffectsManager* effects_;
-    // [TODO] : Allocate from heap, instead of stack?
-    Background background_;
+    Background* background_;
 
 public:
     GamePlay() {
@@ -31,14 +27,15 @@ public:
     ~GamePlay() {}
     void Init() {
 
-        background_.Init();
+        background_ = new Background();
+        background_->Init();
 
         ship_ = static_cast<SpaceShip*>(OBJMGR.Get("ship"));
-        num_planets_ = *(static_cast<int*>(OBJMGR.Get("nplanets")));
-        planet_ = static_cast<Planet *>(OBJMGR.Get("planets"));
+        universe_ = static_cast<Universe*>(OBJMGR.Get("universe"));
         effects_ = static_cast<EffectsManager *>(OBJMGR.Get("effects"));
     }
 
+    Universe* universe_;
     SpaceShip* ship_;
     double ship_angle_;
     double ship_x_;
@@ -64,13 +61,13 @@ public:
         glRotated(ship_angle_, 0.0, 0.0, -1.0);
         glTranslated(-ship_x_, -ship_y_, 0.0);
 
-        RenderBackground();
-        RenderUniverse();
-        RenderEffects();
+        background_->Render(ship_x_, ship_y_, ship_angle_);
+        universe_->Render();
+        effects_->Render();
 
         glPopMatrix();
 
-        RenderShip();
+        ship_->Render();
     }
     GameDefinitions::GameStateEnum KeyInput(int key, bool action) {
         GameDefinitions::GameStateEnum state = GameDefinitions::gameState_InGame;
@@ -96,30 +93,6 @@ public:
         }
 
         return state;
-    }
-
-private:
-    void RenderShip() {
-
-        ship_->Render();
-
-    }
-    void RenderUniverse() {
-
-        // [TODO] : Render method from universe class may be used instead.
-        for (int i=0; i<num_planets_; ++i) {
-            glPushMatrix();
-            planet_[i].Render();
-            glPopMatrix();
-        }
-    }
-    void RenderEffects() {
-
-        effects_->Render();
-    }
-
-    void RenderBackground() {
-        background_.Render(ship_x_, ship_y_, ship_angle_);
     }
 };
 

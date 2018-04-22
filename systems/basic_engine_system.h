@@ -2,7 +2,8 @@
 #define BASIC_ENGINE_SYSTEM_H_
 
 #include "engine_system_interface.h"
-#include "data_bus.h"
+
+#include <assert.h>
 
 // HOTAS sends commands here, and proper thrust forces
 // and moments generated here, and told to physics.
@@ -13,8 +14,8 @@ public:
     : thrustUpdateHandler_(0)
     , momentUpdateHandler_(0)
     , kFuelVolumePerQuantity(0.1)
-    , fuel_tank_size_(5.0)
-    , remaining_fuel_(5.0)
+    , fuel_tank_size_(1.0)
+    , remaining_fuel_(1.0)
     , main_thruster_(0.0)
     , left_thruster_(0.0)
     , right_thruster_(0.0)
@@ -27,12 +28,10 @@ public:
     void ThrustOutputHandler(std::function<void(double)> thrustOut) {
         thrustUpdateHandler_ = thrustOut;
     }
-
     std::function<void(double)> momentUpdateHandler_;
     void MomentOutputHandler(std::function<void(double)> momentOut) {
         momentUpdateHandler_ = momentOut;
     }
-
     void MainThrustCommand(double value) {
         if (remaining_fuel_ > 0.0) {
             main_thruster_ = 20.0 * value;
@@ -75,7 +74,6 @@ public:
     void StrafeRightCommand(double value) {
         (void)value;
     }
-
     void UpdateThrust() {
         if (thrustUpdateHandler_ != 0) {
             thrustUpdateHandler_(main_thruster_);
@@ -85,9 +83,10 @@ public:
             momentUpdateHandler_(right_thruster_ - left_thruster_);
         }
     }
+    void Init(DataBus* bus) {
 
-    void Init() {}
-
+        EngineSystemInterface::Init(bus);
+    }
     void Update(double time_step) {
         const double fuel_consumption_rate = 0.001; // units per second
         if (remaining_fuel_ > 0.0) {
@@ -97,16 +96,18 @@ public:
             if (remaining_fuel_ < 0.0) {
                 remaining_fuel_ = 0.0;
             }
-            BD_Scalar fuel;
-            fuel.value = remaining_fuel_ / fuel_tank_size_;
-            DATABUS.Publish(db_PlayerFuel, &fuel);
+            if (bus_connection_ != 0) {
+                // Used by HUD system.
+                BD_Scalar fuel;
+                fuel.value = remaining_fuel_ / fuel_tank_size_;
+                bus_connection_->Publish(db_PlayerFuel, &fuel);
+            }
         }
         else {
             StopThrusters();
             UpdateThrust();
         }
     }
-
     double Refuel(double value) {
         double surplus_fuel;
         if (remaining_fuel_ < fuel_tank_size_) {
@@ -154,4 +155,3 @@ private:
 };
 
 #endif // BASIC_ENGINE_SYSTEM_H_
-#

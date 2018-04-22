@@ -11,7 +11,7 @@ public:
     : font_(0)
     , default_font_(0)
     {
-        default_font_ = new Font("fonts/mono/freemono.ttf");
+        default_font_ = new Font("fonts/mono/FreeMono.ttf");
         default_font_->FaceSize(40);
     }
     ~Text() {
