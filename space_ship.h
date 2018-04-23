@@ -141,7 +141,7 @@ public:
         mg.x = gravity_.x;
         mg.y = gravity_.y;
         if (bus_connection_ != 0) {
-            bus_connection_->Publish(db_PlayerGravity, &mg);
+            bus_connection_->Publish(db_ShipGravity, &mg);
         }
     }
     void OnDestroy() {
@@ -236,7 +236,7 @@ public:
             BD_Vector v;
             v.x = velocity_.x;
             v.y = velocity_.y;
-            bus_connection_->Publish(db_PlayerVelocity, &v);
+            bus_connection_->Publish(db_ShipVelocity, &v);
 
             // TODO : Should be published by a sensor device (#115).
             BD_Scalar av;
@@ -248,20 +248,20 @@ public:
             BD_Vector p;
             p.x = position_.x;
             p.y = position_.y;
-            bus_connection_->Publish(db_PlayerPosition, &p);
+            bus_connection_->Publish(db_ShipPosition, &p);
 
             // TODO : Should be published by a sensor device (#115).
             // Used by HUD system.
             BD_Scalar s;
             s.value = angle_;
-            bus_connection_->Publish(db_PlayerAngle, &s);
+            bus_connection_->Publish(db_ShipAngle, &s);
 
             // TODO : Thrust value should be published by engine system itself (#116).
             // TODO : LF should affect acceleration value, not thrust.
             // Used by HUD system.
             BD_Scalar thrust;
             thrust.value = thrust_force_ * lf;
-            bus_connection_->Publish(db_PlayerThrust, &thrust);
+            bus_connection_->Publish(db_ShipThrust, &thrust);
         }
 
         engine_->Update(delta_time);

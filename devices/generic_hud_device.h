@@ -41,24 +41,15 @@ public:
         bus_ = bus;
         bus_connection_ = bus_->Connect("hud");
         if (bus_connection_ != 0) {
-            using std::placeholders::_1;
-            // TODO : define a macro (in data_bus) to simplify these statements (#118).
-            bus_connection_->Subscribe(db_PlayerPosition,
-                std::bind(&GenericHudDevice::hndPlayerPosition, this, _1));
-            bus_connection_->Subscribe(db_PlayerAngle,
-                std::bind(&GenericHudDevice::hndPlayerAngle, this, _1));
-            bus_connection_->Subscribe(db_PlayerGravity,
-                std::bind(&GenericHudDevice::hndPlayerGravity, this, _1));
-            bus_connection_->Subscribe(db_PlayerVelocity,
-                std::bind(&GenericHudDevice::hndPlayerVelocity, this, _1));
-            bus_connection_->Subscribe(db_PlayerThrust,
-                std::bind(&GenericHudDevice::hndPlayerThrust, this, _1));
-            bus_connection_->Subscribe(db_PlayerFuel,
-                std::bind(&GenericHudDevice::hndFuelQuantity, this, _1));
-            bus_connection_->Subscribe(db_DetectionList,
-                std::bind(&GenericHudDevice::hndRadarDetections, this, _1));
-            bus_connection_->Subscribe(db_ShipDamage,
-                std::bind(&GenericHudDevice::hndShipDamage, this, _1));
+
+            DB_SUBSCRIBE(GenericHudDevice, ShipPosition);
+            DB_SUBSCRIBE(GenericHudDevice, ShipAngle);
+            DB_SUBSCRIBE(GenericHudDevice, ShipGravity);
+            DB_SUBSCRIBE(GenericHudDevice, ShipVelocity);
+            DB_SUBSCRIBE(GenericHudDevice, ShipThrust);
+            DB_SUBSCRIBE(GenericHudDevice, ShipFuelQty);
+            DB_SUBSCRIBE(GenericHudDevice, DetectionList);
+            DB_SUBSCRIBE(GenericHudDevice, ShipDamage);
         }
 
         DISPLAY.GetSize(scr_width_, scr_height_);
@@ -242,52 +233,52 @@ private:
         delete [] detections;
     }
 private: // Handlers
-    void hndPlayerPosition(BusDataInterface *data) {
+    void dbHandleShipPosition(BusDataInterface *data) {
         BD_BasicPosition *p = static_cast<BD_BasicPosition *>(data);
         if (p != 0) {
             px = p->x;
             py = p->y;
         }
     }
-    void hndPlayerAngle(BusDataInterface *data) {
+    void dbHandleShipAngle(BusDataInterface *data) {
         BD_Scalar *a = static_cast<BD_Scalar *>(data);
         if (a != 0) {
             pa = a->value;
         }
     }
-    void hndPlayerGravity(BusDataInterface *data) {
+    void dbHandleShipGravity(BusDataInterface *data) {
         BD_Vector *v = static_cast<BD_Vector *>(data);
         if (v != 0) {
             gx = v->x;
             gy = v->y;
         }
     }
-    void hndPlayerVelocity(BusDataInterface *data) {
+    void dbHandleShipVelocity(BusDataInterface *data) {
         BD_Vector *v = static_cast<BD_Vector *>(data);
         if (v != 0) {
             vx = v->x;
             vy = v->y;
         }
     }
-    void hndPlayerThrust(BusDataInterface *data) {
+    void dbHandleShipThrust(BusDataInterface *data) {
         BD_Scalar *s = static_cast<BD_Scalar *>(data);
         if (s != 0) {
             thrust = s->value;
         }
     }
-    void hndFuelQuantity(BusDataInterface *data) {
+    void dbHandleShipFuelQty(BusDataInterface *data) {
         BD_Scalar *f = static_cast<BD_Scalar *>(data);
         if (f != 0) {
             fuel = f->value;
         }
     }
-    void hndRadarDetections(BusDataInterface *data) {
+    void dbHandleDetectionList(BusDataInterface *data) {
         BD_RadarDetectionList *d = static_cast<BD_RadarDetectionList *>(data);
         if (d != 0) {
             AddDetections(d->num_detections, d->data);
         }
     }
-    void hndShipDamage(BusDataInterface *data) {
+    void dbHandleShipDamage(BusDataInterface *data) {
         BD_Scalar *dr = static_cast<BD_Scalar *>(data);
         if (dr != 0) {
             // TODO : Rename member variables with proper naming style (#117).
