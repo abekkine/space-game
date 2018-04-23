@@ -6,7 +6,7 @@
 class ShipDevice {
 public:
     virtual ~ShipDevice() {}
-    // TODO : Instead of init Connect / Disconnect (bus) methods would be provided.
+    // TODO : Instead of init Connect / Disconnect (bus) methods would be provided (#114).
     virtual void Init(DataBus* bus) = 0;
 protected:
     DataBus * bus_;

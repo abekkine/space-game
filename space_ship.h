@@ -16,7 +16,7 @@
 #include "systems/hull_system_interface.h"
 #include "systems/ship_systems_manager.h"
 
-// TODO : Devices should be converted to systems.
+// TODO : Devices should be converted to systems (#114).
 #include "devices/generic_hud_device.h"
 #include "devices/hotas_device.h"
 
@@ -88,7 +88,7 @@ public:
     , destroyed_(false)
     {
         data_bus_ = new DataBus();
-        // TODO : Ideally, SpaceShip class should not have any direct connections to ship systems / devices.
+        // TODO : Ideally, SpaceShip class should not have any direct connections to ship systems / devices (#115).
         bus_connection_ = data_bus_->Connect("ship");
 
         hud_ = new GenericHudDevice();
@@ -136,7 +136,7 @@ public:
         gravity_ = Mass() * g;
 
         // Send player gravity to Data Bus.
-        // TODO : This value should be published by a sensor device/system.
+        // TODO : This value should be published by a sensor device/system (#115).
         BD_Vector mg;
         mg.x = gravity_.x;
         mg.y = gravity_.y;
@@ -231,32 +231,32 @@ public:
 
         if(bus_connection_ != 0) {
             // Send player velocity to Data Bus.
-            // TODO : Should be published by a sensor device.
+            // TODO : Should be published by navigation system (#115).
             // Used by HUD system.
             BD_Vector v;
             v.x = velocity_.x;
             v.y = velocity_.y;
             bus_connection_->Publish(db_PlayerVelocity, &v);
 
-            // TODO : Should be published by a sensor device.
+            // TODO : Should be published by a sensor device (#115).
             BD_Scalar av;
             av.value = angular_velocity_;
             bus_connection_->Publish(db_ShipAngularVelocity, &av);
 
-            // TODO : Should be published by a sensor device.
+            // TODO : Should be published by a sensor device (#115).
             // Used by HUD & Radar systems.
             BD_Vector p;
             p.x = position_.x;
             p.y = position_.y;
             bus_connection_->Publish(db_PlayerPosition, &p);
 
-            // TODO : Should be published by a sensor device.
+            // TODO : Should be published by a sensor device (#115).
             // Used by HUD system.
             BD_Scalar s;
             s.value = angle_;
             bus_connection_->Publish(db_PlayerAngle, &s);
 
-            // TODO : Thrust value should be published by engine system itself.
+            // TODO : Thrust value should be published by engine system itself (#116).
             // TODO : LF should affect acceleration value, not thrust.
             // Used by HUD system.
             BD_Scalar thrust;
