@@ -21,7 +21,7 @@ private:
 public:
     GenericHudDevice()
     {
-        // TODO : Initialize all member variables.
+        // TODO : Initialize all member variables (#117).
         bus_ = 0;
         bus_connection_ = 0;
         active_ = true;
@@ -42,7 +42,7 @@ public:
         bus_connection_ = bus_->Connect("hud");
         if (bus_connection_ != 0) {
             using std::placeholders::_1;
-            // TODO : define a macro (in data_bus) to simplify these statements.
+            // TODO : define a macro (in data_bus) to simplify these statements (#118).
             bus_connection_->Subscribe(db_PlayerPosition,
                 std::bind(&GenericHudDevice::hndPlayerPosition, this, _1));
             bus_connection_->Subscribe(db_PlayerAngle,
@@ -77,7 +77,7 @@ public:
             return;
         }
 
-        // TODO : Write separate functions for different parts of HUD.
+        // TODO : Write separate functions for different parts of HUD (#117).
 
         glPushMatrix();
         glLoadIdentity();
@@ -290,7 +290,7 @@ private: // Handlers
     void hndShipDamage(BusDataInterface *data) {
         BD_Scalar *dr = static_cast<BD_Scalar *>(data);
         if (dr != 0) {
-            // TODO : Rename member variables with proper naming style.
+            // TODO : Rename member variables with proper naming style (#117).
             damage_ratio = dr->value;
         }
     }
