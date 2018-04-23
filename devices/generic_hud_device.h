@@ -85,8 +85,6 @@ public:
             return;
         }
 
-        // TODO : Write separate functions for different parts of HUD (#117).
-
         glPushMatrix();
         glLoadIdentity();
 
@@ -94,7 +92,18 @@ public:
         glScaled(1.0, -1.0, 1.0);
         glRotated(ship_angle_, 0.0, 0.0, -1.0);
 
-        // HUD Circle
+        RenderHudDial();
+        RenderShipVectors();
+        RenderRadarDetections();
+
+        glPopMatrix();
+
+        RenderFuelIndicator();
+        RenderDamageIndicator();
+    }
+
+private:
+    void RenderHudDial() {
         glLineWidth(4.0);
         glColor4f(0.4, 1.0, 0.4, 0.5);
         glBegin(GL_LINE_LOOP);
@@ -119,8 +128,8 @@ public:
             glVertex2i(hud_size_ + small_marker_size_, 0.0);
             glVertex2i(hud_size_ + 1, 0.0);
         glEnd();
-
-        // Platform/Ownship Vectors
+    }
+    void RenderShipVectors() {
         glPushMatrix();
         glScaled(vector_scale_, vector_scale_, 1.0);
         glLineWidth(2.0);
@@ -143,21 +152,18 @@ public:
             glVertex2d(ship_velocity_x_, ship_velocity_y_);
         glEnd();
         glPopMatrix();
-
+    }
+    void RenderRadarDetections() {
         // Detections
-        {
-            glPushMatrix();
-            glScaled(hud_size_, hud_size_, 1.0);
-            std::lock_guard<std::mutex> lock(detection_mutex_);
-            for (auto d : detection_list_) {
-                RenderArc(d->center, d->horizon);
-            }
-            glPopMatrix();
+        glPushMatrix();
+        glScaled(hud_size_, hud_size_, 1.0);
+        std::lock_guard<std::mutex> lock(detection_mutex_);
+        for (auto d : detection_list_) {
+            RenderArc(d->center, d->horizon);
         }
-
         glPopMatrix();
-
-        // Fuel Gauge
+    }
+    void RenderFuelIndicator() {
         int fw = 120;
         int fh = 20;
         int t = 30;
@@ -182,10 +188,12 @@ public:
         glVertex2i(scr_width_ - t, t + fh);
         glVertex2i(scr_width_ - fw - t, t + fh);
         glEnd();
-
-        // Damage Gauge
+    }
+    void RenderDamageIndicator() {
         int dw = 120;
+        int fh = 20;
         int dh = 20;
+        int t = 30;
         int dl = dw * damage_ratio_;
 
         glPushMatrix();
@@ -207,9 +215,8 @@ public:
         glVertex2i(scr_width_ - t, 2*t + fh + dh);
         glVertex2i(scr_width_ - dw - t, 2*t + fh + dh);
         glEnd();
-    }
 
-private:
+    }
     void RenderArc(double center_angle, double horizon_angle) {
         double a_begin = (center_angle - horizon_angle);
         double a_end = (center_angle + horizon_angle);
