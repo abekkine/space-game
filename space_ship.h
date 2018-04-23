@@ -42,6 +42,7 @@ private:
     double thrust_force_;
     double moment_;
 
+    double angular_velocity_;
     b2Vec2 position_;
     b2Vec2 velocity_;
     b2Vec2 gravity_;
@@ -69,6 +70,7 @@ public:
     , thrust_force_(0.0)
     , moment_(0.0)
 
+    , angular_velocity_(0.0)
     , position_{ 0.0, 0.0 }
     , velocity_{ 0.0, 0.0 }
     , gravity_{ 0.0, 0.0 }
@@ -216,6 +218,8 @@ public:
             thrust_.x = 0.0;
             thrust_.y = 0.0;
         }
+        // Get angular velocity for devices
+        angular_velocity_ = physics_body_->GetAngularVelocity();
         // Get velocity for devices.
         velocity_ = physics_body_->GetLinearVelocity();
         double speed = velocity_.Length();
@@ -233,6 +237,11 @@ public:
             v.x = velocity_.x;
             v.y = velocity_.y;
             bus_connection_->Publish(db_PlayerVelocity, &v);
+
+            // TODO : Should be published by a sensor device.
+            BD_Scalar av;
+            av.value = angular_velocity_;
+            bus_connection_->Publish(db_ShipAngularVelocity, &av);
 
             // TODO : Should be published by a sensor device.
             // Used by HUD & Radar systems.
@@ -303,6 +312,10 @@ public:
                 hotas_->SetSteering(0.0);
             }
             break;
+        case GLFW_KEY_S: // stop rotation
+            if (action == true) {
+                hotas_->Stabilize();
+            }
         case GLFW_KEY_G:
             hotas_->ToggleLandingGear();
             break;

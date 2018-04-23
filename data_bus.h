@@ -15,6 +15,7 @@ enum DataChannel {
     db_PlayerPosition,
     db_PlayerAngle,
     db_PlayerVelocity,
+    db_ShipAngularVelocity,
     db_PlayerThrust,
     db_PlayerGravity,
     db_PlayerFuel,

@@ -19,6 +19,8 @@ public:
     , main_thruster_(0.0)
     , left_thruster_(0.0)
     , right_thruster_(0.0)
+    , stabilization_mode_(false)
+    , angular_velocity_(0.0)
     {
         UpdateThrust();
     }
@@ -32,7 +34,7 @@ public:
     void MomentOutputHandler(std::function<void(double)> momentOut) {
         momentUpdateHandler_ = momentOut;
     }
-    void MainThrustCommand(double value) {
+    void ThrustForwardsCommand(double value) {
         if (remaining_fuel_ > 0.0) {
             main_thruster_ = 20.0 * value;
             left_thruster_ = 0.0;
@@ -40,26 +42,28 @@ public:
         }
         UpdateThrust();
     }
-    void ReverseThrustCommand(double value) {
+    void ThrustBackwardsCommand(double value) {
         (void)value;
     }
-    void RotateLeftCommand(double value) {
+    void MomentCcwCommand(double value) {
         if (remaining_fuel_ > 0.0) {
             right_thruster_ = value;
             main_thruster_ = 0.0;
             left_thruster_ = 0.0;
         }
+        stabilization_mode_ = false;
         UpdateThrust();
     }
-    void RotateRightCommand(double value) {
+    void MomentCwCommand(double value) {
         if (remaining_fuel_ > 0.0) {
             left_thruster_ = value;
             main_thruster_ = 0.0;
             right_thruster_ = 0.0;
         }
+        stabilization_mode_ = false;
         UpdateThrust();
     }
-    void StopRotationCommand() {
+    void CancelMomentCommand() {
         StopThrusters();
         UpdateThrust();
     }
@@ -68,11 +72,14 @@ public:
         left_thruster_ = 0.0;
         right_thruster_ = 0.0;
     }
-    void StrafeLeftCommand(double value) {
+    void ThrustPortCommand(double value) {
         (void)value;
     }
-    void StrafeRightCommand(double value) {
+    void ThrustStarboardCommand(double value) {
         (void)value;
+    }
+    void StabilizeRotation() {
+        stabilization_mode_ = true;
     }
     void UpdateThrust() {
         if (thrustUpdateHandler_ != 0) {
@@ -86,6 +93,10 @@ public:
     void Init(DataBus* bus) {
 
         EngineSystemInterface::Init(bus);
+
+        using std::placeholders::_1;
+        bus_connection_->Subscribe(db_ShipAngularVelocity,
+            std::bind(&BasicEngineSystem::hndShipAngularVelocity, this, _1));
     }
     void Update(double time_step) {
         const double fuel_consumption_rate = 0.001; // units per second
@@ -101,6 +112,25 @@ public:
                 BD_Scalar fuel;
                 fuel.value = remaining_fuel_ / fuel_tank_size_;
                 bus_connection_->Publish(db_PlayerFuel, &fuel);
+            }
+
+            if (stabilization_mode_) {
+                double aav = fabs(angular_velocity_);
+                if (aav > 0.001) {
+                    if (angular_velocity_ > 0.0) {
+                        left_thruster_ = 0.8 * aav;
+                        remaining_fuel_ -= time_step * fuel_consumption_rate * left_thruster_;
+                    } else if(angular_velocity_ < 0.0) {
+                        right_thruster_ = 0.8 * aav;
+                        remaining_fuel_ -= time_step * fuel_consumption_rate * right_thruster_;
+                    }
+                    UpdateThrust();
+                }
+                else {
+                    left_thruster_ = 0.0;
+                    right_thruster_ = 0.0;
+                    UpdateThrust();
+                }
             }
         }
         else {
@@ -146,12 +176,22 @@ public:
     }
 
 private:
+    void hndShipAngularVelocity(BusDataInterface *data) {
+        BD_Scalar *s = static_cast<BD_Scalar *>(data);
+        if (s != 0) {
+            angular_velocity_ = s->value;
+        }
+    }
+
+private:
     const double kFuelVolumePerQuantity;
     double fuel_tank_size_;
     double remaining_fuel_;
     double main_thruster_;
     double left_thruster_;
     double right_thruster_;
+    bool stabilization_mode_;
+    double angular_velocity_;
 };
 
 #endif // BASIC_ENGINE_SYSTEM_H_
