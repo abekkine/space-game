@@ -12,13 +12,14 @@ public:
     virtual ~EngineSystemInterface() {}
 public:
 // Pilot commands
-    virtual void MainThrustCommand(double value) = 0;
-    virtual void ReverseThrustCommand(double value) = 0;
-    virtual void RotateLeftCommand(double value) = 0;
-    virtual void RotateRightCommand(double value) = 0;
-    virtual void StopRotationCommand() = 0;
-    virtual void StrafeLeftCommand(double value) = 0;
-    virtual void StrafeRightCommand(double value) = 0;
+    virtual void ThrustForwardsCommand(double value) = 0;
+    virtual void ThrustBackwardsCommand(double value) = 0;
+    virtual void MomentCcwCommand(double value) = 0;
+    virtual void MomentCwCommand(double value) = 0;
+    virtual void CancelMomentCommand() = 0;
+    virtual void ThrustPortCommand(double value) = 0;
+    virtual void ThrustStarboardCommand(double value) = 0;
+    virtual void StabilizeRotation() = 0;
 // Fuel stuff
     virtual double Refuel(double value) = 0;
     virtual double DumpFuel(double value) = 0;

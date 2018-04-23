@@ -29,7 +29,7 @@ public:
             return;
         }
 
-        ship_engine_->MainThrustCommand(value);
+        ship_engine_->ThrustForwardsCommand(value);
     }
     void SetSteering(double value) {
         if (ship_engine_ == 0 || active_ == false) {
@@ -38,16 +38,23 @@ public:
 
         if (value < 0.0) {
             // Rotate Left
-            ship_engine_->RotateLeftCommand(-value);
+            ship_engine_->MomentCcwCommand(-value);
         }
         else if (value > 0.0) {
             // Rotate Right
-            ship_engine_->RotateRightCommand(value);
+            ship_engine_->MomentCwCommand(value);
         }
         else {
             // No rotate
-            ship_engine_->StopRotationCommand();
+            ship_engine_->CancelMomentCommand();
         }
+    }
+    void Stabilize() {
+        if (ship_engine_ == 0 || active_ == false) {
+            return;
+        }
+
+        ship_engine_->StabilizeRotation();
     }
     void ToggleLandingGear() {}
 
