@@ -15,10 +15,8 @@
 #include "systems/radar_system_interface.h"
 #include "systems/hull_system_interface.h"
 #include "systems/ship_systems_manager.h"
-
-// TODO : Devices should be converted to systems (#114).
-#include "devices/generic_hud_device.h"
-#include "devices/hotas_device.h"
+#include "systems/generic_hud_device.h"
+#include "systems/hotas_device.h"
 
 #include <assert.h>
 
