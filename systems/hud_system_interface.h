@@ -8,6 +8,7 @@
 class HudSystemInterface : public ShipSystemInterface {
 public:
     virtual ~HudSystemInterface() {}
+    virtual void Render() = 0;
 public:
     virtual void Init(DataBus * bus) {
         assert(bus != 0);

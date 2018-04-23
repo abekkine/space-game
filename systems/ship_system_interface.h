@@ -9,7 +9,11 @@ public:
     virtual void Update(double time_step) = 0;
     // TODO : Also providing a Connect() method here would be proper (#114).
     virtual void Disconnect() = 0;
+public:
+    virtual void Enable() { active_ = true; }
+    virtual void Disable() { active_ = false; }
 protected:
+    bool active_;
     DataBus* bus_;
     DataBus::Connection* bus_connection_;
 };

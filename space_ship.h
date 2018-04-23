@@ -26,12 +26,13 @@ class SpaceShip {
 private:
     DataBus * data_bus_;
     DataBus::Connection * bus_connection_;
-    // Replaceable ship systems
-    GenericHudDevice * hud_;
-    HOTASDevice * hotas_;
+    // BEGIN -- Ship Systems
+    HudSystemInterface * hud_;
+    HotasSystemInterface * hotas_;
     EngineSystemInterface * engine_;
     RadarSystemInterface * radar_;
     HullSystemInterface * hull_;
+    // END -- Ship Systems
     EffectsManager * effects_;
 
     double angle_;
@@ -89,12 +90,13 @@ public:
         // TODO : Ideally, SpaceShip class should not have any direct connections to ship systems / devices (#115).
         bus_connection_ = data_bus_->Connect("ship");
 
-        hud_ = new GenericHudDevice();
-        hotas_ = new HOTASDevice();
-
+        hud_ = SYSTEMSMGR.getHudSystem();
+        hotas_ = SYSTEMSMGR.getHotasSystem();
         engine_ = SYSTEMSMGR.getEngineSystem();
         radar_ = SYSTEMSMGR.getRadarSystem();
         hull_ = SYSTEMSMGR.getHullSystem();
+
+        hotas_->ConnectEngine(engine_);
 
         using std::placeholders::_1;
         engine_->ThrustOutputHandler(std::bind(&SpaceShip::hndThrustOut, this, _1));

@@ -49,11 +49,7 @@ public:
     }
     ~GenericHudDevice() {
     }
-    void Disable() {
-        active_ = false;
-    }
     void Init(DataBus* bus) {
-
         HudSystemInterface::Init(bus);
 
         if (bus_connection_ != 0) {
@@ -307,7 +303,6 @@ private:
     double detection_u_;
     double detection_v_;
     std::mutex detection_mutex_;
-    bool active_;
     double ship_fuel_percent_;
     double damage_ratio_;
     double ship_x_;
