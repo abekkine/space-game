@@ -17,19 +17,36 @@ private:
         {}
         double center, horizon;
     };
-    std::mutex d_mutex_;
 public:
     GenericHudDevice()
     {
-        // TODO : Initialize all member variables (#117).
+        detection_size_ = 0.0;
+        detection_u_ = 0.0;
+        detection_v_ = 0.0;
+        // detection_mutex_;
+        active_ = true;
+        ship_fuel_percent_ = 0.0;
+        damage_ratio_ = 1.0;
+        ship_x_ = 0.0;
+        ship_y_ = 0.0;
+        ship_angle_ = 0.0;
+        g_x_ = 0.0;
+        g_y_ = 0.0;
+        ship_thrust_force_ = 0.0;
+        ship_velocity_x_ = 0.0;
+        ship_velocity_y_ = 0.0;
+        scr_width_ = 0;
+        scr_height_ = 0;
+        hud_position_x_ = 0;
+        hud_position_y_ = 0;
+        hud_size_ = 0;
+        big_marker_size_ = 0;
+        small_marker_size_ = 0;
+        vector_scale_ = 0;
+        detection_list_.clear();
+
         bus_ = 0;
         bus_connection_ = 0;
-        active_ = true;
-        gx = gy = 0.0;
-        thrust = 0.0;
-        vx = vy = 0.0;
-        px = py = pa = 0.0;
-        damage_ratio = 1.0;
     }
     ~GenericHudDevice() {
     }
@@ -75,7 +92,7 @@ public:
 
         glTranslated(hud_position_x_, hud_position_y_, 0);
         glScaled(1.0, -1.0, 1.0);
-        glRotated(pa, 0.0, 0.0, -1.0);
+        glRotated(ship_angle_, 0.0, 0.0, -1.0);
 
         // HUD Circle
         glLineWidth(4.0);
@@ -111,19 +128,19 @@ public:
         glColor3f(0.0, 1.0, 0.0);
         glBegin(GL_LINES);
             glVertex2d(0.0, 0.0);
-            glVertex2d(thrust * cos(0.5 * M_PI + pa * M_PI / 180.0), thrust * sin(0.5 * M_PI + pa * M_PI / 180.0));
+            glVertex2d(ship_thrust_force_ * cos(0.5 * M_PI + ship_angle_ * M_PI / 180.0), ship_thrust_force_ * sin(0.5 * M_PI + ship_angle_ * M_PI / 180.0));
         glEnd();
         // Gravity : yellow
         glColor3f(1.0, 0.5, 0.0);
         glBegin(GL_LINES);
             glVertex2d(0.0, 0.0);
-            glVertex2d(gx, gy);
+            glVertex2d(g_x_, g_y_);
         glEnd();
         // Velocity: blue
         glColor3f(0.0, 0.0, 1.0);
         glBegin(GL_LINES);
             glVertex2d(0.0, 0.0);
-            glVertex2d(vx, vy);
+            glVertex2d(ship_velocity_x_, ship_velocity_y_);
         glEnd();
         glPopMatrix();
 
@@ -131,7 +148,7 @@ public:
         {
             glPushMatrix();
             glScaled(hud_size_, hud_size_, 1.0);
-            std::lock_guard<std::mutex> lock(d_mutex_);
+            std::lock_guard<std::mutex> lock(detection_mutex_);
             for (auto d : detection_list_) {
                 RenderArc(d->center, d->horizon);
             }
@@ -144,7 +161,7 @@ public:
         int fw = 120;
         int fh = 20;
         int t = 30;
-        int fl = fw * fuel;
+        int fl = fw * ship_fuel_percent_;
 
         glPushMatrix();
         glTranslated(scr_width_ - fw -t, t, 0.0);
@@ -169,7 +186,7 @@ public:
         // Damage Gauge
         int dw = 120;
         int dh = 20;
-        int dl = dw * damage_ratio;
+        int dl = dw * damage_ratio_;
 
         glPushMatrix();
         glTranslated(scr_width_ - dw -t, 2*t + fh, 0.0);
@@ -191,6 +208,8 @@ public:
         glVertex2i(scr_width_ - dw - t, 2*t + fh + dh);
         glEnd();
     }
+
+private:
     void RenderArc(double center_angle, double horizon_angle) {
         double a_begin = (center_angle - horizon_angle);
         double a_end = (center_angle + horizon_angle);
@@ -214,12 +233,8 @@ public:
             glEnd();
         }
     }
-private:
-    double detection_size_;
-    double detection_u_;
-    double detection_v_;
     void AddDetections(int num_detections, double* detections) {
-        std::lock_guard<std::mutex> lock(d_mutex_);
+        std::lock_guard<std::mutex> lock(detection_mutex_);
         for (auto d : detection_list_) delete d;
         detection_list_.clear();
         Detection * d = 0;
@@ -232,44 +247,44 @@ private:
         }
         delete [] detections;
     }
-private: // Handlers
+    // Handlers
     void dbHandleShipPosition(BusDataInterface *data) {
         BD_BasicPosition *p = static_cast<BD_BasicPosition *>(data);
         if (p != 0) {
-            px = p->x;
-            py = p->y;
+            ship_x_ = p->x;
+            ship_y_ = p->y;
         }
     }
     void dbHandleShipAngle(BusDataInterface *data) {
         BD_Scalar *a = static_cast<BD_Scalar *>(data);
         if (a != 0) {
-            pa = a->value;
+            ship_angle_ = a->value;
         }
     }
     void dbHandleShipGravity(BusDataInterface *data) {
         BD_Vector *v = static_cast<BD_Vector *>(data);
         if (v != 0) {
-            gx = v->x;
-            gy = v->y;
+            g_x_ = v->x;
+            g_y_ = v->y;
         }
     }
     void dbHandleShipVelocity(BusDataInterface *data) {
         BD_Vector *v = static_cast<BD_Vector *>(data);
         if (v != 0) {
-            vx = v->x;
-            vy = v->y;
+            ship_velocity_x_ = v->x;
+            ship_velocity_y_ = v->y;
         }
     }
     void dbHandleShipThrust(BusDataInterface *data) {
         BD_Scalar *s = static_cast<BD_Scalar *>(data);
         if (s != 0) {
-            thrust = s->value;
+            ship_thrust_force_ = s->value;
         }
     }
     void dbHandleShipFuelQty(BusDataInterface *data) {
         BD_Scalar *f = static_cast<BD_Scalar *>(data);
         if (f != 0) {
-            fuel = f->value;
+            ship_fuel_percent_ = f->value;
         }
     }
     void dbHandleDetectionList(BusDataInterface *data) {
@@ -281,18 +296,26 @@ private: // Handlers
     void dbHandleShipDamage(BusDataInterface *data) {
         BD_Scalar *dr = static_cast<BD_Scalar *>(data);
         if (dr != 0) {
-            // TODO : Rename member variables with proper naming style (#117).
-            damage_ratio = dr->value;
+            damage_ratio_ = dr->value;
         }
     }
+
 private:
+    double detection_size_;
+    double detection_u_;
+    double detection_v_;
+    std::mutex detection_mutex_;
     bool active_;
-    double fuel;
-    double damage_ratio;
-    double px, py, pa;
-    double gx, gy;
-    double thrust;
-    double vx, vy;
+    double ship_fuel_percent_;
+    double damage_ratio_;
+    double ship_x_;
+    double ship_y_;
+    double ship_angle_;
+    double g_x_;
+    double g_y_;
+    double ship_thrust_force_;
+    double ship_velocity_x_;
+    double ship_velocity_y_;
     int scr_width_;
     int scr_height_;
     int hud_position_x_;
