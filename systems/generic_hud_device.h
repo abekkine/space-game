@@ -6,9 +6,9 @@
 
 #include <mutex>
 
-#include "ship_device.h"
+#include "hud_system_interface.h"
 
-class GenericHudDevice : public ShipDevice {
+class GenericHudDevice : public HudSystemInterface {
 private:
     struct Detection {
         Detection(double c, double h)
@@ -18,8 +18,7 @@ private:
         double center, horizon;
     };
 public:
-    GenericHudDevice()
-    {
+    GenericHudDevice() {
         detection_size_ = 0.0;
         detection_u_ = 0.0;
         detection_v_ = 0.0;
@@ -50,15 +49,10 @@ public:
     }
     ~GenericHudDevice() {
     }
-    void Disable() {
-        active_ = false;
-    }
     void Init(DataBus* bus) {
-        assert(bus != 0);
-        bus_ = bus;
-        bus_connection_ = bus_->Connect("hud");
-        if (bus_connection_ != 0) {
+        HudSystemInterface::Init(bus);
 
+        if (bus_connection_ != 0) {
             DB_SUBSCRIBE(GenericHudDevice, ShipPosition);
             DB_SUBSCRIBE(GenericHudDevice, ShipAngle);
             DB_SUBSCRIBE(GenericHudDevice, ShipGravity);
@@ -76,9 +70,6 @@ public:
         big_marker_size_ = 0.02 * scr_height_;
         small_marker_size_ = 0.01 * scr_height_;
         vector_scale_ = 0.01 * scr_height_;
-    }
-    void Disconnect() {
-        bus_->Disconnect("hud", bus_connection_);
     }
     void Render() {
         if (!active_) {
@@ -312,7 +303,6 @@ private:
     double detection_u_;
     double detection_v_;
     std::mutex detection_mutex_;
-    bool active_;
     double ship_fuel_percent_;
     double damage_ratio_;
     double ship_x_;

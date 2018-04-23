@@ -4,6 +4,8 @@
 #include "basic_engine_system.h"
 #include "basic_radar_system.h"
 #include "basic_hull_system.h"
+#include "hotas_device.h"
+#include "generic_hud_device.h"
 
 class ShipSystemsManager : public Singleton<ShipSystemsManager> {
 public:
@@ -11,6 +13,8 @@ public:
     : engine_(0)
     , radar_(0)
     , hull_(0)
+    , hud_(0)
+    , hotas_(0)
     {}
     ~ShipSystemsManager() {}
     EngineSystemInterface* getEngineSystem() {
@@ -31,10 +35,25 @@ public:
         }
         return hull_;
     }
+    HudSystemInterface* getHudSystem() {
+        if (hud_ == 0) {
+            hud_ = new GenericHudDevice();
+        }
+        return hud_;
+    }
+    HotasSystemInterface* getHotasSystem() {
+        if (hotas_ == 0) {
+            hotas_ = new HOTASDevice();
+        }
+        return hotas_;
+    }
+
 private:
     EngineSystemInterface* engine_;
     RadarSystemInterface* radar_;
     HullSystemInterface* hull_;
+    HudSystemInterface* hud_;
+    HotasSystemInterface* hotas_;
 };
 
 #define SYSTEMSMGR ShipSystemsManager::Instance()

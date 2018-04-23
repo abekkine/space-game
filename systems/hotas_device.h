@@ -1,28 +1,20 @@
 #ifndef HOTAS_DEVICE_H_
 #define HOTAS_DEVICE_H_
 
-#include "ship_device.h"
+#include "hotas_system_interface.h"
+#include "engine_system_interface.h"
 
-#include "systems/engine_system_interface.h"
-#include "systems/ship_systems_manager.h"
-
-class HOTASDevice : public ShipDevice {
+class HOTASDevice : public HotasSystemInterface {
 public:
     HOTASDevice()
-    : ShipDevice()
-    , active_(true)
-    , ship_engine_(0)
     {
+        Enable();
+        ship_engine_ = 0;
     }
     ~HOTASDevice() {
     }
-    void Disable() {
-        active_ = false;
-    }
     void Init(DataBus * bus) {
-        assert(bus != 0);
-        bus_ = bus;
-        ship_engine_ = SYSTEMSMGR.getEngineSystem();
+        HotasSystemInterface::Init(bus);
     }
     void SetThrottle(double value) {
         if (ship_engine_ == 0 || active_ == false) {
@@ -57,10 +49,6 @@ public:
         ship_engine_->StabilizeRotation();
     }
     void ToggleLandingGear() {}
-
-private:
-    bool active_;
-    EngineSystemInterface* ship_engine_;
 };
 
 #endif // HOTAS_DEVICE_H_
