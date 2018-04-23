@@ -12,13 +12,13 @@ struct BusDataInterface {
 
 enum DataChannel {
     db_None = 0,
-    db_PlayerPosition,
-    db_PlayerAngle,
-    db_PlayerVelocity,
+    db_ShipPosition,
+    db_ShipAngle,
+    db_ShipVelocity,
     db_ShipAngularVelocity,
-    db_PlayerThrust,
-    db_PlayerGravity,
-    db_PlayerFuel,
+    db_ShipThrust,
+    db_ShipGravity,
+    db_ShipFuelQty,
     db_DetectionList,
     db_ShipDamage,
     // Add more when needed...
@@ -120,5 +120,8 @@ private:
     std::mutex bus_mutex_;
     std::unordered_map<std::string, Connection*> connections_;
 };
+
+#define DB_SUBSCRIBE(class, channel) bus_connection_->Subscribe(db_##channel, \
+    std::bind(&class::dbHandle ## channel, this, std::placeholders::_1))
 
 #endif // DATA_BUS_H_

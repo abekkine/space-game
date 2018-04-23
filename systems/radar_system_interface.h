@@ -19,9 +19,7 @@ public:
 
         bus_connection_ = bus_->Connect("radar");
         if (bus_connection_ != 0) {
-            using std::placeholders::_1;
-            bus_connection_->Subscribe(db_PlayerPosition,
-                std::bind(&RadarSystemInterface::hndPlayerPosition, this, _1));
+            DB_SUBSCRIBE(RadarSystemInterface, ShipPosition);
         }
 
         num_planets_ = *((int *)OBJMGR.Get("nplanets"));
@@ -33,7 +31,7 @@ public:
     }
 
 private:
-    void hndPlayerPosition(BusDataInterface *data) {
+    void dbHandleShipPosition(BusDataInterface *data) {
         BD_BasicPosition *p = static_cast<BD_BasicPosition *>(data);
         if (p != 0) {
             plr_x_ = p->x;

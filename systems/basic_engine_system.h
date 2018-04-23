@@ -94,9 +94,7 @@ public:
 
         EngineSystemInterface::Init(bus);
 
-        using std::placeholders::_1;
-        bus_connection_->Subscribe(db_ShipAngularVelocity,
-            std::bind(&BasicEngineSystem::hndShipAngularVelocity, this, _1));
+        DB_SUBSCRIBE(BasicEngineSystem, ShipAngularVelocity);
     }
     void Update(double time_step) {
         const double fuel_consumption_rate = 0.001; // units per second
@@ -111,7 +109,7 @@ public:
                 // Used by HUD system.
                 BD_Scalar fuel;
                 fuel.value = remaining_fuel_ / fuel_tank_size_;
-                bus_connection_->Publish(db_PlayerFuel, &fuel);
+                bus_connection_->Publish(db_ShipFuelQty, &fuel);
             }
 
             if (stabilization_mode_) {
@@ -176,7 +174,7 @@ public:
     }
 
 private:
-    void hndShipAngularVelocity(BusDataInterface *data) {
+    void dbHandleShipAngularVelocity(BusDataInterface *data) {
         BD_Scalar *s = static_cast<BD_Scalar *>(data);
         if (s != 0) {
             angular_velocity_ = s->value;

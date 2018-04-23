@@ -33,7 +33,7 @@ public:
                 on_destroyed_();
             }
             else if (bus_connection_ != 0) {
-                // TODO : Not used by any system, yet.
+                // Used by HUD system.
                 BD_Scalar damage_ratio;
                 damage_ratio.value = integrity_ / max_integrity_;
                 bus_connection_->Publish(db_ShipDamage, &damage_ratio);
