@@ -21,6 +21,7 @@ private:
 public:
     GenericHudDevice()
     {
+        // TODO : Initialize all member variables.
         bus_ = 0;
         bus_connection_ = 0;
         active_ = true;
@@ -28,6 +29,7 @@ public:
         thrust = 0.0;
         vx = vy = 0.0;
         px = py = pa = 0.0;
+        damage_ratio = 1.0;
     }
     ~GenericHudDevice() {
     }
@@ -40,6 +42,7 @@ public:
         bus_connection_ = bus_->Connect("hud");
         if (bus_connection_ != 0) {
             using std::placeholders::_1;
+            // TODO : define a macro (in data_bus) to simplify these statements.
             bus_connection_->Subscribe(db_PlayerPosition,
                 std::bind(&GenericHudDevice::hndPlayerPosition, this, _1));
             bus_connection_->Subscribe(db_PlayerAngle,
@@ -54,6 +57,8 @@ public:
                 std::bind(&GenericHudDevice::hndFuelQuantity, this, _1));
             bus_connection_->Subscribe(db_DetectionList,
                 std::bind(&GenericHudDevice::hndRadarDetections, this, _1));
+            bus_connection_->Subscribe(db_ShipDamage,
+                std::bind(&GenericHudDevice::hndShipDamage, this, _1));
         }
 
         DISPLAY.GetSize(scr_width_, scr_height_);
@@ -71,6 +76,8 @@ public:
         if (!active_) {
             return;
         }
+
+        // TODO : Write separate functions for different parts of HUD.
 
         glPushMatrix();
         glLoadIdentity();
@@ -168,6 +175,30 @@ public:
         glVertex2i(scr_width_ - fw - t, t + fh);
         glEnd();
 
+        // Damage Gauge
+        int dw = 120;
+        int dh = 20;
+        int dl = dw * damage_ratio;
+
+        glPushMatrix();
+        glTranslated(scr_width_ - dw -t, 2*t + fh, 0.0);
+        glColor3f(1.0, 0.0, 0.0);
+        glBegin(GL_QUADS);
+        glVertex2i(0, 0);
+        glVertex2i(dl, 0);
+        glVertex2i(dl, dh);
+        glVertex2i(0, dh);
+        glEnd();
+        glPopMatrix();
+
+        glColor3f(1.0, 1.0, 1.0);
+        glLineWidth(2.0);
+        glBegin(GL_LINE_LOOP);
+        glVertex2i(scr_width_ - dw - t, 2*t + fh);
+        glVertex2i(scr_width_ - t, 2*t + fh);
+        glVertex2i(scr_width_ - t, 2*t + fh + dh);
+        glVertex2i(scr_width_ - dw - t, 2*t + fh + dh);
+        glEnd();
     }
     void RenderArc(double center_angle, double horizon_angle) {
         double a_begin = (center_angle - horizon_angle);
@@ -256,9 +287,17 @@ private: // Handlers
             AddDetections(d->num_detections, d->data);
         }
     }
+    void hndShipDamage(BusDataInterface *data) {
+        BD_Scalar *dr = static_cast<BD_Scalar *>(data);
+        if (dr != 0) {
+            // TODO : Rename member variables with proper naming style.
+            damage_ratio = dr->value;
+        }
+    }
 private:
     bool active_;
     double fuel;
+    double damage_ratio;
     double px, py, pa;
     double gx, gy;
     double thrust;
