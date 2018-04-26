@@ -7,6 +7,8 @@
 
 #include "game_definitions.h"
 
+#include "planet_station.h"
+
 class Planet {
 public:
     Planet()
@@ -19,6 +21,7 @@ public:
     , radius_(50.0)
     , core_radius_(49.0)
     , color_{1.0, 0.0, 0.0}
+    , station_(0)
     {
         identifier_ = counter_++;
     }
@@ -49,6 +52,12 @@ public:
         color_[1] = ((colorbits >> 4) & 0xf) / 15.0;
         color_[2] = (colorbits & 0xf) / 15.0;
     }
+    void SetStation() {
+        station_ = new PlanetStation();
+        station_->Init(world_);
+
+        station_->Attach(physics_body_);
+    }
     b2Vec2 GetGravityAcceleration(b2Vec2 pos) {
         double dx = x_ - pos.x;
         double dy = y_ - pos.y;
@@ -71,10 +80,11 @@ public:
         return t;
     }
     void Init(b2World * world) {
+        world_ = world;
         b2BodyDef def;
         def.type = b2_kinematicBody;
         def.position.Set(x_, y_);
-        physics_body_ = world->CreateBody(&def);
+        physics_body_ = world_->CreateBody(&def);
 
         b2CircleShape shape;
         // Circle position relative to body.
@@ -97,6 +107,7 @@ public:
         angle_ = physics_body_->GetAngle() * 180.0 / M_PI;
     }
     void Render() {
+        glPushMatrix();
         glTranslated(x_, y_, 0.0);
         glRotated(angle_, 0.0, 0.0, 1.0);
         glColor3fv(color_);
@@ -116,6 +127,10 @@ public:
         glBegin(GL_POINTS);
         glVertex2d(0.0, R*0.99);
         glEnd();
+        glPopMatrix();
+        if (station_) {
+            station_->Render();
+        }
     }
 private:
     double x_;
@@ -127,7 +142,9 @@ private:
     double radius_;
     double core_radius_;
     float color_[3];
+    StationInterface* station_;
 
+    b2World * world_;
     b2Body * physics_body_;
 private:
     static uint32_t counter_;

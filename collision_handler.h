@@ -9,55 +9,49 @@ class CollisionHandler : public b2ContactListener {
 
     void PostSolve(b2Contact * contact, const b2ContactImpulse* impulse) {
 
-        void * userData = 0;
-        userData = contact->GetFixtureA()->GetBody()->GetUserData();
-        if (userData != 0) {
-            SpaceShip * ship = static_cast<SpaceShip *>(userData);
-            if (ship) {
-                // Process impulse
-                int count = contact->GetManifold()->pointCount;
-                float maxImpulse = 0.0;
-                for (int i=0; i<count; ++i) {
-                    maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
-                }
-
-                ship->ProcessImpulse(maxImpulse);
-            }
+        int count = contact->GetManifold()->pointCount;
+        float maxImpulse = 0.0;
+        for (int i=0; i<count; ++i) {
+            maxImpulse = b2Max(maxImpulse, impulse->normalImpulses[i]);
         }
-        else {
-            std::cout << "userData is '0', maybe check fixture B?\n";
+
+        ContactInterface* objA = static_cast<ContactInterface *>(contact->GetFixtureA()->GetBody()->GetUserData());
+        ContactInterface* objB = static_cast<ContactInterface *>(contact->GetFixtureB()->GetBody()->GetUserData());
+
+        if (objA != 0) {
+            objA->ProcessImpulse(maxImpulse);
+        }
+
+        if (objB != 0) {
+            objB->ProcessImpulse(maxImpulse);
         }
     }
 
     void BeginContact(b2Contact * contact) {
-        void * userData = 0;
 
-        userData = contact->GetFixtureA()->GetBody()->GetUserData();
-        if (userData != 0) {
-            SpaceShip * ship = static_cast<SpaceShip *>(userData);
-            if (ship) {
-                // Process contact begin (fixture A).
-                ship->BeginContact();
-            }
+        ContactInterface* objA = static_cast<ContactInterface *>(contact->GetFixtureA()->GetBody()->GetUserData());
+        ContactInterface* objB = static_cast<ContactInterface *>(contact->GetFixtureB()->GetBody()->GetUserData());
+
+        if (objA != 0) {
+            objA->BeginContact(objB);
         }
-        else {
-            std::cout << "userData is '0', maybe check fixture B?\n";
+
+        if (objB != 0) {
+            objB->BeginContact(objA);
         }
     }
 
     void EndContact(b2Contact * contact) {
-        void * userData = 0;
 
-        userData = contact->GetFixtureA()->GetBody()->GetUserData();
-        if (userData != 0) {
-            SpaceShip * ship = static_cast<SpaceShip *>(userData);
-            if (ship) {
-                // Process contact end (fixture A).
-                ship->EndContact();
-            }
+        ContactInterface* objA = static_cast<ContactInterface *>(contact->GetFixtureA()->GetBody()->GetUserData());
+        ContactInterface* objB = static_cast<ContactInterface *>(contact->GetFixtureB()->GetBody()->GetUserData());
+
+        if (objA != 0) {
+            objA->EndContact(objB);
         }
-        else {
-            std::cout << "userData is '0', mayba check fixture B?\n";
+
+        if (objB != 0) {
+            objB->EndContact(objA);
         }
     }
 };
