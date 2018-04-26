@@ -48,7 +48,7 @@ public:
 
         // Instantiate player ship.
         space_ship_ = new SpaceShip();
-        space_ship_->SetPosition(0.0, 100.0);
+        space_ship_->SetPosition(0.0, 110.0);
         space_ship_->SetAngle(0.0);
         OBJMGR.Set("ship", space_ship_);
 

@@ -18,11 +18,13 @@
 #include "systems/generic_hud_device.h"
 #include "systems/hotas_device.h"
 
+#include "contact_interface.h"
+
 #include <assert.h>
 
 #define NUM_SHIP_VERTICES 8
 
-class SpaceShip {
+class SpaceShip : public ContactInterface {
 private:
     DataBus * data_bus_;
     DataBus::Connection * bus_connection_;
@@ -153,9 +155,13 @@ public:
 
         hull_->ApplyImpact(impulse);
     }
-    void BeginContact() {
+    void BeginContact(ContactInterface* object) {
+        (void)object;
+        // TODO : Use this to connect to object.
     }
-    void EndContact() {
+    void EndContact(ContactInterface* object) {
+        (void)object;
+        // TODO : Use this to disconnect from object.
     }
 
     void Init(b2World * world) {

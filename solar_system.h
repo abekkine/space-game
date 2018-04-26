@@ -60,6 +60,9 @@ public:
         // Planet creation
         for(int i=0; i<kNumPlanets; ++i) {
             planets_[i].Init(world);
+            if (i == 0) {
+                planets_[i].SetStation();
+            }
         }
     }
     void Update(double delta_time) {
