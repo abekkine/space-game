@@ -57,6 +57,7 @@ private:
     b2Vec2 velocity_;
     b2Vec2 gravity_;
     b2Vec2 thrust_;
+    b2World * world_;
     b2Body * body_main_;
     b2Body * body_upper_;
     b2Body * body_left_;
@@ -68,6 +69,11 @@ private:
 
     b2Vec2 v_left_gear_[NUM_PART_VERTICES];
     b2Vec2 v_right_gear_[NUM_PART_VERTICES];
+
+    b2WeldJoint *j_upper_;
+    b2WeldJoint *j_left_;
+    b2WeldJoint *j_right_;
+    b2WeldJoint *j_lr_;
 
     float color_[3];
 
@@ -100,6 +106,7 @@ public:
     , velocity_{ 0.0, 0.0 }
     , gravity_{ 0.0, 0.0 }
     , thrust_{ 0.0, 0.0 }
+    , world_(0)
     , body_main_(0)
     , body_upper_(0)
     , body_left_(0)
@@ -117,16 +124,16 @@ public:
         {0.29, -0.13}}
 
     , v_left_body_{{-0.22, -0.3},
-        {0.32, -0.3},
-        {0.32, 0.16},
+        {0.33, -0.3},
+        {0.33, 0.16},
         {-0.14, 0.33},
         {-0.36, 0.3}}
 
-    , v_right_body_{{-0.32, -0.3},
+    , v_right_body_{{-0.33, -0.3},
         {0.22, -0.3},
         {0.36, 0.3},
         {0.14, 0.33},
-        {-0.32, 0.16}}
+        {-0.33, 0.16}}
 
 //    , v_left_gear_ { {-0.204, 0.26},
 //                     {-0.064, -0.34},
@@ -138,6 +145,10 @@ public:
 //                     {0.204, 0.26},
 //                     {0.084, 0.27},
 //                     {-0.226, 0.15}}
+    , j_upper_(0)
+    , j_left_(0)
+    , j_right_(0)
+    , j_lr_(0)
 
     , color_{ 1.0, 1.0, 1.0 }
     , destroyed_(false)
@@ -233,6 +244,8 @@ public:
     }
 
     void Init(b2World * world) {
+        world_ = world;
+
         b2BodyDef bd;
         bd.type = b2_dynamicBody;
 
@@ -243,7 +256,7 @@ public:
 
         // Main Body
         bd.position.Set(pos_main_.x, pos_main_.y);
-        body_main_ = world->CreateBody(&bd);
+        body_main_ = world_->CreateBody(&bd);
         body_main_->SetUserData(this);
 
         shape.Set(v_main_body_, NUM_PART_VERTICES);
@@ -252,7 +265,7 @@ public:
 
         // Upper Body
         bd.position.Set(pos_main_.x, pos_main_.y + 0.5413);
-        body_upper_ = world->CreateBody(&bd);
+        body_upper_ = world_->CreateBody(&bd);
         body_upper_->SetUserData(this);
 
         shape.Set(v_upper_body_, NUM_PART_VERTICES);
@@ -261,7 +274,7 @@ public:
 
         // Left Body
         bd.position.Set(pos_main_.x - 0.3228, pos_main_.y - 0.5632);
-        body_left_ = world->CreateBody(&bd);
+        body_left_ = world_->CreateBody(&bd);
         body_left_->SetUserData(this);
 
         shape.Set(v_left_body_, NUM_PART_VERTICES);
@@ -270,12 +283,48 @@ public:
 
         // Right Body
         bd.position.Set(pos_main_.x + 0.3228, pos_main_.y - 0.5632);
-        body_right_ = world->CreateBody(&bd);
+        body_right_ = world_->CreateBody(&bd);
         body_right_->SetUserData(this);
 
         shape.Set(v_right_body_, NUM_PART_VERTICES);
         fd.shape = &shape;
         body_right_->CreateFixture(&fd);
+
+        // Ship body joints
+        b2WeldJointDef wjd;
+        b2Vec2 anchor(pos_main_.x, pos_main_.y);
+        // -- Main to upper
+        wjd.bodyA = body_main_;
+        wjd.bodyB = body_upper_;
+        wjd.Initialize(body_main_, body_upper_, anchor);
+        wjd.localAnchorA = body_main_->GetLocalPoint(anchor);
+        wjd.localAnchorB = body_upper_->GetLocalPoint(anchor);
+        wjd.collideConnected = false;
+        j_upper_ = static_cast<b2WeldJoint*>(world_->CreateJoint(&wjd));
+        // -- Main to left
+        wjd.bodyA = body_main_;
+        wjd.bodyB = body_left_;
+        wjd.Initialize(body_main_, body_left_, anchor);
+        wjd.localAnchorA = body_main_->GetLocalPoint(anchor);
+        wjd.localAnchorB = body_left_->GetLocalPoint(anchor);
+        wjd.collideConnected = false;
+        j_left_ = static_cast<b2WeldJoint*>(world_->CreateJoint(&wjd));
+        // -- Main to right
+        wjd.bodyA = body_main_;
+        wjd.bodyB = body_right_;
+        wjd.Initialize(body_main_, body_right_, anchor);
+        wjd.localAnchorA = body_main_->GetLocalPoint(anchor);
+        wjd.localAnchorB = body_right_->GetLocalPoint(anchor);
+        wjd.collideConnected = false;
+        j_right_ = static_cast<b2WeldJoint*>(world_->CreateJoint(&wjd));
+        // -- Left to Right
+        wjd.bodyA = body_left_;
+        wjd.bodyB = body_right_;
+        wjd.Initialize(body_left_, body_right_, anchor);
+        wjd.localAnchorA = body_left_->GetLocalPoint(anchor);
+        wjd.localAnchorB = body_right_->GetLocalPoint(anchor);
+        wjd.collideConnected = false;
+        j_lr_ = static_cast<b2WeldJoint*>(world_->CreateJoint(&wjd));
 
         // Init engine system.
         engine_->Init(data_bus_);
@@ -295,7 +344,49 @@ public:
         moment_ = value;
     }
     // End
+    void CheckJoints(double delta_time) {
+
+        double f1, f2, f3, f4;
+        const double kBreakForce = 500.0;
+        if (j_upper_) {
+            f1 = j_upper_->GetReactionForce(1.0 / delta_time).Length();
+            if (f1 > kBreakForce) {
+                world_->DestroyJoint(j_upper_);
+                j_upper_ = 0;
+                puts("..Upper joint breaks!");
+            }
+        }
+
+        if (j_left_) {
+            f2 = j_left_->GetReactionForce(1.0 / delta_time).Length();
+            if (f2 > kBreakForce) {
+                world_->DestroyJoint(j_left_);
+                j_left_ = 0;
+                puts("..Left joint breaks!");
+            }
+        }
+
+        if (j_right_) {
+            f3 = j_right_->GetReactionForce(1.0 / delta_time).Length();
+            if (f3 > kBreakForce) {
+                world_->DestroyJoint(j_right_);
+                j_right_ = 0;
+                puts("..Right joint breaks!");
+           }
+        }
+
+        if (j_lr_) {
+            f4 = j_lr_->GetReactionForce(1.0 / delta_time).Length();
+            if (f4 > kBreakForce) {
+                world_->DestroyJoint(j_lr_);
+                j_lr_ = 0;
+                puts("..Bottom joint (LR) breaks!");
+            }
+        }
+    }
     void Update(double delta_time) {
+        // Check Joints
+        CheckJoints(delta_time);
         // Gravity
         UpdateGravity();
         // Thrust
@@ -385,12 +476,14 @@ public:
         glLoadIdentity();
         glColor3fv(color_);
 
-        int draw_mode = GL_LINE_LOOP;
+        int draw_mode = GL_TRIANGLE_FAN; //GL_LINE_LOOP;
         // Main Body
         glBegin(draw_mode);
+        glVertex2d(0.0, 0.0);
         for (int i=0; i<NUM_PART_VERTICES; ++i) {
             glVertex2d(v_main_body_[i].x, v_main_body_[i].y);
         }
+        glVertex2d(v_main_body_[0].x, v_main_body_[0].y);
         glEnd();
         // Upper Body
         glPushMatrix();
