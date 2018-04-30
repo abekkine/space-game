@@ -42,6 +42,8 @@ private:
     double angle_upper_;
     double angle_left_;
     double angle_right_;
+    double angle_llg_;
+    double angle_rlg_;
 
     double mass_;
     double density_;
@@ -53,6 +55,8 @@ private:
     b2Vec2 pos_upper_;
     b2Vec2 pos_left_;
     b2Vec2 pos_right_;
+    b2Vec2 pos_llg_;
+    b2Vec2 pos_rlg_;
 
     b2Vec2 velocity_;
     b2Vec2 gravity_;
@@ -62,6 +66,10 @@ private:
     b2Body * body_upper_;
     b2Body * body_left_;
     b2Body * body_right_;
+
+    b2Body * body_left_gear_;
+    b2Body * body_right_gear_;
+
     b2Vec2 v_main_body_[NUM_PART_VERTICES];
     b2Vec2 v_upper_body_[NUM_PART_VERTICES];
     b2Vec2 v_left_body_[NUM_PART_VERTICES];
@@ -74,6 +82,8 @@ private:
     b2WeldJoint *j_left_;
     b2WeldJoint *j_right_;
     b2WeldJoint *j_lr_;
+    b2PrismaticJoint *j_llg_;
+    b2PrismaticJoint *j_rlg_;
 
     float color_[3];
 
@@ -93,6 +103,8 @@ public:
     , angle_upper_(0.0)
     , angle_left_(0.0)
     , angle_right_(0.0)
+    , angle_llg_(0)
+    , angle_rlg_(0)
     , mass_(1.0)
     , density_(1.0)
     , thrust_force_(0.0)
@@ -103,6 +115,8 @@ public:
     , pos_upper_{ 0.0, 0.0 }
     , pos_left_{ 0.0, 0.0 }
     , pos_right_{ 0.0, 0.0 }
+    , pos_llg_{ 0.0, 0.0 }
+    , pos_rlg_{ 0.0, 0.0 }
     , velocity_{ 0.0, 0.0 }
     , gravity_{ 0.0, 0.0 }
     , thrust_{ 0.0, 0.0 }
@@ -111,6 +125,8 @@ public:
     , body_upper_(0)
     , body_left_(0)
     , body_right_(0)
+    , body_left_gear_(0)
+    , body_right_gear_(0)
     , v_main_body_{{0.5, -0.24},
         {0.29, 0.41},
         {-0.29, 0.41},
@@ -135,20 +151,22 @@ public:
         {0.14, 0.33},
         {-0.33, 0.16}}
 
-//    , v_left_gear_ { {-0.204, 0.26},
-//                     {-0.064, -0.34},
-//                     {0.046, -0.34},
-//                     {0.226, 0.15},
-//                     {-0.084, 0.27}}
-//    , v_right_gear_ {{-0.046, -0.34},
-//                     {0.064, -0.34},
-//                     {0.204, 0.26},
-//                     {0.084, 0.27},
-//                     {-0.226, 0.15}}
+    , v_left_gear_ { {-0.204, 0.26},
+                     {-0.064, -0.34},
+                     {0.046, -0.34},
+                     {0.226, 0.15},
+                     {-0.084, 0.27}}
+    , v_right_gear_ {{-0.046, -0.34},
+                     {0.064, -0.34},
+                     {0.204, 0.26},
+                     {0.084, 0.27},
+                     {-0.226, 0.15}}
     , j_upper_(0)
     , j_left_(0)
     , j_right_(0)
     , j_lr_(0)
+    , j_llg_(0)
+    , j_rlg_(0)
 
     , color_{ 1.0, 1.0, 1.0 }
     , destroyed_(false)
@@ -207,7 +225,7 @@ public:
         b2Vec2 g_total;
         g = s->GetGravityAcceleration(pos_main_);
         body_main_->ApplyForceToCenter(0.6085 * g, true);
-        g_total = (0.6085 + 0.219 + 0.688) * g;
+        g_total = (0.6085 + 0.219 + 0.688 + 0.314) * g;
 
         g = s->GetGravityAcceleration(pos_upper_);
         body_upper_->ApplyForceToCenter(0.219 * g, true);
@@ -217,6 +235,11 @@ public:
 
         g = s->GetGravityAcceleration(pos_right_);
         body_right_->ApplyForceToCenter(0.344 * g, true);
+
+        g = s->GetGravityAcceleration(pos_llg_);
+        body_left_gear_->ApplyForceToCenter(0.157 * g, true);
+        g = s->GetGravityAcceleration(pos_rlg_);
+        body_right_gear_->ApplyForceToCenter(0.157 * g, true);
 
         BD_Vector mg;
         mg.x = g_total.x;
@@ -290,6 +313,20 @@ public:
         fd.shape = &shape;
         body_right_->CreateFixture(&fd);
 
+        // Landing gear bodies
+        bd.position.Set(pos_main_.x - 0.4361, pos_main_.y - 0.56);
+        body_left_gear_ = world_->CreateBody(&bd);
+        shape.Set(v_left_gear_, NUM_PART_VERTICES);
+        fd.shape = &shape;
+        body_left_gear_->CreateFixture(&fd);
+
+        bd.position.Set(pos_main_.x + 0.4361, pos_main_.y - 0.56);
+        body_right_gear_ = world_->CreateBody(&bd);
+        shape.Set(v_right_gear_, NUM_PART_VERTICES);
+        fd.shape = &shape;
+        body_right_gear_->CreateFixture(&fd);
+        // End -- Landing gears.
+
         // Ship body joints
         b2WeldJointDef wjd;
         b2Vec2 anchor(pos_main_.x, pos_main_.y);
@@ -325,6 +362,40 @@ public:
         wjd.localAnchorB = body_right_->GetLocalPoint(anchor);
         wjd.collideConnected = false;
         j_lr_ = static_cast<b2WeldJoint*>(world_->CreateJoint(&wjd));
+
+        // Begin -- Landing Gears
+        const float maxForce = 10.0f;
+        const float speed = -0.5f;
+        const float lowerLim = -0.2f;
+        const float upperLim = 0.01f;
+        b2Vec2 axis(-1.25, 6.25);
+        axis.Normalize();
+        anchor.x = pos_main_.x - 0.42;
+        anchor.y = pos_main_.y - 0.54;
+        
+        b2PrismaticJointDef pjdL;
+        b2PrismaticJointDef pjdR;
+        pjdL.Initialize(body_left_, body_left_gear_, anchor, axis);
+        axis.x = -axis.x;
+        anchor.x = -anchor.x;
+        pjdR.Initialize(body_right_, body_right_gear_, anchor, axis);
+
+        pjdL.lowerTranslation = lowerLim;
+        pjdR.lowerTranslation = lowerLim;
+        pjdL.upperTranslation = upperLim;
+        pjdR.upperTranslation = upperLim;
+        pjdL.enableLimit = true;
+        pjdR.enableLimit = true;
+        pjdL.motorSpeed = speed;
+        pjdR.motorSpeed = speed;
+        pjdL.maxMotorForce = maxForce;
+        pjdR.maxMotorForce = maxForce;
+        pjdL.enableMotor = true;
+        pjdR.enableMotor = true;
+        j_llg_ = static_cast<b2PrismaticJoint*>(world_->CreateJoint(&pjdL));
+        j_rlg_ = static_cast<b2PrismaticJoint*>(world_->CreateJoint(&pjdR));
+        // End -- Landing Gears
+
 
         // Init engine system.
         engine_->Init(data_bus_);
@@ -424,10 +495,14 @@ public:
         angle_upper_ = body_upper_->GetAngle() * 180.0 / M_PI;
         angle_left_ = body_left_->GetAngle() * 180.0 / M_PI;
         angle_right_ = body_right_->GetAngle() * 180.0 / M_PI;
+        angle_llg_ = body_left_gear_->GetAngle() * 180.0 / M_PI;
+        angle_rlg_ = body_right_gear_->GetAngle() * 180.0 / M_PI;
 
         pos_upper_ = body_upper_->GetPosition();
         pos_left_ = body_left_->GetPosition();
         pos_right_ = body_right_->GetPosition();
+        pos_llg_ = body_left_gear_->GetPosition();
+        pos_rlg_ = body_right_gear_->GetPosition();
 
         if(bus_connection_ != 0) {
             // Send player velocity to Data Bus.
@@ -516,6 +591,27 @@ public:
             glVertex2d(v_right_body_[i].x, v_right_body_[i].y);
         }
         glEnd();
+
+        // Landing Gears
+        glLoadIdentity();
+        glRotated(angle_main_, 0.0, 0.0, -1.0);
+        glTranslated(pos_llg_.x - pos_main_.x, pos_llg_.y - pos_main_.y, 0.0);
+        glRotated(angle_llg_, 0.0, 0.0, 1.0);
+        glBegin(draw_mode);
+        for (int i=0; i<NUM_PART_VERTICES; ++i) {
+            glVertex2d(v_left_gear_[i].x, v_left_gear_[i].y);
+        }
+        glEnd();
+        glLoadIdentity();
+        glRotated(angle_main_, 0.0, 0.0, -1.0);
+        glTranslated(pos_rlg_.x - pos_main_.x, pos_rlg_.y - pos_main_.y, 0.0);
+        glRotated(angle_rlg_, 0.0, 0.0, 1.0);
+        glBegin(draw_mode);
+        for (int i=0; i<NUM_PART_VERTICES; ++i) {
+            glVertex2d(v_right_gear_[i].x, v_right_gear_[i].y);
+        }
+        glEnd();
+
         glPopMatrix();
 
 //        glBegin(GL_TRIANGLE_FAN);
@@ -525,6 +621,9 @@ public:
 //        glVertex2d( vertices_[0].x, vertices_[0].y );
 //        glEnd();
     }
+    // DEBUG
+    uint8_t lg_status_;
+    // END
     void HotasInput(int key, bool action) {
         assert(hotas_ != 0);
         switch(key) {
@@ -558,8 +657,24 @@ public:
             if (action == true) {
                 hotas_->Stabilize();
             }
+            break;
         case GLFW_KEY_G:
             hotas_->ToggleLandingGear();
+            // DEBUG
+            if (action) {
+            if (lg_status_) {
+                puts("LG Up!");
+                j_llg_->SetMotorSpeed(0.5);
+                j_rlg_->SetMotorSpeed(0.5);
+                lg_status_ = 0;
+            } else {
+                puts("LG Down!");
+                j_llg_->SetMotorSpeed(-0.5);
+                j_rlg_->SetMotorSpeed(-0.5);
+                lg_status_ = 1;
+            }
+            }
+            // END
             break;
 
 #ifdef DISCONNECT_TEST
