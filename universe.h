@@ -55,6 +55,7 @@ public:
         // Instantiate planets & solar system.
         solar_system_ = new SolarSystem();
         solar_system_->Init(world_);
+        OBJMGR.Set("solar", solar_system_);
 
         // Player creation
         space_ship_->Init(world_);
@@ -80,8 +81,6 @@ private:
 
             double delta_time = timer_.GetElapsed();
 
-            UpdateGravity();
-
             space_ship_->Update(delta_time);
 
             solar_system_->Update(delta_time);
@@ -99,11 +98,6 @@ private:
             // TODO : Also, no magic numbers (10)?
             GameTimer::Sleep(10);
         }
-    }
-    void UpdateGravity() {
-        // Gravity
-        b2Vec2 g = solar_system_->GetGravityAcceleration(space_ship_->GetPosition());
-        space_ship_->SetGravityAcceleration(g);
     }
 
 private:
