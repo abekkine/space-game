@@ -27,56 +27,113 @@
 
 class SpaceShip : public ContactInterface {
 private:
+    // Ship communication bus
     DataBus * data_bus_;
+    // Ship communication bus connection
     DataBus::Connection * bus_connection_;
-    // BEGIN -- Ship Systems
+    // Ship Systems
+    // -- HUD system
     HudSystemInterface * hud_;
+    // -- HOTAS system
     HotasSystemInterface * hotas_;
+    // -- Engine system
     EngineSystemInterface * engine_;
+    // -- Radar system
     RadarSystemInterface * radar_;
+    // -- Hull system
     HullSystemInterface * hull_;
-    // END -- Ship Systems
+    // Effects
     EffectsManager * effects_;
 
+    // Body rotation angles
+    // -- main body angle
     double angle_main_;
+    // -- upper body angle
     double angle_upper_;
+    // -- left landing gear 'bay' body angle
     double angle_left_;
+    // -- right landing gear 'bay' body angle
     double angle_right_;
+    // -- left landing gear body angle
+    double angle_llg_;
+    // -- right landing gear body angle
+    double angle_rlg_;
 
+    // TODO : Ship mass; not used anywhere, yet.
     double mass_;
+    // TODO : Ship material density (not used with multiple bodies)
     double density_;
+    // Force value for thrust vector.
     double thrust_force_;
+    // Torque value for ship rotation.
     double moment_;
 
+    // Ship angular velocity.
     double angular_velocity_;
+
+    // Body positions
+    // -- main body position
     b2Vec2 pos_main_;
+    // -- upper body position
     b2Vec2 pos_upper_;
+    // -- left landing gear bay position
     b2Vec2 pos_left_;
+    // -- right landing gear bay position
     b2Vec2 pos_right_;
+    // -- left landing gear position
+    b2Vec2 pos_llg_;
+    // -- right landing gear position
+    b2Vec2 pos_rlg_;
 
+    // Velocity vector for ship.
     b2Vec2 velocity_;
-    b2Vec2 gravity_;
+    // Ship thrust vector.
     b2Vec2 thrust_;
+    // Box2D world reference.
     b2World * world_;
+    // Main part of ship body; camera fixed on this.
     b2Body * body_main_;
+    // Upper part of ship body; ship systems (proposal) reside in this.
     b2Body * body_upper_;
+    // Left landing gear bay; left landing gear resides here when retracted.
     b2Body * body_left_;
+    // Right landing gear bay; right landing gear resides here when retracted.
     b2Body * body_right_;
+    // Left Landing Gear itself.
+    b2Body * body_left_gear_;
+    // Right Landing Gear itself.
+    b2Body * body_right_gear_;
+
+    // Vertices for main ship body.
     b2Vec2 v_main_body_[NUM_PART_VERTICES];
+    // Vertices for upper ship body.
     b2Vec2 v_upper_body_[NUM_PART_VERTICES];
+    // Vertices for left landing gear bay.
     b2Vec2 v_left_body_[NUM_PART_VERTICES];
+    // Vertices for right landing gear bay.
     b2Vec2 v_right_body_[NUM_PART_VERTICES];
-
+    // Vertices for left landing gear.
     b2Vec2 v_left_gear_[NUM_PART_VERTICES];
+    // Vertices for right landing gear.
     b2Vec2 v_right_gear_[NUM_PART_VERTICES];
-
+    // Joint between main & upper body parts.
     b2WeldJoint *j_upper_;
+    // Joint between main & left gear bay body parts.
     b2WeldJoint *j_left_;
+    // Joint between main & right gear bay body parts.
     b2WeldJoint *j_right_;
+    // Joint between left & right gear bay body parts.
     b2WeldJoint *j_lr_;
+    // Suspension joint for left landing gear.
+    b2PrismaticJoint *j_llg_;
+    // Suspension joint for right landing gear.
+    b2PrismaticJoint *j_rlg_;
 
+    // Landing gear up/down control variable.
+    uint8_t landing_gear_state_;
+    // Ship color.
     float color_[3];
-
+    // Ship destruction flag.
     bool destroyed_;
 public:
     SpaceShip()
@@ -93,6 +150,8 @@ public:
     , angle_upper_(0.0)
     , angle_left_(0.0)
     , angle_right_(0.0)
+    , angle_llg_(0)
+    , angle_rlg_(0)
     , mass_(1.0)
     , density_(1.0)
     , thrust_force_(0.0)
@@ -103,14 +162,17 @@ public:
     , pos_upper_{ 0.0, 0.0 }
     , pos_left_{ 0.0, 0.0 }
     , pos_right_{ 0.0, 0.0 }
+    , pos_llg_{ 0.0, 0.0 }
+    , pos_rlg_{ 0.0, 0.0 }
     , velocity_{ 0.0, 0.0 }
-    , gravity_{ 0.0, 0.0 }
     , thrust_{ 0.0, 0.0 }
     , world_(0)
     , body_main_(0)
     , body_upper_(0)
     , body_left_(0)
     , body_right_(0)
+    , body_left_gear_(0)
+    , body_right_gear_(0)
     , v_main_body_{{0.5, -0.24},
         {0.29, 0.41},
         {-0.29, 0.41},
@@ -135,20 +197,24 @@ public:
         {0.14, 0.33},
         {-0.33, 0.16}}
 
-//    , v_left_gear_ { {-0.204, 0.26},
-//                     {-0.064, -0.34},
-//                     {0.046, -0.34},
-//                     {0.226, 0.15},
-//                     {-0.084, 0.27}}
-//    , v_right_gear_ {{-0.046, -0.34},
-//                     {0.064, -0.34},
-//                     {0.204, 0.26},
-//                     {0.084, 0.27},
-//                     {-0.226, 0.15}}
+    , v_left_gear_ { {-0.204, 0.26},
+                     {-0.064, -0.34},
+                     {0.046, -0.34},
+                     {0.226, 0.15},
+                     {-0.084, 0.27}}
+    , v_right_gear_ {{-0.046, -0.34},
+                     {0.064, -0.34},
+                     {0.204, 0.26},
+                     {0.084, 0.27},
+                     {-0.226, 0.15}}
     , j_upper_(0)
     , j_left_(0)
     , j_right_(0)
     , j_lr_(0)
+    , j_llg_(0)
+    , j_rlg_(0)
+
+    , landing_gear_state_(0)
 
     , color_{ 1.0, 1.0, 1.0 }
     , destroyed_(false)
@@ -207,7 +273,7 @@ public:
         b2Vec2 g_total;
         g = s->GetGravityAcceleration(pos_main_);
         body_main_->ApplyForceToCenter(0.6085 * g, true);
-        g_total = (0.6085 + 0.219 + 0.688) * g;
+        g_total = (0.6085 + 0.219 + 0.688 + 0.314) * g;
 
         g = s->GetGravityAcceleration(pos_upper_);
         body_upper_->ApplyForceToCenter(0.219 * g, true);
@@ -217,6 +283,11 @@ public:
 
         g = s->GetGravityAcceleration(pos_right_);
         body_right_->ApplyForceToCenter(0.344 * g, true);
+
+        g = s->GetGravityAcceleration(pos_llg_);
+        body_left_gear_->ApplyForceToCenter(0.157 * g, true);
+        g = s->GetGravityAcceleration(pos_rlg_);
+        body_right_gear_->ApplyForceToCenter(0.157 * g, true);
 
         BD_Vector mg;
         mg.x = g_total.x;
@@ -290,6 +361,20 @@ public:
         fd.shape = &shape;
         body_right_->CreateFixture(&fd);
 
+        // Landing gear bodies
+        bd.position.Set(pos_main_.x - 0.4361, pos_main_.y - 0.56);
+        body_left_gear_ = world_->CreateBody(&bd);
+        shape.Set(v_left_gear_, NUM_PART_VERTICES);
+        fd.shape = &shape;
+        body_left_gear_->CreateFixture(&fd);
+
+        bd.position.Set(pos_main_.x + 0.4361, pos_main_.y - 0.56);
+        body_right_gear_ = world_->CreateBody(&bd);
+        shape.Set(v_right_gear_, NUM_PART_VERTICES);
+        fd.shape = &shape;
+        body_right_gear_->CreateFixture(&fd);
+        // End -- Landing gears.
+
         // Ship body joints
         b2WeldJointDef wjd;
         b2Vec2 anchor(pos_main_.x, pos_main_.y);
@@ -325,6 +410,40 @@ public:
         wjd.localAnchorB = body_right_->GetLocalPoint(anchor);
         wjd.collideConnected = false;
         j_lr_ = static_cast<b2WeldJoint*>(world_->CreateJoint(&wjd));
+
+        // Begin -- Landing Gears
+        const float maxForce = 10.0f;
+        const float speed = 0.5f;
+        const float lowerLim = -0.2f;
+        const float upperLim = 0.01f;
+        b2Vec2 axis(-1.25, 6.25);
+        axis.Normalize();
+        anchor.x = pos_main_.x - 0.42;
+        anchor.y = pos_main_.y - 0.54;
+
+        b2PrismaticJointDef pjdL;
+        b2PrismaticJointDef pjdR;
+        pjdL.Initialize(body_left_, body_left_gear_, anchor, axis);
+        axis.x = -axis.x;
+        anchor.x = -anchor.x;
+        pjdR.Initialize(body_right_, body_right_gear_, anchor, axis);
+
+        pjdL.lowerTranslation = lowerLim;
+        pjdR.lowerTranslation = lowerLim;
+        pjdL.upperTranslation = upperLim;
+        pjdR.upperTranslation = upperLim;
+        pjdL.enableLimit = true;
+        pjdR.enableLimit = true;
+        pjdL.motorSpeed = speed;
+        pjdR.motorSpeed = speed;
+        pjdL.maxMotorForce = maxForce;
+        pjdR.maxMotorForce = maxForce;
+        pjdL.enableMotor = true;
+        pjdR.enableMotor = true;
+        j_llg_ = static_cast<b2PrismaticJoint*>(world_->CreateJoint(&pjdL));
+        j_rlg_ = static_cast<b2PrismaticJoint*>(world_->CreateJoint(&pjdR));
+        // End -- Landing Gears
+
 
         // Init engine system.
         engine_->Init(data_bus_);
@@ -424,10 +543,14 @@ public:
         angle_upper_ = body_upper_->GetAngle() * 180.0 / M_PI;
         angle_left_ = body_left_->GetAngle() * 180.0 / M_PI;
         angle_right_ = body_right_->GetAngle() * 180.0 / M_PI;
+        angle_llg_ = body_left_gear_->GetAngle() * 180.0 / M_PI;
+        angle_rlg_ = body_right_gear_->GetAngle() * 180.0 / M_PI;
 
         pos_upper_ = body_upper_->GetPosition();
         pos_left_ = body_left_->GetPosition();
         pos_right_ = body_right_->GetPosition();
+        pos_llg_ = body_left_gear_->GetPosition();
+        pos_rlg_ = body_right_gear_->GetPosition();
 
         if(bus_connection_ != 0) {
             // Send player velocity to Data Bus.
@@ -476,9 +599,8 @@ public:
         glLoadIdentity();
         glColor3fv(color_);
 
-        int draw_mode = GL_TRIANGLE_FAN; //GL_LINE_LOOP;
         // Main Body
-        glBegin(draw_mode);
+        glBegin(GL_TRIANGLE_FAN);
         glVertex2d(0.0, 0.0);
         for (int i=0; i<NUM_PART_VERTICES; ++i) {
             glVertex2d(v_main_body_[i].x, v_main_body_[i].y);
@@ -491,7 +613,7 @@ public:
         glRotated(angle_main_, 0.0, 0.0, -1.0);
         glTranslated(pos_upper_.x - pos_main_.x, pos_upper_.y - pos_main_.y, 0.0);
         glRotated(angle_upper_, 0.0, 0.0, 1.0);
-        glBegin(draw_mode);
+        glBegin(GL_TRIANGLE_FAN);
         for (int i=0; i<NUM_PART_VERTICES; ++i) {
             glVertex2d(v_upper_body_[i].x, v_upper_body_[i].y);
         }
@@ -501,7 +623,7 @@ public:
         glRotated(angle_main_, 0.0, 0.0, -1.0);
         glTranslated(pos_left_.x - pos_main_.x, pos_left_.y - pos_main_.y, 0.0);
         glRotated(angle_left_, 0.0, 0.0, 1.0);
-        glBegin(draw_mode);
+        glBegin(GL_TRIANGLE_FAN);
         for (int i=0; i<NUM_PART_VERTICES; ++i) {
             glVertex2d(v_left_body_[i].x, v_left_body_[i].y);
         }
@@ -511,19 +633,32 @@ public:
         glRotated(angle_main_, 0.0, 0.0, -1.0);
         glTranslated(pos_right_.x - pos_main_.x, pos_right_.y - pos_main_.y, 0.0);
         glRotated(angle_right_, 0.0, 0.0, 1.0);
-        glBegin(draw_mode);
+        glBegin(GL_TRIANGLE_FAN);
         for (int i=0; i<NUM_PART_VERTICES; ++i) {
             glVertex2d(v_right_body_[i].x, v_right_body_[i].y);
         }
         glEnd();
-        glPopMatrix();
 
-//        glBegin(GL_TRIANGLE_FAN);
-//        glVertex2d(0.0, 0.0);
-//        for (int i=0; i<NUM_SHIP_VERTICES; ++i)
-//        glVertex2d( vertices_[i].x, vertices_[i].y );
-//        glVertex2d( vertices_[0].x, vertices_[0].y );
-//        glEnd();
+        // Landing Gears
+        glLoadIdentity();
+        glRotated(angle_main_, 0.0, 0.0, -1.0);
+        glTranslated(pos_llg_.x - pos_main_.x, pos_llg_.y - pos_main_.y, 0.0);
+        glRotated(angle_llg_, 0.0, 0.0, 1.0);
+        glBegin(GL_LINE_LOOP);
+        for (int i=0; i<NUM_PART_VERTICES; ++i) {
+            glVertex2d(v_left_gear_[i].x, v_left_gear_[i].y);
+        }
+        glEnd();
+        glLoadIdentity();
+        glRotated(angle_main_, 0.0, 0.0, -1.0);
+        glTranslated(pos_rlg_.x - pos_main_.x, pos_rlg_.y - pos_main_.y, 0.0);
+        glRotated(angle_rlg_, 0.0, 0.0, 1.0);
+        glBegin(GL_LINE_LOOP);
+        for (int i=0; i<NUM_PART_VERTICES; ++i) {
+            glVertex2d(v_right_gear_[i].x, v_right_gear_[i].y);
+        }
+        glEnd();
+        glPopMatrix();
     }
     void HotasInput(int key, bool action) {
         assert(hotas_ != 0);
@@ -558,8 +693,24 @@ public:
             if (action == true) {
                 hotas_->Stabilize();
             }
+            break;
         case GLFW_KEY_G:
-            hotas_->ToggleLandingGear();
+            // TODO : pass landing gear command
+            //      : to landing gear 'system' through hotas.
+            // hotas_->ToggleLandingGear();
+            if (action) {
+                if (landing_gear_state_) {
+                    puts("LG Up!");
+                    j_llg_->SetMotorSpeed(0.3);
+                    j_rlg_->SetMotorSpeed(0.3);
+                    landing_gear_state_ = 0;
+                } else {
+                    puts("LG Down!");
+                    j_llg_->SetMotorSpeed(-0.3);
+                    j_rlg_->SetMotorSpeed(-0.3);
+                    landing_gear_state_ = 1;
+                }
+            }
             break;
 
 #ifdef DISCONNECT_TEST
@@ -584,4 +735,3 @@ public:
 };
 
 #endif // SPACE_SHIP_H_
-
