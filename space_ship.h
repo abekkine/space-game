@@ -7,6 +7,7 @@
 #include <functional>
 
 #include "effects_manager.h"
+#include "solar_system.h"
 #include "object_manager.h"
 
 #include "data_bus.h"
@@ -22,7 +23,7 @@
 
 #include <assert.h>
 
-#define NUM_SHIP_VERTICES 8
+#define NUM_PART_VERTICES 5
 
 class SpaceShip : public ContactInterface {
 private:
@@ -37,19 +38,42 @@ private:
     // END -- Ship Systems
     EffectsManager * effects_;
 
-    double angle_;
+    double angle_main_;
+    double angle_upper_;
+    double angle_left_;
+    double angle_right_;
+
     double mass_;
     double density_;
     double thrust_force_;
     double moment_;
 
     double angular_velocity_;
-    b2Vec2 position_;
+    b2Vec2 pos_main_;
+    b2Vec2 pos_upper_;
+    b2Vec2 pos_left_;
+    b2Vec2 pos_right_;
+
     b2Vec2 velocity_;
     b2Vec2 gravity_;
     b2Vec2 thrust_;
-    b2Body * physics_body_;
-    b2Vec2 vertices_[NUM_SHIP_VERTICES];
+    b2World * world_;
+    b2Body * body_main_;
+    b2Body * body_upper_;
+    b2Body * body_left_;
+    b2Body * body_right_;
+    b2Vec2 v_main_body_[NUM_PART_VERTICES];
+    b2Vec2 v_upper_body_[NUM_PART_VERTICES];
+    b2Vec2 v_left_body_[NUM_PART_VERTICES];
+    b2Vec2 v_right_body_[NUM_PART_VERTICES];
+
+    b2Vec2 v_left_gear_[NUM_PART_VERTICES];
+    b2Vec2 v_right_gear_[NUM_PART_VERTICES];
+
+    b2WeldJoint *j_upper_;
+    b2WeldJoint *j_left_;
+    b2WeldJoint *j_right_;
+    b2WeldJoint *j_lr_;
 
     float color_[3];
 
@@ -65,26 +89,67 @@ public:
     , hull_(0)
     , effects_(0)
 
-    , angle_(0.0)
+    , angle_main_(0.0)
+    , angle_upper_(0.0)
+    , angle_left_(0.0)
+    , angle_right_(0.0)
     , mass_(1.0)
     , density_(1.0)
     , thrust_force_(0.0)
     , moment_(0.0)
 
     , angular_velocity_(0.0)
-    , position_{ 0.0, 0.0 }
+    , pos_main_{ 0.0, 0.0 }
+    , pos_upper_{ 0.0, 0.0 }
+    , pos_left_{ 0.0, 0.0 }
+    , pos_right_{ 0.0, 0.0 }
     , velocity_{ 0.0, 0.0 }
     , gravity_{ 0.0, 0.0 }
     , thrust_{ 0.0, 0.0 }
-    , physics_body_(0)
-    , vertices_{ { 0.16,  1.2 },
-                 {-0.16,  1.2 },
-                 {-0.5 ,  0.16},
-                 {-0.68,  0.14},
-                 {-0.54, -0.46},
-                 { 0.54, -0.46},
-                 { 0.68,  0.14},
-                 { 0.5 ,  0.16}}
+    , world_(0)
+    , body_main_(0)
+    , body_upper_(0)
+    , body_left_(0)
+    , body_right_(0)
+    , v_main_body_{{0.5, -0.24},
+        {0.29, 0.41},
+        {-0.29, 0.41},
+        {-0.5, -0.24},
+        {0.0, -0.43}}
+
+    , v_upper_body_{{0.16, 0.26},
+        {-0.16, 0.26},
+        {-0.29, -0.13},
+        {0.0, -0.28},
+        {0.29, -0.13}}
+
+    , v_left_body_{{-0.22, -0.3},
+        {0.33, -0.3},
+        {0.33, 0.16},
+        {-0.14, 0.33},
+        {-0.36, 0.3}}
+
+    , v_right_body_{{-0.33, -0.3},
+        {0.22, -0.3},
+        {0.36, 0.3},
+        {0.14, 0.33},
+        {-0.33, 0.16}}
+
+//    , v_left_gear_ { {-0.204, 0.26},
+//                     {-0.064, -0.34},
+//                     {0.046, -0.34},
+//                     {0.226, 0.15},
+//                     {-0.084, 0.27}}
+//    , v_right_gear_ {{-0.046, -0.34},
+//                     {0.064, -0.34},
+//                     {0.204, 0.26},
+//                     {0.084, 0.27},
+//                     {-0.226, 0.15}}
+    , j_upper_(0)
+    , j_left_(0)
+    , j_right_(0)
+    , j_lr_(0)
+
     , color_{ 1.0, 1.0, 1.0 }
     , destroyed_(false)
     {
@@ -107,17 +172,17 @@ public:
     }
     ~SpaceShip() {}
     void SetAngle(double angle) {
-        angle_ = angle;
+        angle_main_ = angle;
     }
     double GetAngle() {
-        return angle_;
+        return angle_main_;
     }
     void SetPosition(double x, double y) {
-        position_.x = x;
-        position_.y = y;
+        pos_main_.x = x;
+        pos_main_.y = y;
     }
     b2Vec2 const & GetPosition() {
-        return position_;
+        return pos_main_;
     }
     double GetSpeed() {
         return velocity_.Length();
@@ -134,14 +199,28 @@ public:
 
         return volume * density_;
     }
-    void SetGravityAcceleration(const b2Vec2 & g) {
-        gravity_ = Mass() * g;
+    void UpdateGravity() {
 
-        // Send player gravity to Data Bus.
-        // TODO : This value should be published by a sensor device/system (#115).
+        SolarSystem* s = static_cast<SolarSystem *>(OBJMGR.Get("solar"));
+
+        b2Vec2 g;
+        b2Vec2 g_total;
+        g = s->GetGravityAcceleration(pos_main_);
+        body_main_->ApplyForceToCenter(0.6085 * g, true);
+        g_total = (0.6085 + 0.219 + 0.688) * g;
+
+        g = s->GetGravityAcceleration(pos_upper_);
+        body_upper_->ApplyForceToCenter(0.219 * g, true);
+
+        g = s->GetGravityAcceleration(pos_left_);
+        body_left_->ApplyForceToCenter(0.344 * g, true);
+
+        g = s->GetGravityAcceleration(pos_right_);
+        body_right_->ApplyForceToCenter(0.344 * g, true);
+
         BD_Vector mg;
-        mg.x = gravity_.x;
-        mg.y = gravity_.y;
+        mg.x = g_total.x;
+        mg.y = g_total.y;
         if (bus_connection_ != 0) {
             bus_connection_->Publish(db_ShipGravity, &mg);
         }
@@ -165,24 +244,87 @@ public:
     }
 
     void Init(b2World * world) {
-        b2BodyDef def;
-        def.type = b2_dynamicBody;
-        def.angularVelocity = 0.0;
-        def.angle = angle_ * M_PI / 180.0;
-        def.position.Set(position_.x, position_.y);
-        physics_body_ = world->CreateBody(&def);
+        world_ = world;
 
-        physics_body_->SetUserData(this);
+        b2BodyDef bd;
+        bd.type = b2_dynamicBody;
 
+        b2FixtureDef fd;
+        fd.density = density_;
+        fd.friction = 0.7;
         b2PolygonShape shape;
-        shape.Set(vertices_, NUM_SHIP_VERTICES);
 
-        b2FixtureDef fixture;
-        fixture.shape = &shape;
-        fixture.density = density_;
-        fixture.friction = 0.7;
+        // Main Body
+        bd.position.Set(pos_main_.x, pos_main_.y);
+        body_main_ = world_->CreateBody(&bd);
+        body_main_->SetUserData(this);
 
-        physics_body_->CreateFixture(&fixture);
+        shape.Set(v_main_body_, NUM_PART_VERTICES);
+        fd.shape = &shape;
+        body_main_->CreateFixture(&fd);
+
+        // Upper Body
+        bd.position.Set(pos_main_.x, pos_main_.y + 0.5413);
+        body_upper_ = world_->CreateBody(&bd);
+        body_upper_->SetUserData(this);
+
+        shape.Set(v_upper_body_, NUM_PART_VERTICES);
+        fd.shape = &shape;
+        body_upper_->CreateFixture(&fd);
+
+        // Left Body
+        bd.position.Set(pos_main_.x - 0.3228, pos_main_.y - 0.5632);
+        body_left_ = world_->CreateBody(&bd);
+        body_left_->SetUserData(this);
+
+        shape.Set(v_left_body_, NUM_PART_VERTICES);
+        fd.shape = &shape;
+        body_left_->CreateFixture(&fd);
+
+        // Right Body
+        bd.position.Set(pos_main_.x + 0.3228, pos_main_.y - 0.5632);
+        body_right_ = world_->CreateBody(&bd);
+        body_right_->SetUserData(this);
+
+        shape.Set(v_right_body_, NUM_PART_VERTICES);
+        fd.shape = &shape;
+        body_right_->CreateFixture(&fd);
+
+        // Ship body joints
+        b2WeldJointDef wjd;
+        b2Vec2 anchor(pos_main_.x, pos_main_.y);
+        // -- Main to upper
+        wjd.bodyA = body_main_;
+        wjd.bodyB = body_upper_;
+        wjd.Initialize(body_main_, body_upper_, anchor);
+        wjd.localAnchorA = body_main_->GetLocalPoint(anchor);
+        wjd.localAnchorB = body_upper_->GetLocalPoint(anchor);
+        wjd.collideConnected = false;
+        j_upper_ = static_cast<b2WeldJoint*>(world_->CreateJoint(&wjd));
+        // -- Main to left
+        wjd.bodyA = body_main_;
+        wjd.bodyB = body_left_;
+        wjd.Initialize(body_main_, body_left_, anchor);
+        wjd.localAnchorA = body_main_->GetLocalPoint(anchor);
+        wjd.localAnchorB = body_left_->GetLocalPoint(anchor);
+        wjd.collideConnected = false;
+        j_left_ = static_cast<b2WeldJoint*>(world_->CreateJoint(&wjd));
+        // -- Main to right
+        wjd.bodyA = body_main_;
+        wjd.bodyB = body_right_;
+        wjd.Initialize(body_main_, body_right_, anchor);
+        wjd.localAnchorA = body_main_->GetLocalPoint(anchor);
+        wjd.localAnchorB = body_right_->GetLocalPoint(anchor);
+        wjd.collideConnected = false;
+        j_right_ = static_cast<b2WeldJoint*>(world_->CreateJoint(&wjd));
+        // -- Left to Right
+        wjd.bodyA = body_left_;
+        wjd.bodyB = body_right_;
+        wjd.Initialize(body_left_, body_right_, anchor);
+        wjd.localAnchorA = body_left_->GetLocalPoint(anchor);
+        wjd.localAnchorB = body_right_->GetLocalPoint(anchor);
+        wjd.collideConnected = false;
+        j_lr_ = static_cast<b2WeldJoint*>(world_->CreateJoint(&wjd));
 
         // Init engine system.
         engine_->Init(data_bus_);
@@ -202,21 +344,65 @@ public:
         moment_ = value;
     }
     // End
+    void CheckJoints(double delta_time) {
+
+        double f1, f2, f3, f4;
+        const double kBreakForce = 500.0;
+        if (j_upper_) {
+            f1 = j_upper_->GetReactionForce(1.0 / delta_time).Length();
+            if (f1 > kBreakForce) {
+                world_->DestroyJoint(j_upper_);
+                j_upper_ = 0;
+                puts("..Upper joint breaks!");
+            }
+        }
+
+        if (j_left_) {
+            f2 = j_left_->GetReactionForce(1.0 / delta_time).Length();
+            if (f2 > kBreakForce) {
+                world_->DestroyJoint(j_left_);
+                j_left_ = 0;
+                puts("..Left joint breaks!");
+            }
+        }
+
+        if (j_right_) {
+            f3 = j_right_->GetReactionForce(1.0 / delta_time).Length();
+            if (f3 > kBreakForce) {
+                world_->DestroyJoint(j_right_);
+                j_right_ = 0;
+                puts("..Right joint breaks!");
+           }
+        }
+
+        if (j_lr_) {
+            f4 = j_lr_->GetReactionForce(1.0 / delta_time).Length();
+            if (f4 > kBreakForce) {
+                world_->DestroyJoint(j_lr_);
+                j_lr_ = 0;
+                puts("..Bottom joint (LR) breaks!");
+            }
+        }
+    }
     void Update(double delta_time) {
+        // Check Joints
+        CheckJoints(delta_time);
         // Gravity
-        physics_body_->ApplyForceToCenter(gravity_, true);
+        UpdateGravity();
         // Thrust
         if (!destroyed_) {
-            thrust_.x = thrust_force_ * cos(0.5 * M_PI + physics_body_->GetAngle());
-            thrust_.y = thrust_force_ * sin(0.5 * M_PI + physics_body_->GetAngle());
-            physics_body_->ApplyForceToCenter(thrust_, true);
+            thrust_.x = thrust_force_ * cos(0.5 * M_PI + body_main_->GetAngle());
+            thrust_.y = thrust_force_ * sin(0.5 * M_PI + body_main_->GetAngle());
+            body_main_->ApplyForceToCenter(thrust_, true);
 
-            effects_->MainThruster(thrust_, position_, velocity_);
+            // TODO : re-align thruster position.
+            effects_->MainThruster(thrust_, pos_main_, velocity_);
 
             // Moment
-            physics_body_->ApplyTorque(moment_, true);
+            body_main_->ApplyTorque(moment_, true);
 
-            effects_->BowThruster(moment_, angle_, position_, velocity_);
+            // TODO : re-align thruster position.
+            effects_->BowThruster(moment_, angle_main_, pos_main_, velocity_);
         }
         else {
             thrust_force_ = 0.0;
@@ -225,15 +411,23 @@ public:
             thrust_.y = 0.0;
         }
         // Get angular velocity for devices
-        angular_velocity_ = physics_body_->GetAngularVelocity();
+        angular_velocity_ = body_main_->GetAngularVelocity();
         // Get velocity for devices.
-        velocity_ = physics_body_->GetLinearVelocity();
+        velocity_ = body_main_->GetLinearVelocity();
         double speed = velocity_.Length();
         double lf = GameDefinitions::LorentzFactor(speed);
-        physics_body_->GetFixtureList()->SetDensity( density_ / lf );
+        body_main_->GetFixtureList()->SetDensity( density_ / lf );
         // Get position.
-        position_ = physics_body_->GetPosition();
-        angle_ = physics_body_->GetAngle() * 180.0 / M_PI;
+        pos_main_ = body_main_->GetPosition();
+        angle_main_ = body_main_->GetAngle() * 180.0 / M_PI;
+
+        angle_upper_ = body_upper_->GetAngle() * 180.0 / M_PI;
+        angle_left_ = body_left_->GetAngle() * 180.0 / M_PI;
+        angle_right_ = body_right_->GetAngle() * 180.0 / M_PI;
+
+        pos_upper_ = body_upper_->GetPosition();
+        pos_left_ = body_left_->GetPosition();
+        pos_right_ = body_right_->GetPosition();
 
         if(bus_connection_ != 0) {
             // Send player velocity to Data Bus.
@@ -252,14 +446,14 @@ public:
             // TODO : Should be published by a sensor device (#115).
             // Used by HUD & Radar systems.
             BD_Vector p;
-            p.x = position_.x;
-            p.y = position_.y;
+            p.x = pos_main_.x;
+            p.y = pos_main_.y;
             bus_connection_->Publish(db_ShipPosition, &p);
 
             // TODO : Should be published by a sensor device (#115).
             // Used by HUD system.
             BD_Scalar s;
-            s.value = angle_;
+            s.value = angle_main_;
             bus_connection_->Publish(db_ShipAngle, &s);
 
             // TODO : Thrust value should be published by engine system itself (#116).
@@ -282,12 +476,54 @@ public:
         glLoadIdentity();
         glColor3fv(color_);
 
-        glBegin(GL_TRIANGLE_FAN);
+        int draw_mode = GL_TRIANGLE_FAN; //GL_LINE_LOOP;
+        // Main Body
+        glBegin(draw_mode);
         glVertex2d(0.0, 0.0);
-        for (int i=0; i<NUM_SHIP_VERTICES; ++i)
-        glVertex2d( vertices_[i].x, vertices_[i].y );
-        glVertex2d( vertices_[0].x, vertices_[0].y );
+        for (int i=0; i<NUM_PART_VERTICES; ++i) {
+            glVertex2d(v_main_body_[i].x, v_main_body_[i].y);
+        }
+        glVertex2d(v_main_body_[0].x, v_main_body_[0].y);
         glEnd();
+        // Upper Body
+        glPushMatrix();
+        glLoadIdentity();
+        glRotated(angle_main_, 0.0, 0.0, -1.0);
+        glTranslated(pos_upper_.x - pos_main_.x, pos_upper_.y - pos_main_.y, 0.0);
+        glRotated(angle_upper_, 0.0, 0.0, 1.0);
+        glBegin(draw_mode);
+        for (int i=0; i<NUM_PART_VERTICES; ++i) {
+            glVertex2d(v_upper_body_[i].x, v_upper_body_[i].y);
+        }
+        glEnd();
+        // Left Body
+        glLoadIdentity();
+        glRotated(angle_main_, 0.0, 0.0, -1.0);
+        glTranslated(pos_left_.x - pos_main_.x, pos_left_.y - pos_main_.y, 0.0);
+        glRotated(angle_left_, 0.0, 0.0, 1.0);
+        glBegin(draw_mode);
+        for (int i=0; i<NUM_PART_VERTICES; ++i) {
+            glVertex2d(v_left_body_[i].x, v_left_body_[i].y);
+        }
+        glEnd();
+        // Right Body
+        glLoadIdentity();
+        glRotated(angle_main_, 0.0, 0.0, -1.0);
+        glTranslated(pos_right_.x - pos_main_.x, pos_right_.y - pos_main_.y, 0.0);
+        glRotated(angle_right_, 0.0, 0.0, 1.0);
+        glBegin(draw_mode);
+        for (int i=0; i<NUM_PART_VERTICES; ++i) {
+            glVertex2d(v_right_body_[i].x, v_right_body_[i].y);
+        }
+        glEnd();
+        glPopMatrix();
+
+//        glBegin(GL_TRIANGLE_FAN);
+//        glVertex2d(0.0, 0.0);
+//        for (int i=0; i<NUM_SHIP_VERTICES; ++i)
+//        glVertex2d( vertices_[i].x, vertices_[i].y );
+//        glVertex2d( vertices_[0].x, vertices_[0].y );
+//        glEnd();
     }
     void HotasInput(int key, bool action) {
         assert(hotas_ != 0);
