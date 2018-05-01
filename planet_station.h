@@ -44,6 +44,27 @@ public:
 
         joint_ = (b2WeldJoint *) world_->CreateJoint(&wjd);
     }
+    b2Joint *AnchorShip(b2Body *body) {
+        b2WeldJointDef wjd;
+        wjd.bodyA = body;
+        wjd.bodyB = body_;
+
+        b2Vec2 worldAnchor = body_->GetWorldCenter();
+        wjd.Initialize(body, body_, worldAnchor);
+        wjd.localAnchorA = body->GetLocalPoint(worldAnchor);
+        wjd.localAnchorB = body_->GetLocalPoint(worldAnchor);
+        wjd.referenceAngle = 0.0;
+        wjd.collideConnected = false;
+
+        b2Joint *anchor = world_->CreateJoint(&wjd);
+        return anchor;
+    }
+    void Connect() {
+        puts("Welcome to ... station!");
+    }
+    void Disconnect() {
+        puts("Leaving ... station!");
+    }
     void Update(double time_step) {
         (void)time_step;
         b2Vec2 pos = body_->GetPosition();

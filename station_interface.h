@@ -11,8 +11,11 @@ public:
     virtual ~StationInterface() {}
     virtual void Init(b2World * world) = 0;
     virtual void Attach(b2Body * body) = 0;
+    virtual b2Joint* AnchorShip(b2Body * body) = 0;
     virtual void Update(double time_step) = 0;
     virtual void Render() = 0;
+    virtual void Connect() = 0;
+    virtual void Disconnect() = 0;
 
 public:
     virtual void ProcessImpulse(float impulse) = 0;

@@ -20,6 +20,7 @@
 #include "systems/hotas_device.h"
 
 #include "contact_interface.h"
+#include "station_interface.h"
 
 #include <assert.h>
 
@@ -131,6 +132,9 @@ private:
 
     // Landing gear up/down control variable.
     uint8_t landing_gear_state_;
+    StationInterface* station_iface_;
+    bool ship_anchored_;
+    b2Joint *anchor_;
     // Ship color.
     float color_[3];
     // Ship destruction flag.
@@ -198,12 +202,12 @@ public:
         {-0.33, 0.16}}
 
     , v_left_gear_ { {-0.204, 0.26},
-                     {-0.064, -0.34},
-                     {0.046, -0.34},
+                     {-0.064, -0.28},
+                     {0.046, -0.28},
                      {0.226, 0.15},
                      {-0.084, 0.27}}
-    , v_right_gear_ {{-0.046, -0.34},
-                     {0.064, -0.34},
+    , v_right_gear_ {{-0.046, -0.28},
+                     {0.064, -0.28},
                      {0.204, 0.26},
                      {0.084, 0.27},
                      {-0.226, 0.15}}
@@ -215,7 +219,9 @@ public:
     , j_rlg_(0)
 
     , landing_gear_state_(0)
-
+    , station_iface_(0)
+    , ship_anchored_(false)
+    , anchor_(0)
     , color_{ 1.0, 1.0, 1.0 }
     , destroyed_(false)
     {
@@ -306,12 +312,18 @@ public:
         hull_->ApplyImpact(impulse);
     }
     void BeginContact(ContactInterface* object) {
-        (void)object;
-        // TODO : Use this to connect to object.
+        StationInterface *s = static_cast<StationInterface *>(object);
+
+        if (s != 0) {
+            station_iface_ = s;
+        }
     }
     void EndContact(ContactInterface* object) {
-        (void)object;
-        // TODO : Use this to disconnect from object.
+        StationInterface *s = static_cast<StationInterface *>(object);
+
+        if (s != 0 && ship_anchored_ == false) {
+            station_iface_ = 0;
+        }
     }
 
     void Init(b2World * world) {
@@ -364,12 +376,14 @@ public:
         // Landing gear bodies
         bd.position.Set(pos_main_.x - 0.4361, pos_main_.y - 0.56);
         body_left_gear_ = world_->CreateBody(&bd);
+        body_left_gear_->SetUserData(this);
         shape.Set(v_left_gear_, NUM_PART_VERTICES);
         fd.shape = &shape;
         body_left_gear_->CreateFixture(&fd);
 
         bd.position.Set(pos_main_.x + 0.4361, pos_main_.y - 0.56);
         body_right_gear_ = world_->CreateBody(&bd);
+        body_right_gear_->SetUserData(this);
         shape.Set(v_right_gear_, NUM_PART_VERTICES);
         fd.shape = &shape;
         body_right_gear_->CreateFixture(&fd);
@@ -508,8 +522,9 @@ public:
         CheckJoints(delta_time);
         // Gravity
         UpdateGravity();
-        // Thrust
+
         if (!destroyed_) {
+            // Thrust
             thrust_.x = thrust_force_ * cos(0.5 * M_PI + body_main_->GetAngle());
             thrust_.y = thrust_force_ * sin(0.5 * M_PI + body_main_->GetAngle());
             body_main_->ApplyForceToCenter(thrust_, true);
@@ -660,6 +675,23 @@ public:
         glEnd();
         glPopMatrix();
     }
+
+    void AnchorShip() {
+        if (station_iface_ != 0) {
+            anchor_ = station_iface_->AnchorShip(body_left_gear_);
+            if (anchor_ != 0) {
+                ship_anchored_ = true;
+                station_iface_->Connect();
+            }
+        }
+    }
+
+    void ReleaseShip() {
+        station_iface_->Disconnect();
+        world_->DestroyJoint( anchor_ );
+        ship_anchored_ = false;
+    }
+
     void HotasInput(int key, bool action) {
         assert(hotas_ != 0);
         switch(key) {
@@ -692,6 +724,17 @@ public:
         case GLFW_KEY_S: // stop rotation
             if (action == true) {
                 hotas_->Stabilize();
+            }
+            break;
+        case GLFW_KEY_H:
+            if (action == true) {
+                if (ship_anchored_ == false) {
+                    // Anchor ship to station
+                    AnchorShip();
+                } else {
+                    // Release anchor
+                    ReleaseShip();
+                }
             }
             break;
         case GLFW_KEY_G:
