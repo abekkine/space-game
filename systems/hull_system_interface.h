@@ -19,6 +19,7 @@ public:
         bus_->Disconnect("hull", bus_connection_);
     }
 public:
+    virtual double Repair(double value) = 0;
     virtual void ApplyImpact(double impulse) = 0;
     virtual void SetDestructionCallback(std::function<void()> cb) = 0;
 protected:
