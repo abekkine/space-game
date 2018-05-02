@@ -478,7 +478,7 @@ public:
     }
     // End
     void CheckJoints(double delta_time) {
-
+        if (ship_anchored_) return;
         double f1, f2, f3, f4;
         const double kBreakForce = 500.0;
         if (j_upper_) {
@@ -609,6 +609,9 @@ public:
         RenderShip();
         DISPLAY.UiMode();
         hud_->Render();
+        if (station_iface_ != 0 && ship_anchored_) {
+            station_iface_->RenderUi();
+        }
     }
     void RenderShip() {
         glLoadIdentity();
@@ -692,6 +695,16 @@ public:
         ship_anchored_ = false;
     }
 
+    void RefuelRequest() {
+        if (station_iface_ != 0 && ship_anchored_) {
+            station_iface_->Refuel(engine_);
+        }
+    }
+
+    void RepairRequest() {
+        // TODO
+    }
+
     void HotasInput(int key, bool action) {
         assert(hotas_ != 0);
         switch(key) {
@@ -724,6 +737,16 @@ public:
         case GLFW_KEY_S: // stop rotation
             if (action == true) {
                 hotas_->Stabilize();
+            }
+            break;
+        case GLFW_KEY_F:
+            if (action == true) {
+                RefuelRequest();
+            }
+            break;
+        case GLFW_KEY_R:
+            if (action == true) {
+                RepairRequest();
             }
             break;
         case GLFW_KEY_H:
