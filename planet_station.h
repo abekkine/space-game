@@ -74,6 +74,10 @@ public:
 
         engine->Refuel(5.0);
     }
+    void Repair(HullSystemInterface* hull) {
+
+        hull->Repair(5.0);
+    }
     void Update(double time_step) {
         (void)time_step;
         b2Vec2 pos = body_->GetPosition();

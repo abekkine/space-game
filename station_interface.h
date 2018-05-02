@@ -5,6 +5,7 @@
 #include <Box2D.h>
 
 #include "systems/engine_system_interface.h"
+#include "systems/hull_system_interface.h"
 #include "contact_interface.h"
 
 class StationInterface : public ContactInterface {
@@ -19,6 +20,7 @@ public:
     virtual void Connect() = 0;
     virtual void Disconnect() = 0;
     virtual void Refuel(EngineSystemInterface *engine) = 0;
+    virtual void Repair(HullSystemInterface *hull) = 0;
 
 public:
     virtual void ProcessImpulse(float impulse) = 0;

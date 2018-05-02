@@ -702,7 +702,9 @@ public:
     }
 
     void RepairRequest() {
-        // TODO
+        if (station_iface_ != 0 && ship_anchored_) {
+            station_iface_->Repair(hull_);
+        }
     }
 
     void HotasInput(int key, bool action) {

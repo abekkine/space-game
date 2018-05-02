@@ -40,6 +40,29 @@ public:
             }
         }
     }
+    double Repair(double value) {
+        double surplus_repair_points;
+        if (integrity_ < max_integrity_) {
+            if (value < (max_integrity_ - integrity_)) {
+                surplus_repair_points = 0.0;
+                integrity_ += value;
+            }
+            else {
+                surplus_repair_points = value - (max_integrity_ - integrity_);
+                integrity_ = max_integrity_;
+            }
+            if (bus_connection_ != 0) {
+                // Used by HUD system.
+                BD_Scalar damage_ratio;
+                damage_ratio.value = integrity_ / max_integrity_;
+                bus_connection_->Publish(db_ShipDamage, &damage_ratio);
+            }
+        }
+        else {
+            surplus_repair_points = value;
+        }
+        return surplus_repair_points;
+    }
 };
 
 #endif // BASIC_HULL_SYSTEM_H_
