@@ -1,6 +1,7 @@
 #ifndef BASIC_ENGINE_SYSTEM_H_
 #define BASIC_ENGINE_SYSTEM_H_
 
+#include "effects_manager.h"
 #include "engine_system_interface.h"
 
 #include <assert.h>
@@ -11,8 +12,9 @@ class BasicEngineSystem : public EngineSystemInterface
 {
 public:
     BasicEngineSystem()
-    : thrustUpdateHandler_(0)
-    , momentUpdateHandler_(0)
+    : platform_body_(0)
+    , thrust_{0.0, 0.0}
+    , effects_(0)
     , kFuelVolumePerQuantity(0.1)
     , fuel_tank_size_(1.0)
     , remaining_fuel_(1.0)
@@ -21,21 +23,11 @@ public:
     , right_thruster_(0.0)
     , stabilization_mode_(false)
     , angular_velocity_(0.0)
-    {
-        UpdateThrust();
-    }
-    ~BasicEngineSystem() {
-        thrustUpdateHandler_ = 0;
-        momentUpdateHandler_ = 0;
-    }
+    {}
+    ~BasicEngineSystem() {}
 
-    std::function<void(double)> thrustUpdateHandler_;
-    void ThrustOutputHandler(std::function<void(double)> thrustOut) {
-        thrustUpdateHandler_ = thrustOut;
-    }
-    std::function<void(double)> momentUpdateHandler_;
-    void MomentOutputHandler(std::function<void(double)> momentOut) {
-        momentUpdateHandler_ = momentOut;
+    void Mount(b2Body *body) {
+        platform_body_ = body;
     }
     void ThrustForwardsCommand(double value) {
         if (remaining_fuel_ > 0.0) {
@@ -43,7 +35,6 @@ public:
             left_thruster_ = 0.0;
             right_thruster_ = 0.0;
         }
-        UpdateThrust();
     }
     void ThrustBackwardsCommand(double value) {
         (void)value;
@@ -55,7 +46,6 @@ public:
             left_thruster_ = 0.0;
         }
         stabilization_mode_ = false;
-        UpdateThrust();
     }
     void MomentCwCommand(double value) {
         if (remaining_fuel_ > 0.0) {
@@ -64,11 +54,9 @@ public:
             right_thruster_ = 0.0;
         }
         stabilization_mode_ = false;
-        UpdateThrust();
     }
     void CancelMomentCommand() {
         StopThrusters();
-        UpdateThrust();
     }
     void StopThrusters() {
         main_thruster_ = 0.0;
@@ -85,19 +73,36 @@ public:
         stabilization_mode_ = true;
     }
     void UpdateThrust() {
-        if (thrustUpdateHandler_ != 0) {
-            thrustUpdateHandler_(main_thruster_);
+        if (platform_body_ == 0) return;
+
+        double a = platform_body_->GetAngle();
+        a += 0.5 * M_PI;
+        thrust_.x = main_thruster_ * cos(a);
+        thrust_.y = main_thruster_ * sin(a);
+        platform_body_->ApplyForceToCenter(thrust_, true);
+
+        double torque = right_thruster_ - left_thruster_;
+        platform_body_->ApplyTorque(torque, true);
+
+        if (bus_connection_ != 0) {
+            BD_Scalar thrust;
+            double lf = GameDefinitions::LorentzFactor(platform_body_->GetLinearVelocity().Length());
+            thrust.value = main_thruster_ * lf;
+            bus_connection_->Publish(db_ShipThrust, &thrust);
         }
 
-        if (momentUpdateHandler_ != 0) {
-            momentUpdateHandler_(right_thruster_ - left_thruster_);
-        }
+        b2Vec2 enginePos = platform_body_->GetPosition();
+        effects_->MainThruster(thrust_, enginePos, platform_body_->GetLinearVelocity());
+        effects_->BowThruster(torque, platform_body_->GetAngle() * 180.0 / M_PI, enginePos, platform_body_->GetLinearVelocity());
     }
     void Init(DataBus* bus) {
 
         EngineSystemInterface::Init(bus);
 
         DB_SUBSCRIBE(BasicEngineSystem, ShipAngularVelocity);
+
+        effects_ = static_cast<EffectsManager*>(OBJMGR.Get("effects"));
+        assert(effects_ != 0 && "effects not defined!");
     }
     void Update(double time_step) {
         const double fuel_consumption_rate = 0.001; // units per second
@@ -125,19 +130,18 @@ public:
                         right_thruster_ = 0.8 * aav;
                         remaining_fuel_ -= time_step * fuel_consumption_rate * right_thruster_;
                     }
-                    UpdateThrust();
                 }
                 else {
                     left_thruster_ = 0.0;
                     right_thruster_ = 0.0;
-                    UpdateThrust();
                 }
             }
         }
         else {
             StopThrusters();
-            UpdateThrust();
         }
+
+        UpdateThrust();
     }
     double Refuel(double value) {
         double surplus_fuel;
@@ -185,6 +189,10 @@ private:
     }
 
 private:
+    b2Body *platform_body_;
+    b2Vec2 thrust_;
+    EffectsManager *effects_;
+
     const double kFuelVolumePerQuantity;
     double fuel_tank_size_;
     double remaining_fuel_;

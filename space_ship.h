@@ -6,7 +6,6 @@
 
 #include <functional>
 
-#include "effects_manager.h"
 #include "solar_system.h"
 #include "object_manager.h"
 
@@ -43,8 +42,6 @@ private:
     RadarSystemInterface * radar_;
     // -- Hull system
     HullSystemInterface * hull_;
-    // Effects
-    EffectsManager * effects_;
 
     // Body rotation angles
     // -- main body angle
@@ -64,10 +61,6 @@ private:
     double mass_;
     // TODO : Ship material density (not used with multiple bodies)
     double density_;
-    // Force value for thrust vector.
-    double thrust_force_;
-    // Torque value for ship rotation.
-    double moment_;
 
     // Ship angular velocity.
     double angular_velocity_;
@@ -88,8 +81,6 @@ private:
 
     // Velocity vector for ship.
     b2Vec2 velocity_;
-    // Ship thrust vector.
-    b2Vec2 thrust_;
     // Box2D world reference.
     b2World * world_;
     // Main part of ship body; camera fixed on this.
@@ -148,7 +139,6 @@ public:
     , engine_(0)
     , radar_(0)
     , hull_(0)
-    , effects_(0)
 
     , angle_main_(0.0)
     , angle_upper_(0.0)
@@ -158,8 +148,6 @@ public:
     , angle_rlg_(0)
     , mass_(1.0)
     , density_(1.0)
-    , thrust_force_(0.0)
-    , moment_(0.0)
 
     , angular_velocity_(0.0)
     , pos_main_{ 0.0, 0.0 }
@@ -169,7 +157,6 @@ public:
     , pos_llg_{ 0.0, 0.0 }
     , pos_rlg_{ 0.0, 0.0 }
     , velocity_{ 0.0, 0.0 }
-    , thrust_{ 0.0, 0.0 }
     , world_(0)
     , body_main_(0)
     , body_upper_(0)
@@ -238,8 +225,6 @@ public:
         hotas_->ConnectEngine(engine_);
 
         using std::placeholders::_1;
-        engine_->ThrustOutputHandler(std::bind(&SpaceShip::hndThrustOut, this, _1));
-        engine_->MomentOutputHandler(std::bind(&SpaceShip::hndMomentOut, this, _1));
         hull_->SetDestructionCallback(std::bind(&SpaceShip::OnDestroy, this));
     }
     ~SpaceShip() {
@@ -468,23 +453,14 @@ public:
 
         // Init engine system.
         engine_->Init(data_bus_);
+        engine_->Mount(body_main_);
+
         radar_->Init(data_bus_);
 
         hud_->Init(data_bus_);
         hotas_->Init(data_bus_);
         hull_->Init(data_bus_);
-
-        effects_ = static_cast<EffectsManager*>(OBJMGR.Get("effects"));
-        assert(effects_ != 0 && "effects not defined!");
     }
-    // Begin -- Handlers for Engine system.
-    void hndThrustOut(double value) {
-        thrust_force_ = value;
-    }
-    void hndMomentOut(double value) {
-        moment_ = value;
-    }
-    // End
     void CheckJoints(double delta_time) {
         if (ship_anchored_) return;
         double f1, f2, f3, f4;
@@ -546,27 +522,6 @@ public:
         // Gravity
         UpdateGravity();
 
-        if (!destroyed_) {
-            // Thrust
-            thrust_.x = thrust_force_ * cos(0.5 * M_PI + body_main_->GetAngle());
-            thrust_.y = thrust_force_ * sin(0.5 * M_PI + body_main_->GetAngle());
-            body_main_->ApplyForceToCenter(thrust_, true);
-
-            // TODO : re-align thruster position.
-            effects_->MainThruster(thrust_, pos_main_, velocity_);
-
-            // Moment
-            body_main_->ApplyTorque(moment_, true);
-
-            // TODO : re-align thruster position.
-            effects_->BowThruster(moment_, angle_main_, pos_main_, velocity_);
-        }
-        else {
-            thrust_force_ = 0.0;
-            moment_ = 0.0;
-            thrust_.x = 0.0;
-            thrust_.y = 0.0;
-        }
         // Get angular velocity for devices
         angular_velocity_ = body_main_->GetAngularVelocity();
         // Get velocity for devices.
@@ -616,13 +571,6 @@ public:
             BD_Scalar s;
             s.value = angle_main_;
             bus_connection_->Publish(db_ShipAngle, &s);
-
-            // TODO : Thrust value should be published by engine system itself (#116).
-            // TODO : LF should affect acceleration value, not thrust.
-            // Used by HUD system.
-            BD_Scalar thrust;
-            thrust.value = thrust_force_ * lf;
-            bus_connection_->Publish(db_ShipThrust, &thrust);
         }
 
         engine_->Update(delta_time);
