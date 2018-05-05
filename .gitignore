@@ -7,6 +7,9 @@ space_game/
 core
 *.json
 .*sw*
+*.log
+*.kcg
+new.supp
 .sconsign.dblite
 version.h
 

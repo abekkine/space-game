@@ -16,7 +16,9 @@ public:
         {1.3, 0.5}}
     , text_(0)
     {}
-    ~PlanetStation() {}
+    ~PlanetStation() {
+        delete text_;
+    }
     void Init(b2World * world) {
         world_ = world;
         text_ = new Text();

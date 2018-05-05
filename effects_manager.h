@@ -8,7 +8,9 @@
 
 class EffectsManager {
 public:
-    EffectsManager() {}
+    EffectsManager() {
+        bow_index = 0;
+    }
     ~EffectsManager() {}
     void Init() {}
     void Update(double time_step) {

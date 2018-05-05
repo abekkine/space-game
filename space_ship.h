@@ -242,7 +242,11 @@ public:
         engine_->MomentOutputHandler(std::bind(&SpaceShip::hndMomentOut, this, _1));
         hull_->SetDestructionCallback(std::bind(&SpaceShip::OnDestroy, this));
     }
-    ~SpaceShip() {}
+    ~SpaceShip() {
+        SYSTEMSMGR.Destroy();
+        delete data_bus_;
+    }
+    char Type() { return 's'; }
     void SetAngle(double angle) {
         angle_main_ = angle;
     }
@@ -274,6 +278,7 @@ public:
     void UpdateGravity() {
 
         SolarSystem* s = static_cast<SolarSystem *>(OBJMGR.Get("solar"));
+        if (s == 0) return;
 
         b2Vec2 g;
         b2Vec2 g_total;
@@ -312,9 +317,11 @@ public:
         hull_->ApplyImpact(impulse);
     }
     void BeginContact(ContactInterface* object) {
+        if (object->Type() != 'S') return;
+
         StationInterface *s = static_cast<StationInterface *>(object);
 
-        if (s != 0) {
+        if (s != 0 && ship_anchored_ == false) {
             station_iface_ = s;
         }
     }
@@ -468,6 +475,7 @@ public:
         hull_->Init(data_bus_);
 
         effects_ = static_cast<EffectsManager*>(OBJMGR.Get("effects"));
+        assert(effects_ != 0 && "effects not defined!");
     }
     // Begin -- Handlers for Engine system.
     void hndThrustOut(double value) {
@@ -516,6 +524,21 @@ public:
                 puts("..Bottom joint (LR) breaks!");
             }
         }
+    }
+    // TODO : Box2D cannot handle multiple rotations (>360.0).
+    void NormalizeAngle(b2Body* b) {
+        double a = b->GetAngle();
+        a = fmod(a, 2.0 * M_PI);
+        b->SetTransform(b->GetPosition(), a);
+    }
+    void NormalizeAngles() {
+
+        NormalizeAngle(body_main_);
+        NormalizeAngle(body_upper_);
+        NormalizeAngle(body_left_);
+        NormalizeAngle(body_right_);
+        NormalizeAngle(body_left_gear_);
+        NormalizeAngle(body_right_gear_);
     }
     void Update(double delta_time) {
         // Check Joints
@@ -681,6 +704,7 @@ public:
 
     void AnchorShip() {
         if (station_iface_ != 0) {
+            NormalizeAngles();
             anchor_ = station_iface_->AnchorShip(body_left_gear_);
             if (anchor_ != 0) {
                 ship_anchored_ = true;
@@ -690,6 +714,7 @@ public:
     }
 
     void ReleaseShip() {
+        assert(station_iface_ != 0 && "No station interface!");
         station_iface_->Disconnect();
         world_->DestroyJoint( anchor_ );
         ship_anchored_ = false;

@@ -21,20 +21,29 @@ public:
     , space_ship_(0)
     , effects_(0)
     , state_(GameDefinitions::gameState_InMenu)
+    , quit_(false)
     {}
     ~Universe() {
+
+        thread_.join();
+
+        OBJMGR.Remove("effects");
+        OBJMGR.Remove("ship");
+        OBJMGR.Remove("solar");
 
         delete collision_handler_;
         delete solar_system_;
         delete space_ship_;
         delete effects_;
         delete world_;
-
-        thread_.join();
     }
 
     void SetState(GameDefinitions::GameStateEnum state) {
         state_ = state;
+    }
+
+    void Exit() {
+        quit_ = true;
     }
 
     void Init() {
@@ -72,12 +81,15 @@ public:
         thread_ = std::thread(&Universe::ThreadLoop, this);
     }
     void Render() {
+
+        if (quit_) return;
+
         solar_system_->Render();
     }
 
 private:
     void ThreadLoop() {
-        while (true) {
+        while (!quit_) {
 
             double delta_time = timer_.GetElapsed();
 
@@ -111,6 +123,7 @@ private:
     GameDefinitions::GameStateEnum state_;
 
     GameTimer timer_;
+    bool quit_;
 };
 
 #endif  // UNIVERSE_H_

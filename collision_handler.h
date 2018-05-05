@@ -6,6 +6,11 @@
 #include "space_ship.h"
 
 class CollisionHandler : public b2ContactListener {
+public:
+    CollisionHandler() {}
+    ~CollisionHandler() {
+        puts("~CollisionHandler()");
+    }
 
     void PostSolve(b2Contact * contact, const b2ContactImpulse* impulse) {
 
@@ -32,11 +37,8 @@ class CollisionHandler : public b2ContactListener {
         ContactInterface* objA = static_cast<ContactInterface *>(contact->GetFixtureA()->GetBody()->GetUserData());
         ContactInterface* objB = static_cast<ContactInterface *>(contact->GetFixtureB()->GetBody()->GetUserData());
 
-        if (objA != 0) {
+        if (objA != 0 && objB != 0) {
             objA->BeginContact(objB);
-        }
-
-        if (objB != 0) {
             objB->BeginContact(objA);
         }
     }
@@ -46,11 +48,8 @@ class CollisionHandler : public b2ContactListener {
         ContactInterface* objA = static_cast<ContactInterface *>(contact->GetFixtureA()->GetBody()->GetUserData());
         ContactInterface* objB = static_cast<ContactInterface *>(contact->GetFixtureB()->GetBody()->GetUserData());
 
-        if (objA != 0) {
+        if (objA != 0 && objB != 0) {
             objA->EndContact(objB);
-        }
-
-        if (objB != 0) {
             objB->EndContact(objA);
         }
     }

@@ -12,7 +12,8 @@
 class Planet {
 public:
     Planet()
-    : x_(0.0)
+    : seed_(-1)
+    , x_(0.0)
     , y_(0.0)
     , angle_(0.0)
     , angular_velocity_(0.0)
@@ -22,10 +23,51 @@ public:
     , core_radius_(49.0)
     , color_{1.0, 0.0, 0.0}
     , station_(0)
+    , DL_surface_index_(-1)
+    , DL_core_index_(-1)
     {
         identifier_ = counter_++;
     }
-    ~Planet() {}
+    ~Planet() {
+        delete station_;
+    }
+    void SetSeed(long int seed) {
+        seed_ = seed;
+        srand48(seed_);
+
+        double height_factor = 0.2;
+        if (seed_ == -1) {
+            height_factor = 0.0;
+        }
+
+        DL_surface_index_ = glGenLists(1);
+        glNewList(DL_surface_index_, GL_COMPILE);
+
+        double R;
+        const double a_step = 5.0 / (M_PI * radius_);
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex2d(0.0, 0.0);
+        for (double a=0.0; a < 2.0 * M_PI; a+=a_step) {
+            R = radius_ + drand48() * height_factor;
+            glVertex2d(R * cos(a), R * sin(a));
+        }
+        glVertex2d(R, 0.0);
+        glEnd();
+
+        glEndList();
+
+        DL_core_index_ = glGenLists(1);
+        glNewList(DL_core_index_, GL_COMPILE);
+        const double cR = core_radius_;
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex2d(0.0, 0.0);
+        for (double a=0.0; a < 2.0 * M_PI; a+=a_step) {
+            glVertex2d(cR * cos(a), cR * sin(a));
+        }
+        glVertex2d(cR, 0.0);
+        glEnd();
+        glEndList();
+    }
     double Mass() {
         return M_PI * radius_ * radius_ * density_;
     }
@@ -110,22 +152,16 @@ public:
         glPushMatrix();
         glTranslated(x_, y_, 0.0);
         glRotated(angle_, 0.0, 0.0, 1.0);
-        glColor3fv(color_);
 
-        const double R = radius_;
-        const double a_step = 5.0 / (M_PI * R);
-        glBegin(GL_TRIANGLE_FAN);
-        glVertex2d(0.0, 0.0);
-        for (double a=0.0; a < 2.0 * M_PI; a+=a_step) {
-            glVertex2d(R * cos(a), R * sin(a));
-        }
-        glVertex2d(R, 0.0);
-        glEnd();
+        glColor3f(color_[0] * 0.9, color_[1] * 0.9, color_[2] * 0.9);
+        glCallList(DL_surface_index_);
+        glColor3fv(color_);
+        glCallList(DL_core_index_);
 
         glPointSize(3.0);
         glColor3f(1.0, 1.0, 1.0);
         glBegin(GL_POINTS);
-        glVertex2d(0.0, R*0.99);
+        glVertex2d(0.0, radius_*0.99);
         glEnd();
         glPopMatrix();
         if (station_) {
@@ -133,6 +169,7 @@ public:
         }
     }
 private:
+    long int seed_;
     double x_;
     double y_;
     double angle_;
@@ -143,6 +180,8 @@ private:
     double core_radius_;
     float color_[3];
     StationInterface* station_;
+    GLuint DL_surface_index_;
+    GLuint DL_core_index_;
 
     b2World * world_;
     b2Body * physics_body_;

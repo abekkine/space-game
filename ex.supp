@@ -1,0 +1,30 @@
+{
+   glfw_1
+   Memcheck:Leak
+   ...
+   fun:glfwInit
+}
+{
+   glfw_2
+   Memcheck:Leak
+   ...
+   fun:glfwCreateWindow
+}
+{
+   FTGL_1
+   Memcheck:Leak
+   ...
+   fun:*FTPixmapFont*
+}
+{
+   FTGL_2
+   Memcheck:Leak
+   ...
+   fun:*FTFontImpl*
+}
+{
+   nvidia_1
+   Memcheck:Leak
+   ...
+   obj:*libGLdispatch.so.0
+}

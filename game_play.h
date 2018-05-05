@@ -19,20 +19,32 @@ private:
     double debug_scale_;
     EffectsManager* effects_;
     Background* background_;
+    bool quit_;
 
 public:
     GamePlay() {
         debug_scale_ = 1.0;
+        quit_ = false;
     }
-    ~GamePlay() {}
+    ~GamePlay() {
+        delete background_;
+    }
+    void Exit() {
+        quit_ = true;
+    }
     void Init() {
 
         background_ = new Background();
         background_->Init();
 
         ship_ = static_cast<SpaceShip*>(OBJMGR.Get("ship"));
+        assert(ship_ != 0 && "ship not defined!");
+
         universe_ = static_cast<Universe*>(OBJMGR.Get("universe"));
+        assert(universe_ != 0 && "universe not defined!");
+
         effects_ = static_cast<EffectsManager *>(OBJMGR.Get("effects"));
+        assert(effects_ != 0 && "effects not defined!");
     }
 
     Universe* universe_;
@@ -51,6 +63,8 @@ public:
         speed_scale_ = 1.0 + (1.0 / (1.0 + exp(-ship_speed_+5.0)));
     }
     void Render() {
+
+        if (quit_) return;
 
         RefreshPlayerParams();
 

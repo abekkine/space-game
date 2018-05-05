@@ -27,6 +27,9 @@ public:
     virtual void BeginContact(ContactInterface* object) = 0;
     virtual void EndContact(ContactInterface* object) = 0;
 
+public:
+    char Type() { return 'S'; }
+
 protected:
     double x_, y_;
     double angle_;

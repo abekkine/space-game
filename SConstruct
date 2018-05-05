@@ -19,10 +19,10 @@ env.Append( CPPPATH = [ '/usr/include/freetype2' ] )
 env.Append( CPPPATH = [ '/usr/include/Box2D' ] )
 
 env.Append( CPPFLAGS = [ '-g' ] )
-env.Append( CPPFLAGS = [ '--std=c++11' ] )
 env.Append( CPPFLAGS = [ '-Wall' ] )
 env.Append( CPPFLAGS = [ '-Wextra' ] )
 env.Append( CPPFLAGS = [ '-Werror' ] )
+env.Append( CPPFLAGS = [ '--std=c++14' ] )
 env.Append( CPPFLAGS = [ '-Wfatal-errors' ] )
 
 env.Append( LIBS = [ 'glfw' ] )
