@@ -25,9 +25,8 @@ public:
     virtual double DumpFuel(double value) = 0;
     virtual double FuelQuery() = 0;
     virtual double FuelVolume() = 0;
-// Output handlers
-    virtual void ThrustOutputHandler(std::function<void(double)> thrustOut) = 0;
-    virtual void MomentOutputHandler(std::function<void(double)> momentOut) = 0;
+
+    virtual void Mount(b2Body *body) = 0;
 
 // Standard ship system interface
     virtual void Init(DataBus* bus) {
