@@ -23,6 +23,9 @@ public:
     , key_processors_{0}
     {}
     ~Game() {
+
+        OBJMGR.Remove("universe");
+
         delete game_play_;
         delete menu_;
         delete universe_;
@@ -71,6 +74,10 @@ public:
 
             GameTimer::Sleep(10);
         }
+
+        universe_->Exit();
+        game_play_->Exit();
+        menu_->Exit();
 
         DISPLAY.Quit();
     }

@@ -28,7 +28,9 @@ public:
     {
         identifier_ = counter_++;
     }
-    ~Planet() {}
+    ~Planet() {
+        delete station_;
+    }
     void SetSeed(long int seed) {
         seed_ = seed;
         srand48(seed_);

@@ -48,6 +48,7 @@ public:
         bus_connection_ = 0;
     }
     ~GenericHudDevice() {
+        for (auto d : detection_list_) delete d;
     }
     void Init(DataBus* bus) {
         HudSystemInterface::Init(bus);

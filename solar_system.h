@@ -14,6 +14,10 @@ public:
     , planets_(0)
     {}
     ~SolarSystem() {
+
+        OBJMGR.Remove("planets");
+        OBJMGR.Remove("nplanets");
+
         delete [] planets_;
     }
     b2Vec2 GetGravityAcceleration(b2Vec2 pos) {

@@ -7,6 +7,7 @@ public:
     virtual void ProcessImpulse(float impulse) = 0;
     virtual void BeginContact(ContactInterface* object) = 0;
     virtual void EndContact(ContactInterface* object) = 0;
+    virtual char Type() = 0;
 };
 
 #endif // CONTACT_INTERFACE_H_

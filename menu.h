@@ -33,11 +33,16 @@ public:
     , selected_item_(GameDefinitions::menuItem_NewGame)
     , screen_width_(-1)
     , screen_height_(-1)
+    , quit_(false)
     {}
     ~Menu() {
         for (int i=0; i < GameDefinitions::menuItem_SIZE; ++i) {
             delete menu_items_[i];
         }
+        delete text_;
+    }
+    void Exit() {
+        quit_ = true;
     }
     void Init() {
         if (text_ != 0) {
@@ -54,6 +59,8 @@ public:
         DISPLAY.GetSize(screen_width_, screen_height_);
     }
     void Render() {
+        if (quit_) return;
+
         DISPLAY.UiMode();
 
         text_->UseFont("menu", 40);
@@ -155,5 +162,6 @@ private:
     GameDefinitions::MenuItemEnum selected_item_;
     int screen_width_;
     int screen_height_;
+    bool quit_;
 };
 #endif  // MENU_H_

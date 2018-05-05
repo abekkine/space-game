@@ -16,7 +16,15 @@ public:
     , hud_(0)
     , hotas_(0)
     {}
-    ~ShipSystemsManager() {}
+    ~ShipSystemsManager() {
+    }
+    void Destroy() {
+        delete engine_;
+        delete radar_;
+        delete hud_;
+        delete hull_;
+        delete hotas_;
+    }
     EngineSystemInterface* getEngineSystem() {
         if (engine_ == 0) {
             engine_ = new BasicEngineSystem();

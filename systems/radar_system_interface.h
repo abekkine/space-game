@@ -23,7 +23,10 @@ public:
         }
 
         num_planets_ = *((int *)OBJMGR.Get("nplanets"));
+        assert(num_planets_ != 0 && "nplanets not defined!");
+
         planets_ = static_cast<Planet *>(OBJMGR.Get("planets"));
+        assert(planets_ != 0 && "planets not defined");
     }
     virtual void Update(double time_step) { (void)time_step; }
     virtual void Disconnect() {

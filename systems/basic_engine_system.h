@@ -24,7 +24,10 @@ public:
     {
         UpdateThrust();
     }
-    ~BasicEngineSystem() {}
+    ~BasicEngineSystem() {
+        thrustUpdateHandler_ = 0;
+        momentUpdateHandler_ = 0;
+    }
 
     std::function<void(double)> thrustUpdateHandler_;
     void ThrustOutputHandler(std::function<void(double)> thrustOut) {

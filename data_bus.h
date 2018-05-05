@@ -58,7 +58,9 @@ public:
         Connection(DataBus* bus) : bus_(bus) {
             assert(bus_ != 0);
         }
-        ~Connection() {}
+        ~Connection() {
+            subscribers_.clear();
+        }
         bool CheckChannel(DataChannel channel) {
             auto found = subscribers_.find(channel);
             if (found != subscribers_.end()) {
@@ -82,7 +84,11 @@ public:
     };
 public:
     DataBus() {}
-    ~DataBus() {}
+    ~DataBus() {
+        for (auto c=connections_.begin(); c!=connections_.end(); ++c) {
+            delete c->second;
+        }
+    }
     Connection* Connect(std::string label) {
         std::lock_guard<std::mutex> lock(bus_mutex_);
         auto f = connections_.find(label);
