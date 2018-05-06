@@ -3,6 +3,8 @@
 
 #include "Particle.h"
 
+#include <time.h>
+
 #include <vector>
 
 class ParticleManager {
@@ -11,18 +13,25 @@ public:
     : kMaxParticles(numParticles)
     , kBurstSize(numBurst)
     {}
-    ~ParticleManager() {}
-    virtual void Init() = 0;
+    virtual ~ParticleManager() {}
+    virtual void Init() {
+        srand48(clock());
+    }
     virtual void AddParticle() = 0;
     void Render() {
         for (auto p : particles) {
             p->Render();
         }
     }
+    void AddParticles() {
+        for (int i=0; i<kBurstSize; ++i) {
+            AddParticle();
+        }
+    }
     virtual void Update(double time_step) {
 
         if (particles.size() < (kMaxParticles-kBurstSize)) {
-            AddParticle();
+            AddParticles();
         }
 
         for (auto iP = particles.begin(); iP != particles.end(); ++iP) {

@@ -4,8 +4,10 @@
 #include <GL/glut.h>
 
 #include "BigBang.h"
+#include "Thruster.h"
 
 BigBang* bang = 0;
+Thruster* thruster = 0;
 
 void render();
 void idle();
@@ -55,6 +57,9 @@ void init() {
 
     bang = new BigBang(2000, 5);
     bang->Init();
+
+    thruster = new Thruster(500, 5);
+    thruster->Init();
 }
 
 void update_viewport() {
@@ -94,11 +99,16 @@ void render() {
     if (bang != 0) {
         bang->Render();
     }
+
+    if (thruster != 0) {
+        thruster->Render();
+    }
 }
 
 void idle() {
 
     bang->Update(0.02);
+    thruster->Update(0.02);
 
     usleep(20000);
 }

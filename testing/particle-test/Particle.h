@@ -12,7 +12,7 @@ public:
     , vx(0.0), vy(0.0)
     , ax(0.0), ay(0.0)
     {}
-    ~Particle() {}
+    virtual ~Particle() {}
     void Render() {
         if (life > 0.0) {
             glPointSize(size);
@@ -28,6 +28,9 @@ public:
         vx += ax * time_step;
         vy += ay * time_step;
         life -= time_step;
+    }
+    void Fade() {
+        color[3] = life / totalLife;
     }
 
     float totalLife;

@@ -3,18 +3,14 @@
 
 #include "ParticleManager.h"
 
-#include <time.h>
-
 class Star : public Particle {
 public:
     Star(float L) : Particle(L) {}
     ~Star() {}
     void Update(double time_step) {
         Particle::Update(time_step);
-        for (int i=0; i<3; ++i) {
-            color[i] = life / totalLife;
-        }
-        size += 0.1;
+        Fade();
+        size += 0.2;
     }
 };
 
@@ -24,22 +20,14 @@ public:
     : ParticleManager(n, m)
     {}
     ~BigBang() {}
-    void Init() {
-        srand48(clock());
-    }
     void AddParticle() {
         Star *p;
-        for (int i=0; i<kBurstSize; ++i) {
-            p = new Star(5.0);
-            double a = drand48() * 2.0 * M_PI;
-            double s = drand48() * 10.0;
-            p->vx = s * cos(a);
-            p->vy = s * sin(a);
-            particles.push_back(p);
-        }
-    }
-    void Update(double time_step) {
-        ParticleManager::Update(time_step);
+        p = new Star(5.0);
+        double a = drand48() * 2.0 * M_PI;
+        double s = drand48() * 10.0;
+        p->vx = s * cos(a);
+        p->vy = s * sin(a);
+        particles.push_back(p);
     }
 };
 
