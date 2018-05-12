@@ -25,6 +25,21 @@ void display(void) {
 void keyboard(unsigned char key, int x, int y) {
 
 	switch(key) {
+        case '1':
+            thruster->Period(0.05);
+            thruster->BeamAngle(45.0);
+            thruster->SpeedRange(10.0, 15.0);
+            break;
+        case '2':
+            thruster->Period(0.02);
+            thruster->BeamAngle(35.0);
+            thruster->SpeedRange(10.0, 15.0);
+            break;
+        case '3':
+            thruster->Period(0.001);
+            thruster->BeamAngle(25.0);
+            thruster->SpeedRange(10.0, 15.0);
+            break;
 		case 27:
 			exit(0);
 			break;
@@ -55,10 +70,12 @@ void init() {
 
     init_gfx();
 
-    bang = new BigBang(2000, 5);
+    // Emit one particle each second.
+    bang = new BigBang(1.0);
     bang->Init();
 
-    thruster = new Thruster(500, 5);
+    // Emit one particle each 0.01 second, or with 100.0 Hz.
+    thruster = new Thruster(0.02);
     thruster->Init();
 }
 

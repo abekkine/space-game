@@ -18,17 +18,26 @@ public:
 
 class Thruster : public ParticleManager {
 public:
-    Thruster(int n, int m) : ParticleManager(n, m) {
-        x_ = 10.0;
-        y_ = 10.0;
-        angle_ = 90.0;
+    Thruster(double period) : ParticleManager(period) {
+        Position(10.0, 10.0);
+        Angle(90.0);
+        min_speed_ = 5.0;
+        max_speed_ = 15.0;
+        beam_angle_ = 45.0 * M_PI / 180.0;
     }
     ~Thruster() {}
+    void SpeedRange(double min, double max) {
+        min_speed_ = min;
+        max_speed_ = max;
+    }
+    void BeamAngle(double alpha) {
+        beam_angle_ = alpha * M_PI / 180.0;
+    }
     void AddParticle() {
         Smoke *p;
         p = new Smoke(1.0);
-        double a = (drand48() * M_PI / 6.0) - (M_PI / 12.0);
-        double s = drand48() * 10.0 + 5.0;
+        double a = (drand48() * beam_angle_) - 0.5 * beam_angle_;
+        double s = drand48() * (max_speed_ - min_speed_) + min_speed_;
         p->vx = s * cos(a);
         p->vy = s * sin(a);
         p->color[0] = 1.0;
@@ -37,6 +46,10 @@ public:
 
         particles.push_back(p);
     }
+private:
+    double min_speed_;
+    double max_speed_;
+    double beam_angle_;
 };
 
 #endif // THRUSTER_H_

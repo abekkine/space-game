@@ -16,8 +16,8 @@ public:
 
 class BigBang : public ParticleManager {
 public:
-    BigBang(int n, int m)
-    : ParticleManager(n, m)
+    BigBang(double period)
+    : ParticleManager(period)
     {}
     ~BigBang() {}
     void AddParticle() {
