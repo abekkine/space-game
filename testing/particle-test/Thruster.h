@@ -18,12 +18,16 @@ public:
 
 class Thruster : public ParticleManager {
 public:
-    Thruster(int n, int m) : ParticleManager(n, m) {}
+    Thruster(int n, int m) : ParticleManager(n, m) {
+        x_ = 10.0;
+        y_ = 10.0;
+        angle_ = 90.0;
+    }
     ~Thruster() {}
     void AddParticle() {
         Smoke *p;
         p = new Smoke(1.0);
-        double a = drand48() * M_PI / 6.0;
+        double a = (drand48() * M_PI / 6.0) - (M_PI / 12.0);
         double s = drand48() * 10.0 + 5.0;
         p->vx = s * cos(a);
         p->vy = s * sin(a);
