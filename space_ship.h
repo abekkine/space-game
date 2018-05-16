@@ -164,40 +164,42 @@ public:
     , body_right_(0)
     , body_left_gear_(0)
     , body_right_gear_(0)
-    , v_main_body_{{0.5, -0.24},
-        {0.29, 0.41},
-        {-0.29, 0.41},
-        {-0.5, -0.24},
-        {0.0, -0.43}}
+    , v_main_body_{{0.0, -0.48},
+      {0.56, -0.3},
+      {0.56, 0.3},
+      {0.0, 0.48},
+      {-0.15, 0.0}}
 
-    , v_upper_body_{{0.16, 0.26},
-        {-0.16, 0.26},
-        {-0.29, -0.13},
-        {0.0, -0.28},
-        {0.29, -0.13}}
+    , v_upper_body_{{1.0, -0.16},
+      {1.0, 0.16},
+      {0.56, 0.3},
+      {0.45, 0.0},
+      {0.56, -0.3}}
 
-    , v_left_body_{{-0.22, -0.3},
-        {0.33, -0.3},
-        {0.33, 0.16},
-        {-0.14, 0.33},
-        {-0.36, 0.3}}
+    , v_left_body_{{-0.66, 0.54},
+      {-0.66, 0.0},
+      {-0.15, 0.0},
+      {0.0, 0.48},
+      {-0.08, 0.68}}
 
-    , v_right_body_{{-0.33, -0.3},
-        {0.22, -0.3},
-        {0.36, 0.3},
-        {0.14, 0.33},
-        {-0.33, 0.16}}
+    , v_right_body_{ {-0.66, 0.0},
+      {-0.66, -0.54},
+      {-0.08, -0.68},
+      {0.0, -0.48},
+      {-0.15, 0.0}}
 
-    , v_left_gear_ { {-0.204, 0.26},
-                     {-0.064, -0.28},
-                     {0.046, -0.28},
-                     {0.226, 0.15},
-                     {-0.084, 0.27}}
-    , v_right_gear_ {{-0.046, -0.28},
-                     {0.064, -0.28},
-                     {0.204, 0.26},
-                     {0.084, 0.27},
-                     {-0.226, 0.15}}
+    , v_left_gear_{ {-0.1, 0.65},
+      {-0.7, 0.5},
+      {-0.7, 0.39},
+      {-0.09, 0.3},
+      {-0.03, 0.48}}
+
+    , v_right_gear_{ {-0.7, -0.39},
+      {-0.7, -0.5},
+      {-0.1, -0.65},
+      {-0.03, -0.48},
+      {-0.09, -0.3}}
+
     , j_upper_(0)
     , j_left_(0)
     , j_right_(0)
@@ -339,7 +341,7 @@ public:
         body_main_->CreateFixture(&fd);
 
         // Upper Body
-        bd.position.Set(pos_main_.x, pos_main_.y + 0.5413);
+        bd.position.Set(pos_main_.x, pos_main_.y);
         body_upper_ = world_->CreateBody(&bd);
         body_upper_->SetUserData(this);
 
@@ -348,7 +350,7 @@ public:
         body_upper_->CreateFixture(&fd);
 
         // Left Body
-        bd.position.Set(pos_main_.x - 0.3228, pos_main_.y - 0.5632);
+        bd.position.Set(pos_main_.x, pos_main_.y);
         body_left_ = world_->CreateBody(&bd);
         body_left_->SetUserData(this);
 
@@ -357,7 +359,7 @@ public:
         body_left_->CreateFixture(&fd);
 
         // Right Body
-        bd.position.Set(pos_main_.x + 0.3228, pos_main_.y - 0.5632);
+        bd.position.Set(pos_main_.x, pos_main_.y);
         body_right_ = world_->CreateBody(&bd);
         body_right_->SetUserData(this);
 
@@ -366,14 +368,14 @@ public:
         body_right_->CreateFixture(&fd);
 
         // Landing gear bodies
-        bd.position.Set(pos_main_.x - 0.4361, pos_main_.y - 0.56);
+        bd.position.Set(pos_main_.x, pos_main_.y);
         body_left_gear_ = world_->CreateBody(&bd);
         body_left_gear_->SetUserData(this);
         shape.Set(v_left_gear_, NUM_PART_VERTICES);
         fd.shape = &shape;
         body_left_gear_->CreateFixture(&fd);
 
-        bd.position.Set(pos_main_.x + 0.4361, pos_main_.y - 0.56);
+        bd.position.Set(pos_main_.x, pos_main_.y);
         body_right_gear_ = world_->CreateBody(&bd);
         body_right_gear_->SetUserData(this);
         shape.Set(v_right_gear_, NUM_PART_VERTICES);
@@ -449,7 +451,6 @@ public:
         j_llg_ = static_cast<b2PrismaticJoint*>(world_->CreateJoint(&pjdL));
         j_rlg_ = static_cast<b2PrismaticJoint*>(world_->CreateJoint(&pjdR));
         // End -- Landing Gears
-
 
         // Init engine system.
         engine_->Init(data_bus_);
