@@ -1,10 +1,13 @@
+#include <stdarg.h>
+#include <string.h>
 #include <GL/glut.h>
 
+#include <iostream>
 #include <string>
 
 #include "main.h"
 
-#define SCREEN_SIZE 500
+#define SCREEN_SIZE 1024
 
 namespace logic {
 
@@ -71,6 +74,12 @@ void ui() {
     glVertex2i(200, 80);
     glVertex2i(0, 80);
     glEnd();
+
+    glLoadIdentity();
+    glColor3f(1.0, 1.0, 1.0);
+    text::print(3, 2, "Testing");
+    text::print(3, 3, "Text");
+    text::print(3, 4, "Interface");
 }
 
 } // namespace render
@@ -140,7 +149,7 @@ void init(int argc, char **argv) {
         glEnable(GL_MULTISAMPLE);
     }
 
-    glClearColor(0.0, 0.0, 0.0, 0.0);    
+    glClearColor(0.0, 0.0, 0.0, 0.0);
 
     glutDisplayFunc(draw);
     glutKeyboardFunc(input::keyboard);
@@ -157,6 +166,28 @@ void run() {
 }
 
 } // namespace display
+
+namespace text {
+
+void *font = GLUT_BITMAP_9_BY_15;
+const int kPrintBufferSize = 256;
+char print_buffer[kPrintBufferSize];
+void print(int col, int row, const char* format, ...) {
+    memset(print_buffer, 0, kPrintBufferSize);
+    va_list(args);
+    va_start(args, format);
+    vsnprintf(print_buffer, kPrintBufferSize, format, args);
+    va_end(args);
+
+    int x = (col-1)*9;
+    int y = (row)*15;
+    glRasterPos2i(x, y);
+    for (unsigned int i=0; i<sizeof(print_buffer); ++i) {
+        glutBitmapCharacter(font, print_buffer[i]);
+    }
+}
+
+} // namespace text
 
 int main(int argc, char **argv) {
 

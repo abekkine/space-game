@@ -26,5 +26,10 @@ void init(int argc, char **argv);
 void run();
 } // namespace display
 
+namespace text {
+
+void print(int col, int row, const char* format, ...);
+} // namespace text
+
 #endif // MAIN_H_
 
