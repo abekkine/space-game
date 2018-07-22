@@ -44,3 +44,9 @@ Infrastructure to generate game content.
 ### Lighting & Shadow
 
 Implementation of proper lighting effects.
+
+### Story & Mission System
+
+A main story to build everything around, and missions to give players reasons to play.
+
+
