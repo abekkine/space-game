@@ -504,7 +504,13 @@ public:
     // TODO : Box2D cannot handle multiple rotations (>360.0).
     void NormalizeAngle(b2Body* b) {
         double a = b->GetAngle();
+        if (a < 0.0) {
+            double npi = -1.0 * floor(0.5 * a / M_PI);
+            a += 2.0 * npi * M_PI;
+            printf("a(%1.f) -> ", a);
+        }
         a = fmod(a, 2.0 * M_PI);
+        printf("fmod(a) = %.1f\n", a);
         b->SetTransform(b->GetPosition(), a);
     }
     void NormalizeAngles() {
@@ -531,6 +537,7 @@ public:
         body_main_->GetFixtureList()->SetDensity( density_ / lf );
         // Get position.
         pos_main_ = body_main_->GetPosition();
+
         angle_main_ = body_main_->GetAngle() * 180.0 / M_PI;
 
         angle_upper_ = body_upper_->GetAngle() * 180.0 / M_PI;
@@ -633,6 +640,7 @@ public:
         glRotated(angle_main_, 0.0, 0.0, -1.0);
         glTranslated(pos_llg_.x - pos_main_.x, pos_llg_.y - pos_main_.y, 0.0);
         glRotated(angle_llg_, 0.0, 0.0, 1.0);
+        glLineWidth(2.0);
         glBegin(GL_LINE_LOOP);
         for (int i=0; i<NUM_PART_VERTICES; ++i) {
             glVertex2d(v_left_gear_[i].x, v_left_gear_[i].y);
