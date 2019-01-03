@@ -63,7 +63,7 @@ public:
         OBJMGR.Set("ship", space_ship_);
 
         // Instantiate planets & solar system.
-        solar_system_ = SolarSystemFactory::getInitialSystem();
+        solar_system_ = SolarSystemFactory::getTestingSystem();
         solar_system_->Init(world_);
         OBJMGR.Set("solar", solar_system_);
 

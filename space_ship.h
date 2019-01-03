@@ -6,7 +6,7 @@
 
 #include <functional>
 
-#include "solar_system.h"
+#include "solar_system_interface.h"
 #include "object_manager.h"
 
 #include "data_bus.h"
@@ -262,7 +262,7 @@ public:
     }
     void UpdateGravity() {
 
-        SolarSystem* s = static_cast<SolarSystem *>(OBJMGR.Get("solar"));
+        SolarSystemInterface* s = static_cast<SolarSystemInterface *>(OBJMGR.Get("solar"));
         if (s == 0) return;
 
         b2Vec2 g;

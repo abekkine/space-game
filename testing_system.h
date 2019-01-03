@@ -1,5 +1,5 @@
-#ifndef SOLAR_SYSTEM_H_
-#define SOLAR_SYSTEM_H_
+#ifndef TESTING_SYSTEM_H_
+#define TESTING_SYSTEM_H_
 
 #include "solar_system_interface.h"
 
@@ -9,13 +9,13 @@
 #include <GLFW/glfw3.h>
 #include <Box2D.h>
 
-class SolarSystem : public SolarSystemInterface {
+class TestingSystem : public SolarSystemInterface {
 public:
-    SolarSystem()
+    TestingSystem()
     : kNumPlanets(5)
     , planets_(0)
     {}
-    ~SolarSystem() {
+    ~TestingSystem() {
 
         OBJMGR.Remove("planets");
         OBJMGR.Remove("nplanets");
@@ -93,4 +93,4 @@ private:
 
 };
 
-#endif // SOLAR_SYSTEM_H_
+#endif // TESTING_SYSTEM_H_
