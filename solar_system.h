@@ -1,13 +1,15 @@
 #ifndef SOLAR_SYSTEM_H_
 #define SOLAR_SYSTEM_H_
 
-#include <GLFW/glfw3.h>
-#include <Box2D.h>
+#include "solar_system_interface.h"
 
 #include "planet.h"
 #include "object_manager.h"
 
-class SolarSystem {
+#include <GLFW/glfw3.h>
+#include <Box2D.h>
+
+class SolarSystem : public SolarSystemInterface {
 public:
     SolarSystem()
     : kNumPlanets(5)
@@ -88,8 +90,7 @@ public:
 private:
     const int kNumPlanets;
     Planet * planets_;
-    
+
 };
 
 #endif // SOLAR_SYSTEM_H_
-

@@ -7,7 +7,8 @@
 #include <thread>
 
 #include "space_ship.h"
-#include "solar_system.h"
+#include "solar_system_interface.h"
+#include "solar_system_factory.h"
 #include "effects_manager.h"
 #include "object_manager.h"
 #include "collision_handler.h"
@@ -62,7 +63,7 @@ public:
         OBJMGR.Set("ship", space_ship_);
 
         // Instantiate planets & solar system.
-        solar_system_ = new SolarSystem();
+        solar_system_ = SolarSystemFactory::getInitialSystem();
         solar_system_->Init(world_);
         OBJMGR.Set("solar", solar_system_);
 
@@ -116,7 +117,7 @@ private:
     b2World * world_;
 
     std::thread thread_;
-    SolarSystem * solar_system_;
+    SolarSystemInterface * solar_system_;
     SpaceShip * space_ship_;
     EffectsManager * effects_;
     CollisionHandler * collision_handler_;
