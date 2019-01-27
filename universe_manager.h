@@ -1,5 +1,5 @@
-#ifndef UNIVERSE_H_
-#define UNIVERSE_H_
+#ifndef UNIVERSE_MANAGER_H_
+#define UNIVERSE_MANAGER_H_
 
 #include <GLFW/glfw3.h>
 #include <Box2D.h>
@@ -14,9 +14,9 @@
 #include "collision_handler.h"
 #include "game_timer.h"
 
-class Universe {
+class UniverseManager {
 public:
-    Universe()
+    UniverseManager()
     : world_(0)
     , solar_system_(0)
     , space_ship_(0)
@@ -24,7 +24,7 @@ public:
     , state_(GameDefinitions::gameState_InMenu)
     , quit_(false)
     {}
-    ~Universe() {
+    ~UniverseManager() {
 
         thread_.join();
 
@@ -79,7 +79,7 @@ public:
     }
     void Run() {
 
-        thread_ = std::thread(&Universe::ThreadLoop, this);
+        thread_ = std::thread(&UniverseManager::ThreadLoop, this);
     }
     void Render() {
 
@@ -127,4 +127,4 @@ private:
     bool quit_;
 };
 
-#endif  // UNIVERSE_H_
+#endif  // UNIVERSE_MANAGER_H_

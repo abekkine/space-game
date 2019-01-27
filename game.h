@@ -7,7 +7,7 @@
 #include "display.h"
 #include "game_play.h"
 #include "menu.h"
-#include "universe.h"
+#include "universe_manager.h"
 #include "object_manager.h"
 #include "game_timer.h"
 
@@ -16,7 +16,7 @@ public:
     Game()
     : render_function_(0)
     , state_(GameDefinitions::gameState_InMenu)
-    , universe_(0)
+    , universe_mgr_(0)
     , menu_(0)
     , game_play_(0)
     , render_states_{0}
@@ -28,7 +28,7 @@ public:
 
         delete game_play_;
         delete menu_;
-        delete universe_;
+        delete universe_mgr_;
     }
     void Init(int argc, char * argv[]) {
         (void)argc;
@@ -37,9 +37,9 @@ public:
         DISPLAY.Init();
 
         // Start universe thread.
-        universe_ = new Universe();
-        universe_->Init();
-        OBJMGR.Set("universe", universe_);
+        universe_mgr_ = new UniverseManager();
+        universe_mgr_->Init();
+        OBJMGR.Set("universe", universe_mgr_);
 
         menu_ = new Menu();
         menu_->Init();
@@ -60,11 +60,11 @@ public:
 
     void Run() {
 
-        universe_->Run();
+        universe_mgr_->Run();
 
         while (!DISPLAY.QuitRequested()) {
 
-            universe_->SetState(state_);
+            universe_mgr_->SetState(state_);
 
             DISPLAY.PreRender();
 
@@ -75,7 +75,7 @@ public:
             GameTimer::Sleep(10);
         }
 
-        universe_->Exit();
+        universe_mgr_->Exit();
         game_play_->Exit();
         menu_->Exit();
 
@@ -90,7 +90,7 @@ private:
 private:
     std::function<void()> render_function_;
     GameDefinitions::GameStateEnum state_;
-    Universe * universe_;
+    UniverseManager * universe_mgr_;
     Menu * menu_;
     GamePlay * game_play_;
     std::function<void()> render_states_[GameDefinitions::gameState_SIZE];
