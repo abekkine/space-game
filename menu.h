@@ -148,7 +148,7 @@ private:
         return GameDefinitions::gameState_InGame;
     }
     GameDefinitions::GameStateEnum ActionSettings() {
-        // TODO : Implement settings.
+        // TODO : Implement game settings.
         return GameDefinitions::gameState_InMenu;
     }
     GameDefinitions::GameStateEnum ActionQuit() {
