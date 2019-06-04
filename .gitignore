@@ -1,11 +1,8 @@
 .vscode/
-spaceGame
-space_game/
-.imdone/
+*.bin
 *.o
-*.tbz2
 *.gch
-core
+core*
 *.json
 .*sw*
 *.log
