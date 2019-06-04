@@ -1,11 +1,13 @@
 #ifndef DATA_BUS_H_
 #define DATA_BUS_H_
 
+#include <string>
 #include <functional>
 #include <unordered_map>
 #include <vector>
 #include <mutex>
 
+/* #region Data Definitions */
 struct BusDataInterface {
     virtual ~BusDataInterface() {}
 };
@@ -47,83 +49,25 @@ struct BD_RadarDetectionList : public BusDataInterface {
     int num_detections;
     double *data;
 };
+/* #endregion */
 
 typedef std::function<void(BusDataInterface *)> BusDataHandler;
 typedef std::vector<BusDataHandler> BusDataHandlerList;
 
+class DataBusConnection;
+
 class DataBus {
 public:
-    struct Connection {
-        DataBus* bus_;
-        explicit Connection(DataBus* bus) : bus_(bus) {
-            assert(bus_ != 0);
-        }
-        ~Connection() {
-            subscribers_.clear();
-        }
-        bool CheckChannel(DataChannel channel) {
-            auto found = subscribers_.find(channel);
-            if (found != subscribers_.end()) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        void Subscribe(DataChannel channel, BusDataHandler handler) {
-            if (false == CheckChannel(channel)) {
-                BusDataHandlerList v;
-                subscribers_[channel] = v;
-            }
-            subscribers_[channel].push_back(handler);
-        }
-        void Publish(DataChannel channel, BusDataInterface * data) {
-            bus_->Send(channel, data);
-        }
-        std::unordered_map<DataChannel, BusDataHandlerList, std::hash<int>> subscribers_;
-    };
-public:
-    DataBus() {}
-    ~DataBus() {
-        for (auto c=connections_.begin(); c!=connections_.end(); ++c) {
-            delete c->second;
-        }
-    }
-    Connection* Connect(std::string label) {
-        std::lock_guard<std::mutex> lock(bus_mutex_);
-        auto f = connections_.find(label);
-        if (f == connections_.end()) {
-            Connection *newConnection;
-            newConnection = new Connection(this);
-            connections_[label] = newConnection;
-        }
-        return connections_[label];
-    }
-    void Disconnect(std::string label, Connection*& conn) {
-        std::lock_guard<std::mutex> lock(bus_mutex_);
-        auto f= connections_.find(label);
-        if (f != connections_.end()) {
-            assert(conn == connections_[label]);
-            connections_.erase(label);
-            delete conn;
-            conn = 0;
-        }
-    }
-    void Send(DataChannel channel, BusDataInterface * data) {
-        std::lock_guard<std::mutex> lock(bus_mutex_);
-        for (auto c : connections_) {
-            if (c.second->CheckChannel(channel)) {
-                for (auto handler : c.second->subscribers_[channel]) {
-                    handler(data);
-                }
-            }
-        }
-    }
+    DataBus();
+    ~DataBus();
+    DataBusConnection* Connect(std::string label);
+    void Disconnect(std::string label, DataBusConnection*& conn);
+    void Send(DataChannel channel, BusDataInterface * data);
 
 private:
     // NOTE : Unless there isn't multi-threaded access to data bus, no mutex would be needed.
     std::mutex bus_mutex_;
-    std::unordered_map<std::string, Connection*> connections_;
+    std::unordered_map<std::string, DataBusConnection*> connections_;
 };
 
 #define DB_SUBSCRIBE(class, channel) bus_connection_->Subscribe(db_##channel, \

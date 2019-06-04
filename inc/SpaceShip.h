@@ -10,6 +10,7 @@
 #include "ObjectManager.h"
 
 #include "DataBus.h"
+#include "DataBusConnection.h"
 
 #include "EngineSystemInterface.h"
 #include "RadarSystemInterface.h"
@@ -30,7 +31,7 @@ private:
     // Ship communication bus
     DataBus * data_bus_;
     // Ship communication bus connection
-    DataBus::Connection * bus_connection_;
+    DataBusConnection * bus_connection_;
     // Ship Systems
     // -- HUD system
     HudSystemInterface * hud_;
