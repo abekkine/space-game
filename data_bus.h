@@ -55,7 +55,7 @@ class DataBus {
 public:
     struct Connection {
         DataBus* bus_;
-        Connection(DataBus* bus) : bus_(bus) {
+        explicit Connection(DataBus* bus) : bus_(bus) {
             assert(bus_ != 0);
         }
         ~Connection() {

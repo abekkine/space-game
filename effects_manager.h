@@ -67,7 +67,7 @@ public:
         if (abs_moment > 0.0) {
             b2Vec2 t;
             b2Vec2 p;
-            double a;
+            double a = 0.0;
             if (moment > 0.0) {
                 a = (angle - 180.0) * M_PI / 180.0;
             } else if (moment < 0.0) {

@@ -8,6 +8,7 @@ files.append( Glob( '*.cpp' ) )
 clean_list = []
 clean_list.append( './sconsign.dblite' )
 clean_list.append( 'core*' )
+clean_list.append( '*.gch' )
 clean_list.append( 'version.h' )
 env.Clean( 'default', clean_list )
 
