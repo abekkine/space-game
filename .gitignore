@@ -1,14 +1,11 @@
 .vscode/
 *.bin
 *.o
-*.gch
+# *.gch
 core*
 *.json
 .*sw*
-*.log
-*.kcg
-new.supp
-.sconsign.dblite
+# new.supp
 Version.h
 
 *.ttf
