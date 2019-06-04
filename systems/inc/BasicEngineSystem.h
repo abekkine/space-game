@@ -3,6 +3,7 @@
 
 #include "EffectsManager.h"
 #include "EngineSystemInterface.h"
+#include "GameDefinitions.h"
 
 #include <assert.h>
 

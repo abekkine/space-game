@@ -7,6 +7,7 @@
 #include <vector>
 #include <mutex>
 
+// TODO : Move definitions
 /* #region Data Definitions */
 struct BusDataInterface {
     virtual ~BusDataInterface() {}
