@@ -1,6 +1,8 @@
 #ifndef GENERIC_HUD_DEVICE_H_
 #define GENERIC_HUD_DEVICE_H_
 
+#include "Display.h"
+
 #include <GLFW/glfw3.h>
 #include <assert.h>
 
