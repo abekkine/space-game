@@ -9,7 +9,7 @@ core*
 *.kcg
 new.supp
 .sconsign.dblite
-version.h
+Version.h
 
 *.ttf
 !FreeMono.ttf

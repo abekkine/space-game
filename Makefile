@@ -1,7 +1,8 @@
-TARGET=spaceGame.bin
+TARGET=bin/spaceGame.bin
 
-SRCS  = $(wildcard *.cpp)
-SRCS += $(wildcard systems/*.cpp)
+SRCS  = main.cpp
+SRCS += $(wildcard src/*.cpp)
+SRCS += $(wildcard systems/src/*.cpp)
 OBJS=$(SRCS:%.cpp=%.o)
 
 # Flags
@@ -12,6 +13,8 @@ CXXFLAGS += -Wextra
 CXXFLAGS += -Werror
 CXXFLAGS += -Wfatal-errors
 CXXFLAGS += -I.
+CXXFLAGS += -I./inc
+CXXFLAGS += -I./systems/inc
 CXXFLAGS += -I./3rd-party
 CXXFLAGS += -I/usr/include/SDL
 CXXFLAGS += -I/usr/include/freetype2
