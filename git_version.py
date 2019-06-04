@@ -60,7 +60,7 @@ header_lines = [
  '#endif // VERSION_H_\n'
 ]
 
-with open('version.h', 'wt') as f:
+with open('Version.h', 'wt') as f:
     f.writelines(header_lines)
 
 
