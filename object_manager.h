@@ -6,8 +6,7 @@
 #include <unordered_map>
 #include <mutex>
 
-// TODO : For multi-threaded access to held objects,
-//      : provide necessary lock mechanisms.
+// NOTE : For multi-threaded access to held objects, provide necessary lock mechanisms.
 class ObjectManager : public Singleton<ObjectManager> {
 public:
     explicit ObjectManager(token) {

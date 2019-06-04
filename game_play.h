@@ -9,7 +9,7 @@
 #include "texture.h"
 #include "background.h"
 
-#include "universe.h"
+#include "universe_manager.h"
 #include "space_ship.h"
 #include "effects_manager.h"
 #include "object_manager.h"
@@ -40,14 +40,14 @@ public:
         ship_ = static_cast<SpaceShip*>(OBJMGR.Get("ship"));
         assert(ship_ != 0 && "ship not defined!");
 
-        universe_ = static_cast<Universe*>(OBJMGR.Get("universe"));
+        universe_ = static_cast<UniverseManager*>(OBJMGR.Get("universe"));
         assert(universe_ != 0 && "universe not defined!");
 
         effects_ = static_cast<EffectsManager *>(OBJMGR.Get("effects"));
         assert(effects_ != 0 && "effects not defined!");
     }
 
-    Universe* universe_;
+    UniverseManager* universe_;
     SpaceShip* ship_;
     double ship_angle_;
     double ship_x_;

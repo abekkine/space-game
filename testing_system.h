@@ -61,7 +61,7 @@ public:
             planets_[i].SetSeed(u[i].seed);
         }
 
-        // TODO : Planets & numPlanets would be passed inside a single object.
+        // NOTE : Planets & numPlanets would be passed inside a single object.
         OBJMGR.Set("planets", planets_);
         OBJMGR.Set("nplanets", (void *)&kNumPlanets);
 

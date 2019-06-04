@@ -57,9 +57,9 @@ private:
     // -- right landing gear body angle
     double angle_rlg_;
 
-    // TODO : Ship mass; not used anywhere, yet.
+    // NOTE : Ship mass; not used anywhere, yet.
     double mass_;
-    // TODO : Ship material density (not used with multiple bodies)
+    // NOTE : Ship material density (not used with multiple bodies)
     double density_;
 
     // Ship angular velocity.
@@ -213,7 +213,7 @@ public:
     , destroyed_(false)
     {
         data_bus_ = new DataBus();
-        // TODO : Ideally, SpaceShip class should not have any direct connections to ship systems / devices (#115).
+        // NOTE : Ideally, SpaceShip class should not have any direct connections to ship systems / devices (#115).
         bus_connection_ = data_bus_->Connect("ship");
 
         hud_ = SYSTEMSMGR.getHudSystem();
@@ -501,7 +501,7 @@ public:
             }
         }
     }
-    // TODO : Box2D cannot handle multiple rotations (>360.0).
+    // BUG : Box2D cannot handle multiple rotations (>360.0).
     void NormalizeAngle(b2Body* b) {
         double a = b->GetAngle();
         if (a < 0.0) {
@@ -554,26 +554,26 @@ public:
 
         if(bus_connection_ != 0) {
             // Send player velocity to Data Bus.
-            // TODO : Should be published by navigation system (#115).
+            // NOTE : Should be published by navigation system (#115).
             // Used by HUD system.
             BD_Vector v;
             v.x = velocity_.x;
             v.y = velocity_.y;
             bus_connection_->Publish(db_ShipVelocity, &v);
 
-            // TODO : Should be published by a sensor device (#115).
+            // NOTE : Should be published by a sensor device (#115).
             BD_Scalar av;
             av.value = angular_velocity_;
             bus_connection_->Publish(db_ShipAngularVelocity, &av);
 
-            // TODO : Should be published by a sensor device (#115).
+            // NOTE : Should be published by a sensor device (#115).
             // Used by HUD & Radar systems.
             BD_Vector p;
             p.x = pos_main_.x;
             p.y = pos_main_.y;
             bus_connection_->Publish(db_ShipPosition, &p);
 
-            // TODO : Should be published by a sensor device (#115).
+            // NOTE : Should be published by a sensor device (#115).
             // Used by HUD system.
             BD_Scalar s;
             s.value = angle_main_;
@@ -744,8 +744,7 @@ public:
             }
             break;
         case GLFW_KEY_G:
-            // TODO : pass landing gear command
-            //      : to landing gear 'system' through hotas.
+            // NOTE : pass landing gear command to landing gear 'system' through hotas.
             // hotas_->ToggleLandingGear();
             if (action) {
                 if (landing_gear_state_) {

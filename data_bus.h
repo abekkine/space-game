@@ -55,7 +55,7 @@ class DataBus {
 public:
     struct Connection {
         DataBus* bus_;
-        Connection(DataBus* bus) : bus_(bus) {
+        explicit Connection(DataBus* bus) : bus_(bus) {
             assert(bus_ != 0);
         }
         ~Connection() {
@@ -121,8 +121,7 @@ public:
     }
 
 private:
-    // TODO : Unless there isn't multi-threaded access to
-    //      : data bus, no mutex would be needed.
+    // NOTE : Unless there isn't multi-threaded access to data bus, no mutex would be needed.
     std::mutex bus_mutex_;
     std::unordered_map<std::string, Connection*> connections_;
 };
