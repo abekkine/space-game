@@ -1,5 +1,5 @@
 #include "Texture.h"
-#include "GameException.h"
+#include "GameException.hpp"
 
 #include <GLFW/glfw3.h>
 

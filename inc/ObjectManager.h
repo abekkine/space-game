@@ -1,7 +1,7 @@
 #ifndef OBJECT_MANAGER_H_
 #define OBJECT_MANAGER_H_
 
-#include "Singleton.h"
+#include "Singleton.hpp"
 
 #include <string>
 #include <unordered_map>

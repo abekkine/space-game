@@ -6,7 +6,7 @@
 #include "EffectsManager.h"
 #include "ObjectManager.h"
 #include "CollisionHandler.h"
-#include "GameTimer.h"
+#include "GameTimer.hpp"
 
 #include <GLFW/glfw3.h>
 

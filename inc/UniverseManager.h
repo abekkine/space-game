@@ -2,6 +2,7 @@
 #define UNIVERSE_MANAGER_H_
 
 #include "GameDefinitions.h"
+#include "GameTimer.hpp"
 
 #include <Box2D.h>
 
@@ -11,8 +12,6 @@ class SolarSystemInterface;
 class SpaceShip;
 class EffectsManager;
 class CollisionHandler;
-
-#include "GameTimer.h"
 
 class UniverseManager {
 public:

@@ -1,5 +1,5 @@
 #include "Font.h"
-#include "GameException.h"
+#include "GameException.hpp"
 
 #include <FTGL/ftgl.h>
 

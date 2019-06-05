@@ -1,6 +1,6 @@
 #include "Display.h"
 #include "Config.h"
-#include "GameException.h"
+#include "GameException.hpp"
 
 #include <string>
 

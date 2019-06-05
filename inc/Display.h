@@ -1,7 +1,7 @@
 #ifndef DISPLAY_H_
 #define DISPLAY_H_
 
-#include "Singleton.h"
+#include "Singleton.hpp"
 
 #include <GLFW/glfw3.h>
 

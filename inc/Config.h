@@ -1,7 +1,7 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#include "Singleton.h"
+#include "Singleton.hpp"
 
 #include "json.hpp"
 using json = nlohmann::json;

@@ -4,7 +4,7 @@
 #include "Menu.h"
 #include "UniverseManager.h"
 #include "ObjectManager.h"
-#include "GameTimer.h"
+#include "GameTimer.hpp"
 
 Game::Game()
 : render_function_(0)
