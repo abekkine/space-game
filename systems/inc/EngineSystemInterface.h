@@ -3,15 +3,16 @@
 
 #include "ShipSystemInterface.h"
 
+#include <Box2D.h>
 #include <assert.h>
-
 #include <functional>
 
 class EngineSystemInterface : public ShipSystemInterface {
 public:
     virtual ~EngineSystemInterface() {}
+
 public:
-// Pilot commands
+    // Pilot commands
     virtual void ThrustForwardsCommand(double value) = 0;
     virtual void ThrustBackwardsCommand(double value) = 0;
     virtual void MomentCcwCommand(double value) = 0;
@@ -20,7 +21,7 @@ public:
     virtual void ThrustPortCommand(double value) = 0;
     virtual void ThrustStarboardCommand(double value) = 0;
     virtual void StabilizeRotation() = 0;
-// Fuel stuff
+    // Fuel stuff
     virtual double Refuel(double value) = 0;
     virtual double DumpFuel(double value) = 0;
     virtual double FuelQuery() = 0;
@@ -28,13 +29,15 @@ public:
 
     virtual void Mount(b2Body *body) = 0;
 
-// Standard ship system interface
+    // Standard ship system interface
     virtual void Init(DataBus* bus) {
         assert(bus != 0);
         bus_ = bus;
         bus_connection_ = bus_->Connect("engine");
     }
-    virtual void Update(double time_step) { (void)time_step; }
+    virtual void Update(double time_step) {
+        (void)time_step;
+    }
     virtual void Disconnect() {
         bus_->Disconnect("engine", bus_connection_);
     }

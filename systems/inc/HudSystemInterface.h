@@ -5,10 +5,14 @@
 
 #include <assert.h>
 
+class DataBus;
+class DataBusInterface;
+
 class HudSystemInterface : public ShipSystemInterface {
 public:
     virtual ~HudSystemInterface() {}
     virtual void Render() = 0;
+
 public:
     virtual void Init(DataBus * bus) {
         assert(bus != 0);
@@ -16,7 +20,9 @@ public:
 
         bus_connection_ = bus_->Connect("hud");
     }
-    virtual void Update(double time_step) { (void)time_step; }
+    virtual void Update(double time_step) {
+        (void)time_step;
+    }
     virtual void Disconnect() {
         bus_->Disconnect("hud", bus_connection_);
     }

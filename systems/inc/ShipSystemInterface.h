@@ -20,4 +20,3 @@ protected:
 };
 
 #endif // SHIP_SYSTEM_INTERFACE_H_
-

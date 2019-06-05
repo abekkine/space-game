@@ -2,17 +2,20 @@
 #define RADAR_SYSTEM_INTERFACE_H_
 
 #include "ShipSystemInterface.h"
-
 #include "Planet.h"
 #include "ObjectManager.h"
 
 #include <assert.h>
 
+class DataBus;
+class DataBusConnection;
+
+// TODO : Separate into RadarInterface and BasicRadar.
 class RadarSystemInterface : public ShipSystemInterface {
 public:
     virtual ~RadarSystemInterface() {}
 public:
-// Standard ship system interface
+    // Standard ship system interface
     virtual void Init(DataBus * bus) {
         assert(bus != 0);
         bus_ = bus;
@@ -28,7 +31,9 @@ public:
         planets_ = static_cast<Planet *>(OBJMGR.Get("planets"));
         assert(planets_ != 0 && "planets not defined");
     }
-    virtual void Update(double time_step) { (void)time_step; }
+    virtual void Update(double time_step) {
+        (void)time_step;
+    }
     virtual void Disconnect() {
         bus_->Disconnect("radar", bus_connection_);
     }

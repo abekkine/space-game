@@ -1,4 +1,5 @@
 #include "SpaceShip.h"
+#include "GameDefinitions.h"
 #include "DataBus.h"
 #include "DataBusConnection.h"
 #include "HotasSystemInterface.h"
@@ -10,6 +11,7 @@
 #include "StationInterface.h"
 #include "SolarSystemInterface.h"
 #include "ObjectManager.h"
+#include "Display.h"
 
 #include <GLFW/glfw3.h>
 
