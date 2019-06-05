@@ -1,4 +1,5 @@
 #include "Text.h"
+#include "Font.h"
 
 #include <GLFW/glfw3.h>
 
