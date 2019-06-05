@@ -2,6 +2,7 @@
 #define SHIP_SYSTEM_INTERFACE_H_
 
 #include "DataBus.h"
+#include "DataBusConnection.h"
 
 class ShipSystemInterface {
 public:
@@ -15,8 +16,7 @@ public:
 protected:
     bool active_;
     DataBus* bus_;
-    DataBus::Connection* bus_connection_;
+    DataBusConnection* bus_connection_;
 };
 
 #endif // SHIP_SYSTEM_INTERFACE_H_
-
