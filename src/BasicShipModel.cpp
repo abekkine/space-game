@@ -463,7 +463,6 @@ void BasicShipModel::NormalizeAngle(b2Body* b) {
     while (a < -0.5 * M_PI) a += M_PI;
     while (a >  0.5 * M_PI) a -= M_PI;
     b->SetTransform(b->GetPosition(), a);
-    printf("DEBUG_Normalization: in(%10.3f) out(%10.3f)\n", a_in, a_out);
 }
 
 void BasicShipModel::NormalizeAngles() {
