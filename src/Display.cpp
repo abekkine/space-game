@@ -34,7 +34,7 @@ void Display::Init() {
 
     width_ = CONFIG.GetParam<int>({"display", "width"}, 1024);
     height_ = CONFIG.GetParam<int>({"display", "height"}, 576);
-    // BUG : There are issues with full screen mode; desktop resolution does not go back to normal.
+    // BUG : (#15) There are issues with full screen mode; desktop resolution does not go back to normal.
     bool fullscreen = CONFIG.GetParam<bool>({"display", "fullscreen"}, false);
     size_ = CONFIG.GetParam<double>({"world", "size"}, 100.0);
     AdjustViewportOffsets();

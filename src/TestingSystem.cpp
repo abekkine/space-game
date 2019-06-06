@@ -49,7 +49,7 @@ void TestingSystem::Init(b2World * world) {
         planets_[i].SetSeed(u[i].seed);
     }
 
-    // NOTE : Planets & numPlanets would be passed inside a single object.
+    // TODO : (#146) Planets & numPlanets would be passed inside a single object.
     OBJMGR.Set("planets", planets_);
     OBJMGR.Set("nplanets", (void *)&kNumPlanets);
 

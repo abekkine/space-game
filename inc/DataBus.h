@@ -7,7 +7,7 @@
 #include <vector>
 #include <mutex>
 
-// TODO : Move definitions
+// TODO : (#139) Move definitions
 struct BusDataInterface {
     virtual ~BusDataInterface() {}
 };

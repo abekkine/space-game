@@ -9,7 +9,7 @@ class DataBus;
 class BusDataInterface;
 class EffectsManager;
 
-// TODO : Rename as BasicEngineMk1
+// TODO : (#140) Rename as BasicEngineMk1
 
 // HOTAS sends commands here, and proper thrust forces
 // and moments generated here, and told to physics.

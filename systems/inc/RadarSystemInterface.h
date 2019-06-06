@@ -10,7 +10,7 @@
 class DataBus;
 class DataBusConnection;
 
-// TODO : Separate into RadarInterface and BasicRadar.
+// TODO : (#138) Remove mid-level interface class.
 class RadarSystemInterface : public ShipSystemInterface {
 public:
     virtual ~RadarSystemInterface() {}

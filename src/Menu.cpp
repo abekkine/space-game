@@ -122,11 +122,11 @@ GameDefinitions::GameStateEnum Menu::ActionNewGame() {
     return GameDefinitions::gameState_InGame;
 }
 GameDefinitions::GameStateEnum Menu::ActionContinue() {
-    // TODO : Implement load and continue.
+    // TODO : (#142) Implement load and continue.
     return GameDefinitions::gameState_InGame;
 }
 GameDefinitions::GameStateEnum Menu::ActionSettings() {
-    // TODO : Implement game settings.
+    // TODO : (#141) Implement game settings.
     return GameDefinitions::gameState_InMenu;
 }
 GameDefinitions::GameStateEnum Menu::ActionQuit() {

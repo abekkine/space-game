@@ -53,7 +53,7 @@ private:
     // -- right landing gear body angle
     double angle_rlg_;
 
-    // NOTE : Ship mass; not used anywhere, yet.
+    // TODO : (#149) Ship mass; not used anywhere, yet.
     double mass_;
     // NOTE : Ship material density (not used with multiple bodies)
     double density_;

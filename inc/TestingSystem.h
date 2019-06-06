@@ -12,7 +12,7 @@ public:
     TestingSystem();
     ~TestingSystem();
     b2Vec2 GetGravityAcceleration(b2Vec2 pos);
-    // TODO : Move following properly.
+    // TODO : (#139) Move following properly.
     struct CelestialBodyDef {
         long int seed;
         double x, y;

@@ -9,7 +9,7 @@
 
 class Text;
 
-// TODO : Separate menu item into a file.
+// TODO : (#139) Separate menu item into a file.
 struct MenuItem {
     explicit MenuItem(std::string l, int x, int y, std::function<GameDefinitions::GameStateEnum()> func)
     : label(l)
