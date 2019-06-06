@@ -65,7 +65,7 @@ SpaceShip::SpaceShip()
     model_ = new BasicShipModel();
 
     data_bus_ = new DataBus();
-    // NOTE : Ideally, SpaceShip class should not have any direct connections to ship systems / devices (#115).
+    // TODO : (#148) Ship class should not have any direct connections to ship systems / devices.
     bus_connection_ = data_bus_->Connect("ship");
 
     hud_ = SYSTEMSMGR.getHudSystem();
@@ -73,8 +73,6 @@ SpaceShip::SpaceShip()
     engine_ = SYSTEMSMGR.getEngineSystem();
     radar_ = SYSTEMSMGR.getRadarSystem();
     hull_ = SYSTEMSMGR.getHullSystem();
-
-    hotas_->ConnectEngine(engine_);
 
     using std::placeholders::_1;
     hull_->SetDestructionCallback(std::bind(&SpaceShip::OnDestroy, this));
@@ -109,7 +107,7 @@ double SpaceShip::Mass() {
     double total_mass = 0.0;
 
     if (engine_ != 0) {
-        // TODO : Update engine to return fuel mass.
+        // TODO :  (#136) Update engine to return fuel mass
         total_mass = engine_->FuelVolume();
     }
     total_mass += model_->GetMass();
@@ -149,23 +147,23 @@ void SpaceShip::Update(double delta_time) {
         bus_connection_->Publish(db_ShipGravity, &v_value);
 
         // Send player velocity to Data Bus.
-        // NOTE : Should be published by navigation system (#115).
+        // TODO : (#148) Should be published by a sensor device.
         // Used by HUD system.
         model_->GetVelocity(v_value.x, v_value.y);
         bus_connection_->Publish(db_ShipVelocity, &v_value);
 
-        // NOTE : Should be published by a sensor device (#115).
+        // TODO : (#148) Should be published by a sensor device.
         s_value.value = model_->GetAngularVelocity();
         bus_connection_->Publish(db_ShipAngularVelocity, &s_value);
 
-        // NOTE : Should be published by a sensor device (#115).
+        // TODO : (#148) Should be published by a sensor device.
         // Used by HUD & Radar systems.
         b2Vec2 pos = model_->GetPosition();
         v_value.x = pos.x;
         v_value.y = pos.y;
         bus_connection_->Publish(db_ShipPosition, &v_value);
 
-        // NOTE : Should be published by a sensor device (#115).
+        // TODO : (#148) Should be published by a sensor device.
         // Used by HUD system.
         s_value.value = model_->GetAngle();
         bus_connection_->Publish(db_ShipAngle, &s_value);
@@ -244,7 +242,7 @@ void SpaceShip::HotasInput(int key, bool action) {
     case GLFW_KEY_H:
         if (action == true) {
             if (ship_anchored_ == false) {
-                // TODO : Replace terms /w Dock/Undock
+                // TODO : (#137) Replace terms /w Dock/Undock
                 // Anchor ship to station
                 ship_anchored_ = model_->Anchor(station_iface_);
             } else {
@@ -254,7 +252,7 @@ void SpaceShip::HotasInput(int key, bool action) {
         }
         break;
     case GLFW_KEY_G:
-        // NOTE : pass landing gear command to landing gear 'system' through hotas.
+        // TODO : (#147) pass landing gear command to landing gear 'system' through hotas.
         // hotas_->ToggleLandingGear();
         if (action) {
             if (landing_gear_state_) {

@@ -21,10 +21,6 @@ public:
 
         bus_connection_ = bus_->Connect("hotas");
     }
-    virtual void ConnectEngine(EngineSystemInterface *engine) {
-        assert(engine != 0);
-        ship_engine_ = engine;
-    }
     virtual void Update(double time_step) {
         (void)time_step;
     }

@@ -10,7 +10,7 @@ public:
     void Init();
     void Update(double time_step);
     void Render();
-    // TODO : EffectManager & Thrust Particles will be refactored properly.
+    // TODO : (#144) EffectManager & Thrust Particles will be refactored properly.
     struct ThrustParticle {
         ThrustParticle()
         : x(0.0), y(0.0), vx(0.0), vy(0.0), life(0.0) {}

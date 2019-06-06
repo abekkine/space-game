@@ -9,6 +9,8 @@ class DataBus;
 class BusDataInterface;
 class EffectsManager;
 
+// TODO : (#140) Rename as BasicEngineMk1
+
 // HOTAS sends commands here, and proper thrust forces
 // and moments generated here, and told to physics.
 class BasicEngineSystem : public EngineSystemInterface
@@ -19,14 +21,10 @@ public:
 
     void Mount(b2Body *body);
     void ThrustForwardsCommand(double value);
-    void ThrustBackwardsCommand(double value);
     void MomentCcwCommand(double value);
     void MomentCwCommand(double value);
     void CancelMomentCommand();
     void StopThrusters();
-    void ThrustPortCommand(double value);
-    void ThrustStarboardCommand(double value);
-    void StabilizeRotation();
     void UpdateThrust();
     void Init(DataBus* bus);
     void Update(double time_step);
@@ -37,6 +35,9 @@ public:
 
 private:
     void dbHandleShipAngularVelocity(BusDataInterface *data);
+    void dbHandleSteerCommand(BusDataInterface *data);
+    void dbHandleThrottleCommand(BusDataInterface *data);
+    void dbHandleStabilizeCommand(BusDataInterface *data);
 
 private:
     b2Body *platform_body_;

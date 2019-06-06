@@ -7,7 +7,7 @@
 #include <vector>
 #include <mutex>
 
-// TODO : Move definitions
+// TODO : (#139) Move definitions
 struct BusDataInterface {
     virtual ~BusDataInterface() {}
 };
@@ -23,6 +23,9 @@ enum DataChannel {
     db_ShipFuelQty,
     db_DetectionList,
     db_ShipDamage,
+    db_ThrottleCommand,
+    db_SteerCommand,
+    db_StabilizeCommand,
     // Add more when needed...
     db_All = 255,
 };

@@ -11,7 +11,7 @@ class BusDataInterface;
 
 class GenericHudDevice : public HudSystemInterface {
 private:
-    // TODO : Move this to a proper place.
+    // TODO : (#139) Move this to a proper place.
     struct Detection {
         Detection(double c, double h)
         : center(c)

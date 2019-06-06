@@ -104,7 +104,7 @@ void UniverseManager::ThreadLoop() {
             world_->Step(delta_time, 12, 6);
         }
 
-        // NOTE : Also, no magic numbers (10)?
+        // TODO : (#145) Also, no magic numbers (10)?
         GameTimer::Sleep(10);
     }
 }

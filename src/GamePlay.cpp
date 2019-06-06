@@ -51,6 +51,7 @@ void GamePlay::Render() {
 
     RefreshPlayerParams();
 
+    // TODO : (#151) Move ship near to lower side of screen at high velocities
     DISPLAY.WorldMode(debug_scale_ * speed_scale_);
 
     glPushMatrix();

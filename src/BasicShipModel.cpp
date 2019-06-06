@@ -399,7 +399,7 @@ void BasicShipModel::GetVelocity(double & x, double & y) {
     y = velocity_.y;
 }
 double BasicShipModel::GetMass() {
-    // TODO : Make this a class constant.
+    // TODO : (#143) Make this a class constant.
     double volume = 1.4744;
     return volume * density_;
 }
@@ -455,9 +455,9 @@ void BasicShipModel::CheckJoints(double delta_time) {
     }
 }
 
-// FIX : Box2D cannot handle multiple rotations (>360.0).
-//     : So normalize them into (-180, 180)
-//     : https://www.iforce2d.net/b2dtut/rotate-to-angle
+// NOTE : Box2D cannot handle multiple rotations (>360.0).
+//      : So normalize them into (-180, 180)
+//      : https://www.iforce2d.net/b2dtut/rotate-to-angle
 void BasicShipModel::NormalizeAngle(b2Body* b) {
     double a = b->GetAngle();
     while (a < -0.5 * M_PI) a += M_PI;
