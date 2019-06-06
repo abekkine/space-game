@@ -8,7 +8,6 @@
 #include <mutex>
 
 // TODO : Move definitions
-/* #region Data Definitions */
 struct BusDataInterface {
     virtual ~BusDataInterface() {}
 };
@@ -50,7 +49,6 @@ struct BD_RadarDetectionList : public BusDataInterface {
     int num_detections;
     double *data;
 };
-/* #endregion */
 
 typedef std::function<void(BusDataInterface *)> BusDataHandler;
 typedef std::vector<BusDataHandler> BusDataHandlerList;

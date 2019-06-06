@@ -11,7 +11,6 @@ public:
     void Update(double time_step);
     void Render();
     // TODO : EffectManager & Thrust Particles will be refactored properly.
-    /* #region Thrust Particle */
     struct ThrustParticle {
         ThrustParticle()
         : x(0.0), y(0.0), vx(0.0), vy(0.0), life(0.0) {}
@@ -39,7 +38,6 @@ public:
         double vx, vy;
         double life;
     };
-    /* #endregion */
 
     void MainThruster(b2Vec2 thrust, b2Vec2 position, b2Vec2 velocity);
     void BowThruster(double moment, double angle, b2Vec2 position, b2Vec2 velocity);
