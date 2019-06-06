@@ -124,7 +124,7 @@ void SpaceShip::OnDestroy() {
 }
 
 void SpaceShip::Init(b2World * world) {
-    // TODO : init model
+    // Init model
     model_->Init(world, this);
 
     // Init engine system.
@@ -245,10 +245,10 @@ void SpaceShip::HotasInput(int key, bool action) {
         if (action == true) {
             if (ship_anchored_ == false) {
                 // TODO : Replace terms /w Dock/Undock
-                // TODO : Anchor ship to station
+                // Anchor ship to station
                 ship_anchored_ = model_->Anchor(station_iface_);
             } else {
-                // TODO : Release anchor
+                // Release anchor
                 ship_anchored_ = model_->Release(station_iface_);
             }
         }
@@ -262,7 +262,7 @@ void SpaceShip::HotasInput(int key, bool action) {
             } else {
                 landing_gear_state_ = 1;
             }
-            // TODO : Control Landing gear on model.
+            // Control Landing gear on model.
             model_->LandingGear(landing_gear_state_);
         }
         break;
