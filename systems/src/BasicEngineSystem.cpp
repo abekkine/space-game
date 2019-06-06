@@ -37,10 +37,6 @@ void BasicEngineSystem::ThrustForwardsCommand(double value) {
     }
 }
 
-void BasicEngineSystem::ThrustBackwardsCommand(double value) {
-    (void)value;
-}
-
 void BasicEngineSystem::MomentCcwCommand(double value) {
     if (remaining_fuel_ > 0.0) {
         right_thruster_ = value;
@@ -67,18 +63,6 @@ void BasicEngineSystem::StopThrusters() {
     main_thruster_ = 0.0;
     left_thruster_ = 0.0;
     right_thruster_ = 0.0;
-}
-
-void BasicEngineSystem::ThrustPortCommand(double value) {
-    (void)value;
-}
-
-void BasicEngineSystem::ThrustStarboardCommand(double value) {
-    (void)value;
-}
-
-void BasicEngineSystem::StabilizeRotation() {
-    stabilization_mode_ = true;
 }
 
 void BasicEngineSystem::UpdateThrust() {
@@ -110,6 +94,9 @@ void BasicEngineSystem::Init(DataBus* bus) {
     EngineSystemInterface::Init(bus);
 
     DB_SUBSCRIBE(BasicEngineSystem, ShipAngularVelocity);
+    DB_SUBSCRIBE(BasicEngineSystem, SteerCommand);
+    DB_SUBSCRIBE(BasicEngineSystem, ThrottleCommand);
+    DB_SUBSCRIBE(BasicEngineSystem, StabilizeCommand);
 
     effects_ = static_cast<EffectsManager*>(OBJMGR.Get("effects"));
     assert(effects_ != 0 && "effects not defined!");
@@ -201,3 +188,32 @@ void BasicEngineSystem::dbHandleShipAngularVelocity(BusDataInterface *data) {
         angular_velocity_ = s->value;
     }
 }
+
+void BasicEngineSystem::dbHandleSteerCommand(BusDataInterface *data) {
+    BD_Scalar *s = static_cast<BD_Scalar *>(data);
+    if (s == 0) return;
+
+    if (s->value < 0.0) {
+        MomentCcwCommand(-s->value);
+    }
+    else if (s->value > 0.0) {
+        MomentCwCommand( s->value);
+    }
+    else {
+        CancelMomentCommand();
+    }
+}
+
+void BasicEngineSystem::dbHandleThrottleCommand(BusDataInterface *data) {
+    BD_Scalar *s = static_cast<BD_Scalar *>(data);
+    if (s == 0) return;
+
+    ThrustForwardsCommand(s->value);
+}
+
+void BasicEngineSystem::dbHandleStabilizeCommand(BusDataInterface *data) {  
+    (void)data;
+    stabilization_mode_ = true;
+}
+
+

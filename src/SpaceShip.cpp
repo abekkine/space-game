@@ -74,8 +74,6 @@ SpaceShip::SpaceShip()
     radar_ = SYSTEMSMGR.getRadarSystem();
     hull_ = SYSTEMSMGR.getHullSystem();
 
-    hotas_->ConnectEngine(engine_);
-
     using std::placeholders::_1;
     hull_->SetDestructionCallback(std::bind(&SpaceShip::OnDestroy, this));
 }

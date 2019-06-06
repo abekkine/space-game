@@ -16,38 +16,31 @@ void HOTASDevice::Init(DataBus * bus) {
 }
 
 void HOTASDevice::SetThrottle(double value) {
-    if (ship_engine_ == 0 || active_ == false) {
+    if (active_ == false) {
         return;
     }
 
-    ship_engine_->ThrustForwardsCommand(value);
+    BD_Scalar throttle;
+    throttle.value = value;
+    bus_connection_->Publish(db_ThrottleCommand, &throttle);
 }
 
 void HOTASDevice::SetSteering(double value) {
-    if (ship_engine_ == 0 || active_ == false) {
+    if (active_ == false) {
         return;
     }
 
-    if (value < 0.0) {
-        // Rotate Left
-        ship_engine_->MomentCcwCommand(-value);
-    }
-    else if (value > 0.0) {
-        // Rotate Right
-        ship_engine_->MomentCwCommand(value);
-    }
-    else {
-        // No rotate
-        ship_engine_->CancelMomentCommand();
-    }
+    BD_Scalar steering;
+    steering.value = value;
+    bus_connection_->Publish(db_SteerCommand, &steering);
 }
 
 void HOTASDevice::Stabilize() {
-    if (ship_engine_ == 0 || active_ == false) {
+    if (active_ == false) {
         return;
     }
 
-    ship_engine_->StabilizeRotation();
+    bus_connection_->Publish(db_StabilizeCommand, 0);
 }
 
 void HOTASDevice::ToggleLandingGear() {}

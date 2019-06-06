@@ -23,6 +23,9 @@ enum DataChannel {
     db_ShipFuelQty,
     db_DetectionList,
     db_ShipDamage,
+    db_ThrottleCommand,
+    db_SteerCommand,
+    db_StabilizeCommand,
     // Add more when needed...
     db_All = 255,
 };
