@@ -3,25 +3,13 @@
 
 #include "Version.h"
 #include "GameDefinitions.h"
+#include "MenuItem.h"
 
 #include <string>
 #include <functional>
 
 class Text;
-
-// TODO : (#139) Separate menu item into a file.
-struct MenuItem {
-    explicit MenuItem(std::string l, int x, int y, std::function<GameDefinitions::GameStateEnum()> func)
-    : label(l)
-    , position_x(x)
-    , position_y(y)
-    , action(func)
-    {}
-
-    std::string label;
-    int position_x, position_y;
-    std::function<GameDefinitions::GameStateEnum()> action;
-};
+class MenuItem;
 
 class Menu {
 public:
