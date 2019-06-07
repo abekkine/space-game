@@ -1,5 +1,5 @@
 #include "BasicEngineSystem.h"
-
+#include "BusDataTypes.h"
 #include "DataBus.h"
 #include "EffectsManager.h"
 #include "GameDefinitions.h"

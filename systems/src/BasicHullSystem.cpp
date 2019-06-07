@@ -1,4 +1,5 @@
 #include "BasicHullSystem.h"
+#include "BusDataTypes.h"
 #include "DataBus.h"
 #include "DataBusConnection.h"
 

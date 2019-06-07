@@ -2,6 +2,7 @@
 #include "ShipModelInterface.h"
 #include "BasicShipModel.h"
 #include "GameDefinitions.h"
+#include "BusDataTypes.h"
 #include "DataBus.h"
 #include "DataBusConnection.h"
 #include "HotasSystemInterface.h"

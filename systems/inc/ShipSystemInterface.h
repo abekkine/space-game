@@ -1,6 +1,7 @@
 #ifndef SHIP_SYSTEM_INTERFACE_H_
 #define SHIP_SYSTEM_INTERFACE_H_
 
+#include "BusDataTypes.h"
 #include "DataBus.h"
 #include "DataBusConnection.h"
 

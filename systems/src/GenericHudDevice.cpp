@@ -1,4 +1,5 @@
 #include "GenericHudDevice.h"
+#include "BusDataTypes.h"
 #include "DataBus.h"
 #include "Display.h"
 

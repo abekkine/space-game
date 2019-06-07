@@ -2,6 +2,7 @@
 #define RADAR_SYSTEM_INTERFACE_H_
 
 #include "ShipSystemInterface.h"
+#include "BusDataTypes.h"
 #include "Planet.h"
 #include "ObjectManager.h"
 
