@@ -13,7 +13,7 @@ BasicEngineSystem::BasicEngineSystem()
 : platform_body_(0)
 , thrust_{0.0, 0.0}
 , effects_(0)
-, kFuelVolumePerQuantity(0.1)
+, kFuelMassPerQuantity(0.1)
 , fuel_tank_size_(1.0)
 , remaining_fuel_(1.0)
 , main_thruster_(0.0)
@@ -177,9 +177,9 @@ double BasicEngineSystem::FuelQuery() {
     return remaining_fuel_;
 }
 
-double BasicEngineSystem::FuelVolume() {
+double BasicEngineSystem::FuelMass() {
 
-    return kFuelVolumePerQuantity * remaining_fuel_;
+    return kFuelMassPerQuantity * remaining_fuel_;
 }
 
 void BasicEngineSystem::dbHandleShipAngularVelocity(BusDataInterface *data) {

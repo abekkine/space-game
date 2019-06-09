@@ -31,7 +31,7 @@ public:
     double Refuel(double value);
     double DumpFuel(double value);
     double FuelQuery();
-    double FuelVolume();
+    double FuelMass();
 
 private:
     void dbHandleShipAngularVelocity(BusDataInterface *data);
@@ -44,7 +44,7 @@ private:
     b2Vec2 thrust_;
     EffectsManager *effects_;
 
-    const double kFuelVolumePerQuantity;
+    const double kFuelMassPerQuantity;
     double fuel_tank_size_;
     double remaining_fuel_;
     double main_thruster_;

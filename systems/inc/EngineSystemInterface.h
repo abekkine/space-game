@@ -21,7 +21,7 @@ public:
     virtual double Refuel(double value) = 0;
     virtual double DumpFuel(double value) = 0;
     virtual double FuelQuery() = 0;
-    virtual double FuelVolume() = 0;
+    virtual double FuelMass() = 0;
 
     virtual void Mount(b2Body *body) = 0;
 
