@@ -1,5 +1,6 @@
 #include "HotasDevice.h"
 #include "EngineSystemInterface.h"
+#include "BusDataTypes.h"
 #include "DataBus.h"
 
 HOTASDevice::HOTASDevice()
