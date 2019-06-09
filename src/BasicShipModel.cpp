@@ -24,7 +24,6 @@ BasicShipModel::BasicShipModel()
 , angle_right_(0.0)
 , angle_llg_(0)
 , angle_rlg_(0)
-, mass_(1.0)
 , density_(1.0)
 
 , angular_velocity_(0.0)

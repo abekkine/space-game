@@ -34,7 +34,6 @@ private:
     double y_;
     double angle_;
     double angular_velocity_;
-    double mass_;
     double density_;
     double radius_;
     double core_radius_;
