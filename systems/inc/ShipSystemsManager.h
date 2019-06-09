@@ -1,7 +1,7 @@
 #ifndef SHIP_SYSTEMS_MANAGER_H_
 #define SHIP_SYSTEMS_MANAGER_H_
 
-#include "BasicEngineSystem.h"
+#include "BasicEngineMk1.h"
 #include "BasicRadarSystem.h"
 #include "BasicHullSystem.h"
 #include "HotasDevice.h"
@@ -27,7 +27,7 @@ public:
     }
     EngineSystemInterface* getEngineSystem() {
         if (engine_ == 0) {
-            engine_ = new BasicEngineSystem();
+            engine_ = new BasicEngineMk1();
         }
         return engine_;
     }
