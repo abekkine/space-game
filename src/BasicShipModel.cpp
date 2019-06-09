@@ -347,11 +347,11 @@ void BasicShipModel::Render() {
     glPopMatrix();
 }
 
-bool BasicShipModel::Anchor(StationInterface * station) {
+bool BasicShipModel::Dock(StationInterface * station) {
     bool result = false;
     if (station != 0) {
         NormalizeAngles();
-        anchor_ = station->AnchorShip(body_left_gear_);
+        anchor_ = station->DockShip(body_left_gear_);
         if (anchor_ != 0) {
             result = true;
             station->Connect();
@@ -359,7 +359,7 @@ bool BasicShipModel::Anchor(StationInterface * station) {
     }
     return result;
 }
-bool BasicShipModel::Release(StationInterface * station) {
+bool BasicShipModel::Undock(StationInterface * station) {
     assert(station != 0 && "No station interface!");
     station->Disconnect();
     world_->DestroyJoint( anchor_ );

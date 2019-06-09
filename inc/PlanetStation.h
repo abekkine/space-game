@@ -16,7 +16,7 @@ public:
     ~PlanetStation();
     void Init(b2World * world);
     void Attach(b2Body * body);
-    b2Joint *AnchorShip(b2Body *body);
+    b2Joint *DockShip(b2Body *body);
     void Connect();
     void Disconnect();
     void Refuel(EngineSystemInterface* engine);

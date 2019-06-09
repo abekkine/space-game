@@ -13,9 +13,8 @@ public:
     virtual void Init(b2World * world, void * user_data) = 0;   // SMI_01
     virtual void Update(double delta_time) = 0;                 // SMI_02
     virtual void Render() = 0;                                  // SMI_03
-    // TODO : (#137) Replace terms with Dock/Undock
-    virtual bool Anchor(StationInterface * station) = 0;        // SMI_04
-    virtual bool Release(StationInterface * station) = 0;       // SMI_05
+    virtual bool Dock(StationInterface * station) = 0;          // SMI_04
+    virtual bool Undock(StationInterface * station) = 0;        // SMI_05
     virtual void LandingGear(uint8_t down) = 0;                 // SMI_06
     virtual double GetAngle() = 0;                              // SMI_07
     virtual void SetAngle(double angle) = 0;                    // SMI_08

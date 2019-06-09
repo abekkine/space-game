@@ -243,12 +243,11 @@ void SpaceShip::HotasInput(int key, bool action) {
     case GLFW_KEY_H:
         if (action == true) {
             if (ship_anchored_ == false) {
-                // TODO : (#137) Replace terms /w Dock/Undock
-                // Anchor ship to station
-                ship_anchored_ = model_->Anchor(station_iface_);
+                // Dock ship to station
+                ship_anchored_ = model_->Dock(station_iface_);
             } else {
-                // Release anchor
-                ship_anchored_ = model_->Release(station_iface_);
+                // Undock
+                ship_anchored_ = model_->Undock(station_iface_);
             }
         }
         break;

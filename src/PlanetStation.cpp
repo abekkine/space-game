@@ -59,7 +59,7 @@ void PlanetStation::Attach(b2Body * body) {
     joint_ = (b2WeldJoint *) world_->CreateJoint(&wjd);
 }
 
-b2Joint *PlanetStation::AnchorShip(b2Body *body) {
+b2Joint *PlanetStation::DockShip(b2Body *body) {
     b2WeldJointDef wjd;
     wjd.bodyA = body;
     wjd.bodyB = body_;

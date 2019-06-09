@@ -37,8 +37,6 @@ public:
     void Update(double delta_time);
     void Render();
     void RenderShip();
-    void AnchorShip();
-    void ReleaseShip();
     void RefuelRequest();
     void RepairRequest();
     void HotasInput(int key, bool action);

@@ -14,8 +14,8 @@ public: // Ship model interface
     void Init(b2World * world, void * user_data);   // SMI_01
     void Update(double delta_time);                 // SMI_02
     void Render();                                  // SMI_03
-    bool Anchor(StationInterface * station);        // SMI_04
-    bool Release(StationInterface * station);       // SMI_05
+    bool Dock(StationInterface * station);          // SMI_04
+    bool Undock(StationInterface * station);        // SMI_05
     void LandingGear(uint8_t down);                 // SMI_06
     double GetAngle();                              // SMI_07
     void SetAngle(double angle);                    // SMI_08
