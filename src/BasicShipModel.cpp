@@ -18,7 +18,8 @@
 #include <assert.h>
 
 BasicShipModel::BasicShipModel()
-: angle_main_(0.0)
+: kVolume(1.4744)
+, angle_main_(0.0)
 , angle_upper_(0.0)
 , angle_left_(0.0)
 , angle_right_(0.0)
@@ -398,9 +399,7 @@ void BasicShipModel::GetVelocity(double & x, double & y) {
     y = velocity_.y;
 }
 double BasicShipModel::GetMass() {
-    // TODO : (#143) Make this a class constant.
-    double volume = 1.4744;
-    return volume * density_;
+    return kVolume * density_;
 }
 double BasicShipModel::GetAngularVelocity() {
     return angular_velocity_;

@@ -39,6 +39,8 @@ private:
     void NormalizeAngles();
 
 private:
+    // Pre-calculated ship volume/area
+    const double kVolume;
     // Body rotation angles
     // -- main body angle
     double angle_main_;
