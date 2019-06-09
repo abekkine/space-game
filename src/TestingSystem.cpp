@@ -1,6 +1,7 @@
 #include "TestingSystem.h"
 #include "ObjectManager.h"
 #include "Planet.h"
+#include "CelestialBodyDefinition.h"
 
 #include <GLFW/glfw3.h>
 
@@ -31,7 +32,7 @@ void TestingSystem::Init(b2World * world) {
     // Instantiate planets.
     planets_ = new Planet[kNumPlanets];
 
-    CelestialBodyDef u[] = {
+    CelestialBodyDefinition u[] = {
         {   3,      0.0,      0.0, 0.0,  100.0,  99.7,  0.20,  435.0 }, // Earth
         {  99,    600.0,      0.0, 0.0,   25.0,  24.9,  0.01, 2730.0 }, // Moon
         {  -1, -19900.0, -11500.0, 0.0, 1000.0, 100.0,  1.00, 3984.0 }, // Sun
