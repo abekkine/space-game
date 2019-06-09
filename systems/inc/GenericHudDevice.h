@@ -8,17 +8,9 @@
 
 class DataBus;
 class BusDataInterface;
+struct DetectionObject;
 
 class GenericHudDevice : public HudSystemInterface {
-private:
-    // TODO : (#139) Move this to a proper place.
-    struct Detection {
-        Detection(double c, double h)
-        : center(c)
-        , horizon(h)
-        {}
-        double center, horizon;
-    };
 public:
     GenericHudDevice();
     ~GenericHudDevice();
@@ -44,9 +36,6 @@ private:
     void dbHandleShipDamage(BusDataInterface *data);
 
 private:
-    double detection_size_;
-    double detection_u_;
-    double detection_v_;
     std::mutex detection_mutex_;
     double ship_fuel_percent_;
     double damage_ratio_;
@@ -66,7 +55,7 @@ private:
     int big_marker_size_;
     int small_marker_size_;
     int vector_scale_;
-    std::vector<Detection *> detection_list_;
+    std::vector<DetectionObject *> detection_list_;
 };
 
 #endif // GENERIC_HUD_DEVICE_H_

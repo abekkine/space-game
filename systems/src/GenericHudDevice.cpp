@@ -1,4 +1,5 @@
 #include "GenericHudDevice.h"
+#include "DetectionObject.h"
 #include "BusDataTypes.h"
 #include "DataBus.h"
 #include "Display.h"
@@ -7,10 +8,6 @@
 #include <math.h>
 
 GenericHudDevice::GenericHudDevice() {
-    detection_size_ = 0.0;
-    detection_u_ = 0.0;
-    detection_v_ = 0.0;
-    // detection_mutex_;
     active_ = true;
     ship_fuel_percent_ = 0.0;
     damage_ratio_ = 1.0;
@@ -229,9 +226,9 @@ void GenericHudDevice::AddDetections(int num_detections, double* detections) {
     std::lock_guard<std::mutex> lock(detection_mutex_);
     for (auto d : detection_list_) delete d;
     detection_list_.clear();
-    Detection * d = 0;
+    DetectionObject * d = 0;
     for (int i=0; i<num_detections; ++i) {
-        d = new Detection(
+        d = new DetectionObject(
             detections[2*i + 0],
             detections[2*i + 1]
         );
