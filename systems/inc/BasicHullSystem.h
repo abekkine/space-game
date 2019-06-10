@@ -9,10 +9,11 @@ class DataBus;
 
 class BasicHullSystem : public HullSystemInterface {
 private:
-    double max_integrity_;
+    const double kMaxIntegrity;
+    double kResistanceFactor;
+    double kDamageThreshold;
     double integrity_;
-    double damage_threshold_;
-    double resistance_factor_;
+
 public:
     BasicHullSystem();
     ~BasicHullSystem();

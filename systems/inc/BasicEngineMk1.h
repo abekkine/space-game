@@ -43,6 +43,9 @@ private:
     EffectsManager *effects_;
 
     const double kFuelMassPerQuantity;
+    // units per second
+    const double kFuelConsumptionRate;
+    const double kEngineThrustFactor;
     double fuel_tank_size_;
     double remaining_fuel_;
     double main_thruster_;

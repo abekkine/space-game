@@ -10,6 +10,7 @@ uint32_t Planet::counter_ = 0;
 
 Planet::Planet()
 : seed_(-1)
+, kDefaultSurfaceFriction(0.7)
 , x_(0.0)
 , y_(0.0)
 , angle_(0.0)
@@ -145,7 +146,7 @@ void Planet::Init(b2World * world) {
     double r_rate = radius_ / core_radius_;
     b2FixtureDef fixture;
     fixture.density = density_ * r_rate * r_rate;
-    fixture.friction = 0.7;
+    fixture.friction = kDefaultSurfaceFriction;
 
     fixture.shape = &shape;
     physics_body_->CreateFixture(&fixture);

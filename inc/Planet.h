@@ -30,6 +30,7 @@ public:
 
 private:
     long int seed_;
+    const float kDefaultSurfaceFriction;
     double x_;
     double y_;
     double angle_;

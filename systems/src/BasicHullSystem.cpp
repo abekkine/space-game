@@ -4,6 +4,9 @@
 #include "DataBusConnection.h"
 
 BasicHullSystem::BasicHullSystem()
+: kMaxIntegrity(10.0)
+, kResistanceFactor(1.0)
+, kDamageThreshold(1.0)
 {
     on_destroyed_ = 0;
 }
@@ -13,10 +16,7 @@ BasicHullSystem::~BasicHullSystem() {}
 void BasicHullSystem::Init(DataBus * bus) {
     HullSystemInterface::Init(bus);
 
-    max_integrity_ = 10.0;
-    integrity_ = max_integrity_;
-    resistance_factor_ = 1.0;
-    damage_threshold_ = 1.0;
+    integrity_ = kMaxIntegrity;
 }
 
 void BasicHullSystem::SetDestructionCallback(std::function<void()> cb) {
@@ -24,15 +24,15 @@ void BasicHullSystem::SetDestructionCallback(std::function<void()> cb) {
 }
 
 void BasicHullSystem::ApplyImpact(double impulse) {
-    if (integrity_ > 0.0 && impulse > damage_threshold_) {
-        integrity_ -= resistance_factor_ * impulse;
+    if (integrity_ > 0.0 && impulse > kDamageThreshold) {
+        integrity_ -= kResistanceFactor * impulse;
         if (integrity_ <= 0.0) {
             on_destroyed_();
         }
         else if (bus_connection_ != 0) {
             // Used by HUD system.
             BD_Scalar damage_ratio;
-            damage_ratio.value = integrity_ / max_integrity_;
+            damage_ratio.value = integrity_ / kMaxIntegrity;
             bus_connection_->Publish(db_ShipDamage, &damage_ratio);
         }
     }
@@ -40,19 +40,19 @@ void BasicHullSystem::ApplyImpact(double impulse) {
 
 double BasicHullSystem::Repair(double value) {
     double surplus_repair_points;
-    if (integrity_ < max_integrity_) {
-        if (value < (max_integrity_ - integrity_)) {
+    if (integrity_ < kMaxIntegrity) {
+        if (value < (kMaxIntegrity - integrity_)) {
             surplus_repair_points = 0.0;
             integrity_ += value;
         }
         else {
-            surplus_repair_points = value - (max_integrity_ - integrity_);
-            integrity_ = max_integrity_;
+            surplus_repair_points = value - (kMaxIntegrity - integrity_);
+            integrity_ = kMaxIntegrity;
         }
         if (bus_connection_ != 0) {
             // Used by HUD system.
             BD_Scalar damage_ratio;
-            damage_ratio.value = integrity_ / max_integrity_;
+            damage_ratio.value = integrity_ / kMaxIntegrity;
             bus_connection_->Publish(db_ShipDamage, &damage_ratio);
         }
     }

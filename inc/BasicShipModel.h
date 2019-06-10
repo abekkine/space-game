@@ -39,6 +39,10 @@ private:
     void NormalizeAngles();
 
 private:
+    // Breaking force for Box2D joints.
+    const double kBreakForce;
+    // Default surface friction (Box2D)
+    const float kDefaultSurfaceFriction;
     // Pre-calculated ship volume/area
     const double kVolume;
     // Body rotation angles

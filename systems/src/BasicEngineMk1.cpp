@@ -14,6 +14,8 @@ BasicEngineMk1::BasicEngineMk1()
 , thrust_{0.0, 0.0}
 , effects_(0)
 , kFuelMassPerQuantity(0.1)
+, kFuelConsumptionRate(0.001)
+, kEngineThrustFactor(20.0)
 , fuel_tank_size_(1.0)
 , remaining_fuel_(1.0)
 , main_thruster_(0.0)
@@ -31,7 +33,7 @@ void BasicEngineMk1::Mount(b2Body *body) {
 
 void BasicEngineMk1::ThrustForwardsCommand(double value) {
     if (remaining_fuel_ > 0.0) {
-        main_thruster_ = 20.0 * value;
+        main_thruster_ = kEngineThrustFactor * value;
         left_thruster_ = 0.0;
         right_thruster_ = 0.0;
     }
@@ -103,11 +105,10 @@ void BasicEngineMk1::Init(DataBus* bus) {
 }
 
 void BasicEngineMk1::Update(double time_step) {
-    const double fuel_consumption_rate = 0.001; // units per second
     if (remaining_fuel_ > 0.0) {
-        remaining_fuel_ -= time_step * fuel_consumption_rate * main_thruster_;
-        remaining_fuel_ -= time_step * fuel_consumption_rate * left_thruster_;
-        remaining_fuel_ -= time_step * fuel_consumption_rate * right_thruster_;
+        remaining_fuel_ -= time_step * kFuelConsumptionRate * main_thruster_;
+        remaining_fuel_ -= time_step * kFuelConsumptionRate * left_thruster_;
+        remaining_fuel_ -= time_step * kFuelConsumptionRate * right_thruster_;
         if (remaining_fuel_ < 0.0) {
             remaining_fuel_ = 0.0;
         }
@@ -118,15 +119,16 @@ void BasicEngineMk1::Update(double time_step) {
             bus_connection_->Publish(db_ShipFuelQty, &fuel);
         }
 
+        // TODO : Improve stabilization mode.
         if (stabilization_mode_) {
             double aav = fabs(angular_velocity_);
             if (aav > 0.001) {
                 if (angular_velocity_ > 0.0) {
                     left_thruster_ = 0.8 * aav;
-                    remaining_fuel_ -= time_step * fuel_consumption_rate * left_thruster_;
+                    remaining_fuel_ -= time_step * kFuelConsumptionRate * left_thruster_;
                 } else if(angular_velocity_ < 0.0) {
                     right_thruster_ = 0.8 * aav;
-                    remaining_fuel_ -= time_step * fuel_consumption_rate * right_thruster_;
+                    remaining_fuel_ -= time_step * kFuelConsumptionRate * right_thruster_;
                 }
             }
             else {
