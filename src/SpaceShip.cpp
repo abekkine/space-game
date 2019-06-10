@@ -1,5 +1,6 @@
 #include "SpaceShip.h"
 #include "ShipModelInterface.h"
+#include "ShipSystemInterface.h"
 #include "BasicShipModel.h"
 #include "GameDefinitions.h"
 #include "BusDataTypes.h"
@@ -52,7 +53,6 @@ char SpaceShip::Type() {
 SpaceShip::SpaceShip()
 : model_(0)
 , data_bus_(0)
-, bus_connection_(0)
 , hud_(0)
 , hotas_(0)
 , engine_(0)
@@ -64,16 +64,16 @@ SpaceShip::SpaceShip()
 , destroyed_(false)
 {
     model_ = new BasicShipModel();
+    OBJMGR.Set("model", model_);
 
     data_bus_ = new DataBus();
-    // TODO : (#148) Ship class should not have any direct connections to ship systems / devices.
-    bus_connection_ = data_bus_->Connect("ship");
 
     hud_ = SYSTEMSMGR.getHudSystem();
     hotas_ = SYSTEMSMGR.getHotasSystem();
     engine_ = SYSTEMSMGR.getEngineSystem();
     radar_ = SYSTEMSMGR.getRadarSystem();
     hull_ = SYSTEMSMGR.getHullSystem();
+    sensor_ = SYSTEMSMGR.getSensorSystem();
 
     using std::placeholders::_1;
     hull_->SetDestructionCallback(std::bind(&SpaceShip::OnDestroy, this));
@@ -125,6 +125,8 @@ void SpaceShip::Init(b2World * world) {
     // Init model
     model_->Init(world, this);
 
+    sensor_->Init(data_bus_);
+
     // Init engine system.
     engine_->Init(data_bus_);
     engine_->Mount( model_->GetEngineMount() );
@@ -139,36 +141,7 @@ void SpaceShip::Init(b2World * world) {
 void SpaceShip::Update(double delta_time) {
 
     model_->Update(delta_time);
-    if (bus_connection_ != 0) {
-        BD_Vector v_value;
-        BD_Scalar s_value;
-
-        model_->GetGravity(v_value.x, v_value.y);
-        bus_connection_->Publish(db_ShipGravity, &v_value);
-
-        // Send player velocity to Data Bus.
-        // TODO : (#148) Should be published by a sensor device.
-        // Used by HUD system.
-        model_->GetVelocity(v_value.x, v_value.y);
-        bus_connection_->Publish(db_ShipVelocity, &v_value);
-
-        // TODO : (#148) Should be published by a sensor device.
-        s_value.value = model_->GetAngularVelocity();
-        bus_connection_->Publish(db_ShipAngularVelocity, &s_value);
-
-        // TODO : (#148) Should be published by a sensor device.
-        // Used by HUD & Radar systems.
-        b2Vec2 pos = model_->GetPosition();
-        v_value.x = pos.x;
-        v_value.y = pos.y;
-        bus_connection_->Publish(db_ShipPosition, &v_value);
-
-        // TODO : (#148) Should be published by a sensor device.
-        // Used by HUD system.
-        s_value.value = model_->GetAngle();
-        bus_connection_->Publish(db_ShipAngle, &s_value);
-    }
-
+    sensor_->Update(delta_time);
     engine_->Update(delta_time);
     radar_->Update(delta_time);
 }

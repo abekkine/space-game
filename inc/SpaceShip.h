@@ -14,6 +14,7 @@ class RadarSystemInterface;
 class HullSystemInterface;
 class StationInterface;
 class ShipModelInterface;
+class ShipSystemInterface;
 
 class SpaceShip : public ContactInterface {
 public: // Contact interface
@@ -41,13 +42,10 @@ public:
     void RepairRequest();
     void HotasInput(int key, bool action);
 
-
 private:
     ShipModelInterface * model_;
     // Ship communication bus
     DataBus * data_bus_;
-    // Ship communication bus connection
-    DataBusConnection * bus_connection_;
     // Ship Systems
     // -- HUD system
     HudSystemInterface * hud_;
@@ -59,6 +57,8 @@ private:
     RadarSystemInterface * radar_;
     // -- Hull system
     HullSystemInterface * hull_;
+    // -- Sensor system
+    ShipSystemInterface * sensor_;
 
     // Landing gear up/down control variable.
     uint8_t landing_gear_state_;

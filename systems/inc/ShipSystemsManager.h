@@ -6,6 +6,7 @@
 #include "BasicHullSystem.h"
 #include "HotasDevice.h"
 #include "GenericHudDevice.h"
+#include "BasicSensorMk1.h"
 
 class ShipSystemsManager : public Singleton<ShipSystemsManager> {
 public:
@@ -15,6 +16,7 @@ public:
     , hull_(0)
     , hud_(0)
     , hotas_(0)
+    , sensor_(0)
     {}
     ~ShipSystemsManager() {
     }
@@ -24,6 +26,7 @@ public:
         delete hud_;
         delete hull_;
         delete hotas_;
+        delete sensor_;
     }
     EngineSystemInterface* getEngineSystem() {
         if (engine_ == 0) {
@@ -55,6 +58,12 @@ public:
         }
         return hotas_;
     }
+    ShipSystemInterface * getSensorSystem() {
+        if (sensor_ == 0) {
+            sensor_ = new BasicSensorMk1();
+        }
+        return sensor_;
+    }
 
 private:
     EngineSystemInterface* engine_;
@@ -62,6 +71,7 @@ private:
     HullSystemInterface* hull_;
     HudSystemInterface* hud_;
     HotasSystemInterface* hotas_;
+    ShipSystemInterface * sensor_;
 };
 
 #define SYSTEMSMGR ShipSystemsManager::Instance()
