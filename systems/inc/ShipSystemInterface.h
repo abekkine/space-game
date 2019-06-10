@@ -7,6 +7,7 @@
 
 class ShipSystemInterface {
 public:
+    virtual ~ShipSystemInterface() {}
     virtual void Init(DataBus* bus) = 0;
     virtual void Update(double time_step) = 0;
     // NOTE : Also providing a Connect() method here would be proper (#114).
