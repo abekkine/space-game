@@ -108,7 +108,6 @@ double SpaceShip::Mass() {
     double total_mass = 0.0;
 
     if (engine_ != 0) {
-        // TODO :  (#136) Update engine to return fuel mass
         total_mass = engine_->FuelMass();
     }
     total_mass += model_->GetMass();
