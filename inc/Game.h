@@ -20,6 +20,7 @@ private:
     void ProcessKey(int key, bool action);
 
 private:
+    const int kGameLoopSleepDuration;
     std::function<void()> render_function_;
     GameDefinitions::GameStateEnum state_;
     UniverseManager * universe_mgr_;

@@ -7,7 +7,8 @@
 #include "GameTimer.hpp"
 
 Game::Game()
-: render_function_(0)
+: kGameLoopSleepDuration(10)
+, render_function_(0)
 , state_(GameDefinitions::gameState_InMenu)
 , universe_mgr_(0)
 , menu_(0)
@@ -65,7 +66,7 @@ void Game::Run() {
 
         DISPLAY.PostRender();
 
-        GameTimer::Sleep(10);
+        GameTimer::Sleep(kGameLoopSleepDuration);
     }
 
     universe_mgr_->Exit();

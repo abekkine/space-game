@@ -18,13 +18,15 @@
 #include <assert.h>
 
 BasicShipModel::BasicShipModel()
-: angle_main_(0.0)
+: kBreakForce(500.0)
+, kDefaultSurfaceFriction(0.7)
+, kVolume(1.4744)
+, angle_main_(0.0)
 , angle_upper_(0.0)
 , angle_left_(0.0)
 , angle_right_(0.0)
 , angle_llg_(0)
 , angle_rlg_(0)
-, mass_(1.0)
 , density_(1.0)
 
 , angular_velocity_(0.0)
@@ -99,7 +101,7 @@ void BasicShipModel::Init(b2World * world, void * user_data) {
 
     b2FixtureDef fd;
     fd.density = density_;
-    fd.friction = 0.7;
+    fd.friction = kDefaultSurfaceFriction;
     b2PolygonShape shape;
 
     // Main Body
@@ -399,9 +401,7 @@ void BasicShipModel::GetVelocity(double & x, double & y) {
     y = velocity_.y;
 }
 double BasicShipModel::GetMass() {
-    // TODO : (#143) Make this a class constant.
-    double volume = 1.4744;
-    return volume * density_;
+    return kVolume * density_;
 }
 double BasicShipModel::GetAngularVelocity() {
     return angular_velocity_;
@@ -417,7 +417,6 @@ b2Body * BasicShipModel::GetEngineMount() {
 void BasicShipModel::CheckJoints(double delta_time) {
     if (anchor_ != 0) return;
     double f1, f2, f3, f4;
-    const double kBreakForce = 500.0;
     if (j_upper_) {
         f1 = j_upper_->GetReactionForce(1.0 / delta_time).Length();
         if (f1 > kBreakForce) {

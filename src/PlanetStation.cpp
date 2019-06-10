@@ -102,34 +102,46 @@ void PlanetStation::Update(double time_step) {
 }
 
 void PlanetStation::RenderUi() {
-    const int w = 500;
-    const int h = 200;
+    const int planet_ui_width = 500;
+    const int planet_ui_height = 200;
+    const int planet_ui_x = 10;
+    const int planet_ui_y = 10;
+    const float planet_ui_fill_color[4] = { 0.0, 0.0, 0.5, 0.8 };
+    const float planet_ui_line_color[4] = { 1.0, 1.0, 1.0, 0.2 };
+    const float planet_ui_text_color[4] = { 1.0, 1.0, 1.0, 1.0 };
+    const float planet_ui_line_width = 3.0;
+
     glPushMatrix();
     glLoadIdentity();
-    glTranslated(10.0, 10.0, 0.0);
-    glColor4f(0.0, 0.0, 0.5, 0.8);
+    glTranslated(planet_ui_x, planet_ui_y, 0.0);
+
+    // Background
+    glColor4fv(planet_ui_fill_color);
     glBegin(GL_QUADS);
     glVertex2i(0, 0);
-    glVertex2i(w, 0);
-    glVertex2i(w, h);
-    glVertex2i(0, h);
+    glVertex2i(planet_ui_width, 0);
+    glVertex2i(planet_ui_width, planet_ui_height);
+    glVertex2i(0, planet_ui_height);
     glEnd();
 
-    glLineWidth(3.0);
-    glColor4f(1.0, 1.0, 1.0, 0.2);
+    // Frame
+    glLineWidth(planet_ui_line_width);
+    glColor4fv(planet_ui_line_color);
     glBegin(GL_LINE_LOOP);
     glVertex2i(0, 0);
-    glVertex2i(w, 0);
-    glVertex2i(w, h);
-    glVertex2i(0, h);
+    glVertex2i(planet_ui_width, 0);
+    glVertex2i(planet_ui_width, planet_ui_height);
+    glVertex2i(0, planet_ui_height);
     glEnd();
 
+    // Text Menu
+    glColor4fv(planet_ui_text_color);
     RenderStationServices();
     glPopMatrix();
 }
 
 void PlanetStation::RenderStationServices() {
-    glColor3f(1.0, 1.0, 1.0);
+
     text_->Render(20.0, 35.0, "Re[F]uel");
     text_->Render(20.0, 65.0, "[R]epair");
 }

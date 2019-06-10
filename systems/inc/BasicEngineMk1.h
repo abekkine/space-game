@@ -1,5 +1,5 @@
-#ifndef BASIC_ENGINE_SYSTEM_H_
-#define BASIC_ENGINE_SYSTEM_H_
+#ifndef BASIC_ENGINE_MK1_H_
+#define BASIC_ENGINE_MK1_H_
 
 #include "EngineSystemInterface.h"
 
@@ -9,15 +9,13 @@ class DataBus;
 class BusDataInterface;
 class EffectsManager;
 
-// TODO : (#140) Rename as BasicEngineMk1
-
 // HOTAS sends commands here, and proper thrust forces
 // and moments generated here, and told to physics.
-class BasicEngineSystem : public EngineSystemInterface
+class BasicEngineMk1 : public EngineSystemInterface
 {
 public:
-    BasicEngineSystem();
-    ~BasicEngineSystem();
+    BasicEngineMk1();
+    ~BasicEngineMk1();
 
     void Mount(b2Body *body);
     void ThrustForwardsCommand(double value);
@@ -31,7 +29,7 @@ public:
     double Refuel(double value);
     double DumpFuel(double value);
     double FuelQuery();
-    double FuelVolume();
+    double FuelMass();
 
 private:
     void dbHandleShipAngularVelocity(BusDataInterface *data);
@@ -44,7 +42,10 @@ private:
     b2Vec2 thrust_;
     EffectsManager *effects_;
 
-    const double kFuelVolumePerQuantity;
+    const double kFuelMassPerQuantity;
+    // units per second
+    const double kFuelConsumptionRate;
+    const double kEngineThrustFactor;
     double fuel_tank_size_;
     double remaining_fuel_;
     double main_thruster_;
@@ -54,4 +55,4 @@ private:
     double angular_velocity_;
 };
 
-#endif // BASIC_ENGINE_SYSTEM_H_
+#endif // BASIC_ENGINE_MK1_H_

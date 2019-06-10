@@ -1,4 +1,4 @@
-#include "BasicEngineSystem.h"
+#include "BasicEngineMk1.h"
 #include "BusDataTypes.h"
 #include "DataBus.h"
 #include "EffectsManager.h"
@@ -9,11 +9,13 @@
 
 // HOTAS sends commands here, and proper thrust forces
 // and moments generated here, and told to physics.
-BasicEngineSystem::BasicEngineSystem()
+BasicEngineMk1::BasicEngineMk1()
 : platform_body_(0)
 , thrust_{0.0, 0.0}
 , effects_(0)
-, kFuelVolumePerQuantity(0.1)
+, kFuelMassPerQuantity(0.1)
+, kFuelConsumptionRate(0.001)
+, kEngineThrustFactor(20.0)
 , fuel_tank_size_(1.0)
 , remaining_fuel_(1.0)
 , main_thruster_(0.0)
@@ -23,21 +25,21 @@ BasicEngineSystem::BasicEngineSystem()
 , angular_velocity_(0.0)
 {}
 
-BasicEngineSystem::~BasicEngineSystem() {}
+BasicEngineMk1::~BasicEngineMk1() {}
 
-void BasicEngineSystem::Mount(b2Body *body) {
+void BasicEngineMk1::Mount(b2Body *body) {
     platform_body_ = body;
 }
 
-void BasicEngineSystem::ThrustForwardsCommand(double value) {
+void BasicEngineMk1::ThrustForwardsCommand(double value) {
     if (remaining_fuel_ > 0.0) {
-        main_thruster_ = 20.0 * value;
+        main_thruster_ = kEngineThrustFactor * value;
         left_thruster_ = 0.0;
         right_thruster_ = 0.0;
     }
 }
 
-void BasicEngineSystem::MomentCcwCommand(double value) {
+void BasicEngineMk1::MomentCcwCommand(double value) {
     if (remaining_fuel_ > 0.0) {
         right_thruster_ = value;
         main_thruster_ = 0.0;
@@ -46,7 +48,7 @@ void BasicEngineSystem::MomentCcwCommand(double value) {
     stabilization_mode_ = false;
 }
 
-void BasicEngineSystem::MomentCwCommand(double value) {
+void BasicEngineMk1::MomentCwCommand(double value) {
     if (remaining_fuel_ > 0.0) {
         left_thruster_ = value;
         main_thruster_ = 0.0;
@@ -55,17 +57,17 @@ void BasicEngineSystem::MomentCwCommand(double value) {
     stabilization_mode_ = false;
 }
 
-void BasicEngineSystem::CancelMomentCommand() {
+void BasicEngineMk1::CancelMomentCommand() {
     StopThrusters();
 }
 
-void BasicEngineSystem::StopThrusters() {
+void BasicEngineMk1::StopThrusters() {
     main_thruster_ = 0.0;
     left_thruster_ = 0.0;
     right_thruster_ = 0.0;
 }
 
-void BasicEngineSystem::UpdateThrust() {
+void BasicEngineMk1::UpdateThrust() {
     if (platform_body_ == 0) return;
 
     double a = platform_body_->GetAngle();
@@ -89,25 +91,24 @@ void BasicEngineSystem::UpdateThrust() {
     effects_->BowThruster(torque, platform_body_->GetAngle() * 180.0 / M_PI, enginePos, platform_body_->GetLinearVelocity());
 }
 
-void BasicEngineSystem::Init(DataBus* bus) {
+void BasicEngineMk1::Init(DataBus* bus) {
 
     EngineSystemInterface::Init(bus);
 
-    DB_SUBSCRIBE(BasicEngineSystem, ShipAngularVelocity);
-    DB_SUBSCRIBE(BasicEngineSystem, SteerCommand);
-    DB_SUBSCRIBE(BasicEngineSystem, ThrottleCommand);
-    DB_SUBSCRIBE(BasicEngineSystem, StabilizeCommand);
+    DB_SUBSCRIBE(BasicEngineMk1, ShipAngularVelocity);
+    DB_SUBSCRIBE(BasicEngineMk1, SteerCommand);
+    DB_SUBSCRIBE(BasicEngineMk1, ThrottleCommand);
+    DB_SUBSCRIBE(BasicEngineMk1, StabilizeCommand);
 
     effects_ = static_cast<EffectsManager*>(OBJMGR.Get("effects"));
     assert(effects_ != 0 && "effects not defined!");
 }
 
-void BasicEngineSystem::Update(double time_step) {
-    const double fuel_consumption_rate = 0.001; // units per second
+void BasicEngineMk1::Update(double time_step) {
     if (remaining_fuel_ > 0.0) {
-        remaining_fuel_ -= time_step * fuel_consumption_rate * main_thruster_;
-        remaining_fuel_ -= time_step * fuel_consumption_rate * left_thruster_;
-        remaining_fuel_ -= time_step * fuel_consumption_rate * right_thruster_;
+        remaining_fuel_ -= time_step * kFuelConsumptionRate * main_thruster_;
+        remaining_fuel_ -= time_step * kFuelConsumptionRate * left_thruster_;
+        remaining_fuel_ -= time_step * kFuelConsumptionRate * right_thruster_;
         if (remaining_fuel_ < 0.0) {
             remaining_fuel_ = 0.0;
         }
@@ -118,15 +119,16 @@ void BasicEngineSystem::Update(double time_step) {
             bus_connection_->Publish(db_ShipFuelQty, &fuel);
         }
 
+        // TODO : Improve stabilization mode.
         if (stabilization_mode_) {
             double aav = fabs(angular_velocity_);
             if (aav > 0.001) {
                 if (angular_velocity_ > 0.0) {
                     left_thruster_ = 0.8 * aav;
-                    remaining_fuel_ -= time_step * fuel_consumption_rate * left_thruster_;
+                    remaining_fuel_ -= time_step * kFuelConsumptionRate * left_thruster_;
                 } else if(angular_velocity_ < 0.0) {
                     right_thruster_ = 0.8 * aav;
-                    remaining_fuel_ -= time_step * fuel_consumption_rate * right_thruster_;
+                    remaining_fuel_ -= time_step * kFuelConsumptionRate * right_thruster_;
                 }
             }
             else {
@@ -142,7 +144,7 @@ void BasicEngineSystem::Update(double time_step) {
     UpdateThrust();
 }
 
-double BasicEngineSystem::Refuel(double value) {
+double BasicEngineMk1::Refuel(double value) {
     double surplus_fuel;
     if (remaining_fuel_ < fuel_tank_size_) {
         if (value < fuel_tank_size_ - remaining_fuel_) {
@@ -160,7 +162,7 @@ double BasicEngineSystem::Refuel(double value) {
     return surplus_fuel;
 }
 
-double BasicEngineSystem::DumpFuel(double value) {
+double BasicEngineMk1::DumpFuel(double value) {
     double dumped_amount;
     if (remaining_fuel_ > value) {
         remaining_fuel_ -= value;
@@ -173,23 +175,23 @@ double BasicEngineSystem::DumpFuel(double value) {
     return dumped_amount;
 }
 
-double BasicEngineSystem::FuelQuery() {
+double BasicEngineMk1::FuelQuery() {
     return remaining_fuel_;
 }
 
-double BasicEngineSystem::FuelVolume() {
+double BasicEngineMk1::FuelMass() {
 
-    return kFuelVolumePerQuantity * remaining_fuel_;
+    return kFuelMassPerQuantity * remaining_fuel_;
 }
 
-void BasicEngineSystem::dbHandleShipAngularVelocity(BusDataInterface *data) {
+void BasicEngineMk1::dbHandleShipAngularVelocity(BusDataInterface *data) {
     BD_Scalar *s = static_cast<BD_Scalar *>(data);
     if (s != 0) {
         angular_velocity_ = s->value;
     }
 }
 
-void BasicEngineSystem::dbHandleSteerCommand(BusDataInterface *data) {
+void BasicEngineMk1::dbHandleSteerCommand(BusDataInterface *data) {
     BD_Scalar *s = static_cast<BD_Scalar *>(data);
     if (s == 0) return;
 
@@ -204,14 +206,14 @@ void BasicEngineSystem::dbHandleSteerCommand(BusDataInterface *data) {
     }
 }
 
-void BasicEngineSystem::dbHandleThrottleCommand(BusDataInterface *data) {
+void BasicEngineMk1::dbHandleThrottleCommand(BusDataInterface *data) {
     BD_Scalar *s = static_cast<BD_Scalar *>(data);
     if (s == 0) return;
 
     ThrustForwardsCommand(s->value);
 }
 
-void BasicEngineSystem::dbHandleStabilizeCommand(BusDataInterface *data) {  
+void BasicEngineMk1::dbHandleStabilizeCommand(BusDataInterface *data) {  
     (void)data;
     stabilization_mode_ = true;
 }

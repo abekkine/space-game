@@ -39,6 +39,12 @@ private:
     void NormalizeAngles();
 
 private:
+    // Breaking force for Box2D joints.
+    const double kBreakForce;
+    // Default surface friction (Box2D)
+    const float kDefaultSurfaceFriction;
+    // Pre-calculated ship volume/area
+    const double kVolume;
     // Body rotation angles
     // -- main body angle
     double angle_main_;
@@ -53,8 +59,6 @@ private:
     // -- right landing gear body angle
     double angle_rlg_;
 
-    // TODO : (#149) Ship mass; not used anywhere, yet.
-    double mass_;
     // NOTE : Ship material density (not used with multiple bodies)
     double density_;
 

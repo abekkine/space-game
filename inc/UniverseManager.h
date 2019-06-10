@@ -28,6 +28,7 @@ private:
     void ThreadLoop();
 
 private:
+    const int kThreadSleepDuration;
     b2World * world_;
 
     std::thread thread_;

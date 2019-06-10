@@ -11,7 +11,8 @@
 #include <GLFW/glfw3.h>
 
 UniverseManager::UniverseManager()
-: world_(0)
+: kThreadSleepDuration(10)
+, world_(0)
 , solar_system_(0)
 , space_ship_(0)
 , effects_(0)
@@ -104,7 +105,6 @@ void UniverseManager::ThreadLoop() {
             world_->Step(delta_time, 12, 6);
         }
 
-        // TODO : (#145) Also, no magic numbers (10)?
-        GameTimer::Sleep(10);
+        GameTimer::Sleep(kThreadSleepDuration);
     }
 }
