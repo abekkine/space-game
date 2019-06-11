@@ -58,7 +58,7 @@ public:
         }
         return hotas_;
     }
-    ShipSystemInterface * getSensorSystem() {
+    ShipSystemBase * getSensorSystem() {
         if (sensor_ == 0) {
             sensor_ = new BasicSensorMk1();
         }
@@ -71,7 +71,7 @@ private:
     HullSystemInterface* hull_;
     HudSystemInterface* hud_;
     HotasSystemInterface* hotas_;
-    ShipSystemInterface * sensor_;
+    ShipSystemBase * sensor_;
 };
 
 #define SYSTEMSMGR ShipSystemsManager::Instance()

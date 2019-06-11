@@ -1,7 +1,7 @@
 #ifndef HULL_SYSTEM_INTERFACE_H_
 #define HULL_SYSTEM_INTERFACE_H_
 
-#include "ShipSystemInterface.h"
+#include "ShipSystemBase.h"
 
 #include <functional>
 
@@ -10,22 +10,9 @@
 class DataBus;
 class DataBusConnection;
 
-class HullSystemInterface : public ShipSystemInterface {
+class HullSystemInterface : public ShipSystemBase {
 public:
     virtual ~HullSystemInterface() {}
-
-public:
-    virtual void Init(DataBus * bus) {
-        assert(bus != 0);
-        bus_ = bus;
-        bus_connection_ = bus_->Connect("hull");
-    }
-    virtual void Update(double time_step) {
-        (void)time_step;
-    } 
-    virtual void Disconnect() {
-        bus_->Disconnect("hull", bus_connection_);
-    }
 
 public:
     virtual double Repair(double value) = 0;

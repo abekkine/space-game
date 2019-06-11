@@ -5,14 +5,11 @@
 
 #include <math.h>
 
-BasicRadarSystem::BasicRadarSystem() {}
+BasicRadarSystem::BasicRadarSystem() {
+    name_ = "radar";
+}
 
 BasicRadarSystem::~BasicRadarSystem() {}
-
-void BasicRadarSystem::Init(DataBus * bus) {
-
-    RadarSystemInterface::Init(bus);
-}
 
 void BasicRadarSystem::Update(double time_step) {
     (void)time_step;

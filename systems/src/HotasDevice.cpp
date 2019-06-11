@@ -1,19 +1,14 @@
 #include "HotasDevice.h"
-#include "EngineSystemInterface.h"
 #include "BusDataTypes.h"
 #include "DataBus.h"
 
 HOTASDevice::HOTASDevice()
 {
+    name_ = "hotas";
     Enable();
-    ship_engine_ = 0;
 }
 
 HOTASDevice::~HOTASDevice() {
-}
-
-void HOTASDevice::Init(DataBus * bus) {
-    HotasSystemInterface::Init(bus);
 }
 
 void HOTASDevice::SetThrottle(double value) {

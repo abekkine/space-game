@@ -17,7 +17,6 @@ private:
 public:
     BasicHullSystem();
     ~BasicHullSystem();
-    void Init(DataBus * bus);
     void SetDestructionCallback(std::function<void()> cb);
     void ApplyImpact(double impulse);
     double Repair(double value);

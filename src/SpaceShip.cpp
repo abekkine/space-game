@@ -1,6 +1,6 @@
 #include "SpaceShip.h"
 #include "ShipModelInterface.h"
-#include "ShipSystemInterface.h"
+#include "ShipSystemBase.h"
 #include "BasicShipModel.h"
 #include "GameDefinitions.h"
 #include "BusDataTypes.h"

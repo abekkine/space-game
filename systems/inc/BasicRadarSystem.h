@@ -11,8 +11,6 @@ class BasicRadarSystem : public RadarSystemInterface {
 public:
     BasicRadarSystem();
     ~BasicRadarSystem();
-    // From ShipSystemInterface
-    void Init(DataBus * bus);
     void Update(double time_step);
 };
 

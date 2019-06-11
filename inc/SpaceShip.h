@@ -14,7 +14,7 @@ class RadarSystemInterface;
 class HullSystemInterface;
 class StationInterface;
 class ShipModelInterface;
-class ShipSystemInterface;
+class ShipSystemBase;
 
 class SpaceShip : public ContactInterface {
 public: // Contact interface
@@ -58,7 +58,7 @@ private:
     // -- Hull system
     HullSystemInterface * hull_;
     // -- Sensor system
-    ShipSystemInterface * sensor_;
+    ShipSystemBase * sensor_;
 
     // Landing gear up/down control variable.
     uint8_t landing_gear_state_;
