@@ -9,7 +9,6 @@
 #include "HotasSystemInterface.h"
 #include "EngineSystemInterface.h"
 #include "HudSystemInterface.h"
-#include "RadarSystemInterface.h"
 #include "HullSystemInterface.h"
 #include "ShipSystemsManager.h"
 #include "StationInterface.h"

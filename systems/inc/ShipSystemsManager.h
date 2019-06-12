@@ -1,8 +1,9 @@
 #ifndef SHIP_SYSTEMS_MANAGER_H_
 #define SHIP_SYSTEMS_MANAGER_H_
 
+#include "Singleton.hpp"
 #include "BasicEngineMk1.h"
-#include "BasicRadarSystem.h"
+#include "BasicRadarMk1.h"
 #include "BasicHullSystem.h"
 #include "HotasDevice.h"
 #include "GenericHudDevice.h"
@@ -34,9 +35,9 @@ public:
         }
         return engine_;
     }
-    RadarSystemInterface* getRadarSystem() {
+    ShipSystemBase* getRadarSystem() {
         if (radar_ == 0) {
-            radar_ = new BasicRadarSystem();
+            radar_ = new BasicRadarMk1();
         }
         return radar_;
     }
@@ -67,7 +68,7 @@ public:
 
 private:
     EngineSystemInterface* engine_;
-    RadarSystemInterface* radar_;
+    ShipSystemBase* radar_;
     HullSystemInterface* hull_;
     HudSystemInterface* hud_;
     HotasSystemInterface* hotas_;

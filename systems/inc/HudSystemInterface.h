@@ -11,6 +11,7 @@ class DataBusInterface;
 class HudSystemInterface : public ShipSystemBase {
 public:
     virtual ~HudSystemInterface() {}
+    // HuSI_01
     virtual void Render() = 0;
 };
 

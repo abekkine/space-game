@@ -13,10 +13,11 @@ class DataBusConnection;
 class HullSystemInterface : public ShipSystemBase {
 public:
     virtual ~HullSystemInterface() {}
-
-public:
+    // HlSI_01
     virtual double Repair(double value) = 0;
+    // HlSI_02
     virtual void ApplyImpact(double impulse) = 0;
+    // HlSI_03
     virtual void SetDestructionCallback(std::function<void()> cb) = 0;
 
 protected:

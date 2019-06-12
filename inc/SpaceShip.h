@@ -10,7 +10,6 @@ class DataBusConnection;
 class HudSystemInterface;
 class HotasSystemInterface;
 class EngineSystemInterface;
-class RadarSystemInterface;
 class HullSystemInterface;
 class StationInterface;
 class ShipModelInterface;
@@ -54,7 +53,7 @@ private:
     // -- Engine system
     EngineSystemInterface * engine_;
     // -- Radar system
-    RadarSystemInterface * radar_;
+    ShipSystemBase * radar_;
     // -- Hull system
     HullSystemInterface * hull_;
     // -- Sensor system

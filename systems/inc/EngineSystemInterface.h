@@ -10,11 +10,11 @@
 class EngineSystemInterface : public ShipSystemBase {
 public:
     virtual ~EngineSystemInterface() {}
-
-public:
-    // Fuel stuff
+    // ESI_01
     virtual double Refuel(double value) = 0;
+    // ESI_02
     virtual double FuelMass() = 0;
+    // ESI_03
     virtual void Mount(b2Body *body) = 0;
 };
 

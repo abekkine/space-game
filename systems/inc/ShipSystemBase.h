@@ -12,20 +12,25 @@
 class ShipSystemBase {
 public:
     virtual ~ShipSystemBase() {}
+    // SSB_01
     virtual void Enable() {
         active_ = true;
     }
+    // SSB_02
     virtual void Disable() {
         active_ = false;
     }
+    // SSB_03
     virtual void Init(DataBus* bus) {
         assert(bus != 0);
         bus_ = bus;
         bus_connection_ = bus_->Connect(name_);
     }
+    // SSB_04
     virtual void Update(double time_step) {
         (void)time_step;
     }
+    // SSB_05
     virtual void Disconnect() {
         bus_->Disconnect(name_, bus_connection_);
     }
