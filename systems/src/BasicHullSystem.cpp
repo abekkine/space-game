@@ -8,16 +8,12 @@ BasicHullSystem::BasicHullSystem()
 , kResistanceFactor(1.0)
 , kDamageThreshold(1.0)
 {
+    name_ = "hull";
     on_destroyed_ = 0;
+    integrity_ = kMaxIntegrity;
 }
 
 BasicHullSystem::~BasicHullSystem() {}
-
-void BasicHullSystem::Init(DataBus * bus) {
-    HullSystemInterface::Init(bus);
-
-    integrity_ = kMaxIntegrity;
-}
 
 void BasicHullSystem::SetDestructionCallback(std::function<void()> cb) {
     on_destroyed_ = cb;

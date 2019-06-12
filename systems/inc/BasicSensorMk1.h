@@ -1,17 +1,16 @@
 #ifndef BASIC_SENSOR_MK1_H_
 #define BASIC_SENSOR_MK1_H_
 
-#include "ShipSystemInterface.h"
+#include "ShipSystemBase.h"
 
 class ShipModelInterface;
 
-class BasicSensorMk1 : public ShipSystemInterface {
+class BasicSensorMk1 : public ShipSystemBase {
 public:
     BasicSensorMk1();
     ~BasicSensorMk1();
     void Init(DataBus * bus);
     void Update(double time_step);
-    void Disconnect();
 
 private:
     ShipModelInterface * ship_model_;

@@ -5,15 +5,16 @@
 #include <assert.h>
 
 BasicSensorMk1::BasicSensorMk1() {
+    name_ = "sensor";
 }
 
 BasicSensorMk1::~BasicSensorMk1() {
 }
 
 void BasicSensorMk1::Init(DataBus * bus) {
-    assert(bus != 0);
-    bus_ = bus;
-    bus_connection_ = bus_->Connect("sensor");
+
+    ShipSystemBase::Init(bus);
+
     ship_model_ = static_cast<ShipModelInterface *>(OBJMGR.Get("model"));
 }
 
@@ -46,8 +47,4 @@ void BasicSensorMk1::Update(double time_step) {
     // Used by HUD system.
     s_value.value = ship_model_->GetAngle();
     bus_connection_->Publish(db_ShipAngle, &s_value);
-}
-
-void BasicSensorMk1::Disconnect() {
-    bus_->Disconnect("sensor", bus_connection_);
 }

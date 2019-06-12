@@ -8,6 +8,7 @@
 #include <math.h>
 
 GenericHudDevice::GenericHudDevice() {
+    name_ = "hud";
     active_ = true;
     ship_fuel_percent_ = 0.0;
     damage_ratio_ = 1.0;
@@ -38,7 +39,7 @@ GenericHudDevice::~GenericHudDevice() {
 }
 
 void GenericHudDevice::Init(DataBus* bus) {
-    HudSystemInterface::Init(bus);
+    ShipSystemBase::Init(bus);
 
     if (bus_connection_ != 0) {
         DB_SUBSCRIBE(GenericHudDevice, ShipPosition);

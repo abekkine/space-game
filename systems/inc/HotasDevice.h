@@ -9,7 +9,6 @@ class HOTASDevice : public HotasSystemInterface {
 public:
     HOTASDevice();
     ~HOTASDevice();
-    void Init(DataBus * bus);
     void SetThrottle(double value);
     void SetSteering(double value);
     void Stabilize();

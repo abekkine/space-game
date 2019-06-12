@@ -49,6 +49,7 @@ void Background::Render(double x, double y, double angle) {
     glEnd();
 
     // Far layer.
+    // TODO : make brightness & size of far layer varying...
     region_x_base = kSpan * floor(kFarFactor * x / kSpan);
     region_y_base = kSpan * floor(kFarFactor * y / kSpan);
     glPushMatrix();
