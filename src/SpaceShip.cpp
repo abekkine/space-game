@@ -56,6 +56,7 @@ SpaceShip::SpaceShip()
 , hotas_(0)
 , engine_(0)
 , radar_(0)
+, jump_drive_(0)
 , hull_(0)
 , landing_gear_state_(0)
 , station_iface_(0)
@@ -71,6 +72,7 @@ SpaceShip::SpaceShip()
     hotas_ = SYSTEMSMGR.getHotasSystem();
     engine_ = SYSTEMSMGR.getEngineSystem();
     radar_ = SYSTEMSMGR.getRadarSystem();
+    jump_drive_ = SYSTEMSMGR.getJumpDriveSystem();
     hull_ = SYSTEMSMGR.getHullSystem();
     sensor_ = SYSTEMSMGR.getSensorSystem();
 
@@ -131,6 +133,7 @@ void SpaceShip::Init(b2World * world) {
     engine_->Mount( model_->GetEngineMount() );
 
     radar_->Init(data_bus_);
+    jump_drive_->Init(data_bus_);
 
     hud_->Init(data_bus_);
     hotas_->Init(data_bus_);
@@ -143,6 +146,7 @@ void SpaceShip::Update(double delta_time) {
     sensor_->Update(delta_time);
     engine_->Update(delta_time);
     radar_->Update(delta_time);
+    jump_drive_->Update(delta_time);
 }
 
 void SpaceShip::Render() {

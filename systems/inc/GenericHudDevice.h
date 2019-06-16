@@ -21,10 +21,12 @@ private:
     void RenderHudDial();
     void RenderShipVectors();
     void RenderRadarDetections();
+    void RenderStarDetections();
     void RenderFuelIndicator();
     void RenderDamageIndicator();
-    void RenderArc(double center_angle, double horizon_angle);
+    void RenderArc(double center_angle, double span_angle, float * dot_color, float * arc_color, double scale=1.0);
     void AddDetections(int num_detections, double* detections);
+    void AddStars(int num_detections, double* detections);
     // Handlers
     void dbHandleShipPosition(BusDataInterface *data);
     void dbHandleShipAngle(BusDataInterface *data);
@@ -33,6 +35,7 @@ private:
     void dbHandleShipThrust(BusDataInterface *data);
     void dbHandleShipFuelQty(BusDataInterface *data);
     void dbHandleDetectionList(BusDataInterface *data);
+    void dbHandleStarList(BusDataInterface *data);
     void dbHandleShipDamage(BusDataInterface *data);
 
 private:
@@ -56,6 +59,7 @@ private:
     int small_marker_size_;
     int vector_scale_;
     std::vector<DetectionObject *> detection_list_;
+    std::vector<DetectionObject *> star_list_;
 };
 
 #endif // GENERIC_HUD_DEVICE_H_

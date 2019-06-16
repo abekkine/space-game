@@ -47,15 +47,15 @@ void BasicRadarMk1::Update(double time_step) {
             detections.num_detections = num_planets_;
             detections.data = new double[2*num_planets_];
 
-            double h_angle = 0.0;
             double c_angle = 0.0;
+            double s_angle = 0.0;
             b2Vec2 d;
             for (int i=0; i<num_planets_; ++i) {
                 d = planets_[i].GetDistance(plr_x_, plr_y_);
                 c_angle = atan2(d.y, d.x);
-                h_angle = planets_[i].GetHorizonAngle(plr_x_, plr_y_);
+                s_angle = planets_[i].GetSpanAngle(plr_x_, plr_y_);
                 detections.data[2*i+0] = c_angle;
-                detections.data[2*i+1] = h_angle;
+                detections.data[2*i+1] = s_angle;
             }
             bus_connection_->Publish(db_DetectionList, &detections);
         }

@@ -29,6 +29,7 @@ GenericHudDevice::GenericHudDevice() {
     small_marker_size_ = 0;
     vector_scale_ = 0;
     detection_list_.clear();
+    star_list_.clear();
 
     bus_ = 0;
     bus_connection_ = 0;
@@ -36,6 +37,7 @@ GenericHudDevice::GenericHudDevice() {
 
 GenericHudDevice::~GenericHudDevice() {
     for (auto d : detection_list_) delete d;
+    for (auto s : star_list_) delete s;
 }
 
 void GenericHudDevice::Init(DataBus* bus) {
@@ -49,6 +51,7 @@ void GenericHudDevice::Init(DataBus* bus) {
         DB_SUBSCRIBE(GenericHudDevice, ShipThrust);
         DB_SUBSCRIBE(GenericHudDevice, ShipFuelQty);
         DB_SUBSCRIBE(GenericHudDevice, DetectionList);
+        DB_SUBSCRIBE(GenericHudDevice, StarList);
         DB_SUBSCRIBE(GenericHudDevice, ShipDamage);
     }
 
@@ -76,6 +79,7 @@ void GenericHudDevice::Render() {
     RenderHudDial();
     RenderShipVectors();
     RenderRadarDetections();
+    RenderStarDetections();
 
     glPopMatrix();
 
@@ -135,14 +139,29 @@ void GenericHudDevice::RenderShipVectors() {
 }
 void GenericHudDevice::RenderRadarDetections() {
     // Detections
+    float c_radar_dot[4] = { 1.0, 1.0, 1.0, 0.8 };
+    float c_radar_arc[4] = { 0.0, 1.0, 0.0, 0.5 };
     glPushMatrix();
     glScaled(hud_size_, hud_size_, 1.0);
     std::lock_guard<std::mutex> lock(detection_mutex_);
     for (auto d : detection_list_) {
-        RenderArc(d->center, d->horizon);
+        RenderArc(d->center, d->span, c_radar_dot, c_radar_arc);
     }
     glPopMatrix();
 }
+
+void GenericHudDevice::RenderStarDetections() {
+    // Stars
+    float s_color[4] = { 1.0, 0.0, 0.0, 0.5 };
+    glScaled(hud_size_, hud_size_, 1.0);
+    std::lock_guard<std::mutex> lock(detection_mutex_);
+    for (auto s : star_list_) {
+
+        RenderArc(s->center, 0.0, s_color, s_color, 0.98);
+    }
+    glPopMatrix();
+}
+
 void GenericHudDevice::RenderFuelIndicator() {
     int fw = 120;
     int fh = 20;
@@ -199,25 +218,31 @@ void GenericHudDevice::RenderDamageIndicator() {
 
 }
 
-void GenericHudDevice::RenderArc(double center_angle, double horizon_angle) {
-    double a_begin = (center_angle - horizon_angle);
-    double a_end = (center_angle + horizon_angle);
+void GenericHudDevice::RenderArc(
+    double center_angle, double span_angle,
+    float * dot_color, float * arc_color,
+    double scale)
+{
+    double a_begin = (center_angle - span_angle);
+    double a_end = (center_angle + span_angle);
     const double a_step = 0.01;
 
     if ((a_end - a_begin) < a_step) {
 
         glPointSize(5.0);
-        glColor4f(1.0, 1.0, 1.0, 0.8);
+        // glColor4f(1.0, 1.0, 1.0, 0.8);
+        glColor4fv(dot_color);
         glBegin(GL_POINTS);
-            glVertex2d(cos(a_begin), sin(a_begin));
+            glVertex2d(scale * cos(a_begin), scale * sin(a_begin));
         glEnd();
     }
     else {
         glLineWidth(5.0);
-        glColor4f(0.0, 1.0, 0.0, 0.5);
+        // glColor4f(0.0, 1.0, 0.0, 0.5);
+        glColor4fv(arc_color);
         glBegin(GL_LINE_STRIP);
         for (double a=a_begin; a<=a_end; a+=a_step) {
-            glVertex2d(cos(a), sin(a));
+            glVertex2d(scale * cos(a), scale * sin(a));
         }
         glEnd();
     }
@@ -234,6 +259,21 @@ void GenericHudDevice::AddDetections(int num_detections, double* detections) {
             detections[2*i + 1]
         );
         detection_list_.push_back(d);
+    }
+    delete [] detections;
+}
+
+void GenericHudDevice::AddStars(int num_detections, double* detections) {
+    std::lock_guard<std::mutex> lock(detection_mutex_);
+    for (auto s : star_list_) delete s;
+    star_list_.clear();
+    DetectionObject * d = 0;
+    for (int i=0; i<num_detections; ++i) {
+        d = new DetectionObject(
+            detections[4*i + 0],
+            0.0
+        );
+        star_list_.push_back(d);
     }
     delete [] detections;
 }
@@ -288,6 +328,13 @@ void GenericHudDevice::dbHandleDetectionList(BusDataInterface *data) {
     BD_RadarDetectionList *d = static_cast<BD_RadarDetectionList *>(data);
     if (d != 0) {
         AddDetections(d->num_detections, d->data);
+    }
+}
+
+void GenericHudDevice::dbHandleStarList(BusDataInterface * data) {
+    BD_StarDetectionList *d = static_cast<BD_StarDetectionList *>(data);
+    if (d != 0) {
+        AddStars(d->num_detections, d->data);
     }
 }
 

@@ -19,7 +19,7 @@ private:
     double speed_scale_;
     EffectsManager* effects_;
     Background* background_;
-    UniverseManager* universe_;
+    UniverseManager* universe_mgr_;
     SpaceShip* ship_;
 
 public:

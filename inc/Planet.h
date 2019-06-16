@@ -23,7 +23,7 @@ public:
     void SetStation();
     b2Vec2 GetGravityAcceleration(b2Vec2 pos);
     b2Vec2 GetDistance(double x, double y);
-    double GetHorizonAngle(double x, double y);
+    double GetSpanAngle(double x, double y);
     void Init(b2World * world);
     void Update();
     void Render();
