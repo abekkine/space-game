@@ -12,6 +12,7 @@ class SolarSystemInterface;
 class SpaceShip;
 class EffectsManager;
 class CollisionHandler;
+class UniverseInterface;
 
 class UniverseManager {
 public:
@@ -40,6 +41,8 @@ private:
 
     GameTimer timer_;
     bool quit_;
+
+    UniverseInterface * universe_;
 };
 
 #endif  // UNIVERSE_MANAGER_H_

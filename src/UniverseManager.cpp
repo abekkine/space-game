@@ -7,6 +7,10 @@
 #include "ObjectManager.h"
 #include "CollisionHandler.h"
 #include "GameTimer.hpp"
+#include "UniverseInterface.h"
+#include "Universe.h"
+
+#include <iostream>
 
 #include <GLFW/glfw3.h>
 
@@ -72,6 +76,10 @@ void UniverseManager::Init() {
 
     // Initialize timer.
     timer_.Init();
+
+    // TODO : adding universe
+    universe_ = new Universe();
+    OBJMGR.Set("universe", universe_);
 }
 
 void UniverseManager::Run() {

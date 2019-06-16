@@ -4,6 +4,12 @@
 #include "DataBus.h"
 #include "Display.h"
 
+// DEBUG : Universe integration
+#include "UniverseInterface.h"
+#include "ObjectManager.h"
+#include <iostream>
+// END
+
 #include <GLFW/glfw3.h>
 #include <math.h>
 
@@ -76,6 +82,25 @@ void GenericHudDevice::Render() {
     RenderHudDial();
     RenderShipVectors();
     RenderRadarDetections();
+
+    // TODO : Universe integration
+    {
+        static StarCollectionType stars;
+        UniverseInterface * universe = static_cast<UniverseInterface *>(OBJMGR.Get("universe"));
+        if (universe != 0) {
+            double x, y;
+            universe->GetStars(0.0, 0.0, 10.0, stars);
+            glPointSize(5.0);
+            glColor3f(1.0, 0.0, 0.0);
+            glBegin(GL_POINTS);
+            for (auto s : stars) {
+                s->GetPosition(x, y);
+                // std::cout << x << ", " << y << '\n';
+                glVertex2d(100.0 * x, 100.0 * y);
+            }
+            glEnd();
+        }
+    }
 
     glPopMatrix();
 

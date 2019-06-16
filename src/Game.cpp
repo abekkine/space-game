@@ -33,7 +33,7 @@ void Game::Init(int argc, char * argv[]) {
     // Start universe thread.
     universe_mgr_ = new UniverseManager();
     universe_mgr_->Init();
-    OBJMGR.Set("universe", universe_mgr_);
+    OBJMGR.Set("uni_mgr", universe_mgr_);
 
     menu_ = new Menu();
     menu_->Init();

@@ -30,7 +30,7 @@ void GamePlay::Init() {
     ship_ = static_cast<SpaceShip*>(OBJMGR.Get("ship"));
     assert(ship_ != 0 && "ship not defined!");
 
-    universe_ = static_cast<UniverseManager*>(OBJMGR.Get("universe"));
+    universe_ = static_cast<UniverseManager*>(OBJMGR.Get("uni_mgr"));
     assert(universe_ != 0 && "universe not defined!");
 
     effects_ = static_cast<EffectsManager *>(OBJMGR.Get("effects"));
