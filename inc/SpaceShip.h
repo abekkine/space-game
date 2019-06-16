@@ -54,6 +54,8 @@ private:
     EngineSystemInterface * engine_;
     // -- Radar system
     ShipSystemBase * radar_;
+    // -- Jump drive
+    ShipSystemBase * jump_drive_;
     // -- Hull system
     HullSystemInterface * hull_;
     // -- Sensor system

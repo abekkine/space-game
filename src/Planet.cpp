@@ -124,7 +124,7 @@ b2Vec2 Planet::GetDistance(double x, double y) {
     return b2Vec2(x_ - x, y_ - y);
 }
 
-double Planet::GetHorizonAngle(double x, double y) {
+double Planet::GetSpanAngle(double x, double y) {
     b2Vec2 d(x_ - x, y_ - y);
     double sint = radius_ / d.Length();
     double t = asin(sint);

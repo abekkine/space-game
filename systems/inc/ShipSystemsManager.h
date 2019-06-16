@@ -4,6 +4,7 @@
 #include "Singleton.hpp"
 #include "BasicEngineMk1.h"
 #include "BasicRadarMk1.h"
+#include "BasicJumpDriveMk1.h"
 #include "BasicHullSystem.h"
 #include "HotasDevice.h"
 #include "GenericHudDevice.h"
@@ -14,6 +15,7 @@ public:
     explicit ShipSystemsManager(token)
     : engine_(0)
     , radar_(0)
+    , jump_drive_(0)
     , hull_(0)
     , hud_(0)
     , hotas_(0)
@@ -24,6 +26,7 @@ public:
     void Destroy() {
         delete engine_;
         delete radar_;
+        delete jump_drive_;
         delete hud_;
         delete hull_;
         delete hotas_;
@@ -40,6 +43,13 @@ public:
             radar_ = new BasicRadarMk1();
         }
         return radar_;
+    }
+    ShipSystemBase* getJumpDriveSystem() {
+        if (jump_drive_ == 0) {
+            jump_drive_ = new BasicJumpDriveMk1();
+        }
+
+        return jump_drive_;
     }
     HullSystemInterface* getHullSystem() {
         if (hull_ == 0) {
@@ -69,6 +79,7 @@ public:
 private:
     EngineSystemInterface* engine_;
     ShipSystemBase* radar_;
+    ShipSystemBase* jump_drive_;
     HullSystemInterface* hull_;
     HudSystemInterface* hud_;
     HotasSystemInterface* hotas_;

@@ -11,6 +11,7 @@ enum DataChannel {
     db_ShipGravity,
     db_ShipFuelQty,
     db_DetectionList,
+    db_StarList,
     db_ShipDamage,
     db_ThrottleCommand,
     db_SteerCommand,
@@ -36,15 +37,21 @@ struct BD_BasicPosition : public BusDataInterface {
     double angle;
 };
 
-// data[ 0] -> center, data[   1] -> horizon,
-// data[ 2] -> center, data[   3] -> horizon,
+// data[ 0] -> center, data[   1] -> span,
+// data[ 2] -> center, data[   3] -> span,
 // ...
-// data[2n] -> center, data[2n+1] -> horizon 
+// data[2n] -> center, data[2n+1] -> span
 // num_detections = 2(n+1)
 struct BD_RadarDetectionList : public BusDataInterface {
     int num_detections;
     double *data;
 };
 
+// data[ 4 * i + 0   ] -> center
+// data[ 4 * i + 1-3 ] -> colors r, g, b
+struct BD_StarDetectionList : public BusDataInterface {
+    int num_detections;
+    double *data;
+};
 
 #endif // BUS_DATA_TYPES_H_

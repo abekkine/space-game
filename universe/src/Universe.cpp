@@ -2,7 +2,6 @@
 
 #include <math.h>
 
-#include <iostream>
 #include <random>
 
 extern StarCategory star_categories_[e_NUM_CATEGORIES];
@@ -145,7 +144,6 @@ void Universe::GetStars(
         }
 
         if (update_stars == false) {
-            std::cout << '\n';
             return;
         }
     }

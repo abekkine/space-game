@@ -9,8 +9,8 @@ OBJS=$(SRCS:%.cpp=%.o)
 # Flags
 CXXFLAGS  = -std=c++11
 CXXFLAGS += -g
-#CXXFLAGS += -Wall
-#CXXFLAGS += -Wextra
+# CXXFLAGS += -Wall
+# CXXFLAGS += -Wextra
 CXXFLAGS += -Werror
 CXXFLAGS += -Wfatal-errors
 CXXFLAGS += -I.

@@ -2,11 +2,11 @@
 #define DETECTION_OBJECT_H_
 
 struct DetectionObject {
-    DetectionObject(double c, double h)
+    DetectionObject(double c, double s)
     : center(c)
-    , horizon(h)
+    , span(s)
     {}
-    double center, horizon;
+    double center, span;
 };
 
 #endif // DETECTION_OBJECT_H_

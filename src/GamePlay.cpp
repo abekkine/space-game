@@ -30,8 +30,8 @@ void GamePlay::Init() {
     ship_ = static_cast<SpaceShip*>(OBJMGR.Get("ship"));
     assert(ship_ != 0 && "ship not defined!");
 
-    universe_ = static_cast<UniverseManager*>(OBJMGR.Get("uni_mgr"));
-    assert(universe_ != 0 && "universe not defined!");
+    universe_mgr_ = static_cast<UniverseManager*>(OBJMGR.Get("universe_manager"));
+    assert(universe_mgr_ != 0 && "universe not defined!");
 
     effects_ = static_cast<EffectsManager *>(OBJMGR.Get("effects"));
     assert(effects_ != 0 && "effects not defined!");
@@ -60,7 +60,7 @@ void GamePlay::Render() {
     glTranslated(-ship_x_, -ship_y_, 0.0);
 
     background_->Render(ship_x_, ship_y_, ship_angle_);
-    universe_->Render();
+    universe_mgr_->Render();
     effects_->Render();
 
     glPopMatrix();

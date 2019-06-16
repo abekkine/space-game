@@ -66,6 +66,8 @@ void UniverseManager::Init() {
     solar_system_ = SolarSystemFactory::getTestingSystem();
     solar_system_->Init(world_);
     OBJMGR.Set("solar", solar_system_);
+    universe_ = new Universe();
+    OBJMGR.Set("universe", universe_);
 
     // Player creation
     space_ship_->Init(world_);
@@ -76,10 +78,6 @@ void UniverseManager::Init() {
 
     // Initialize timer.
     timer_.Init();
-
-    // TODO : adding universe
-    universe_ = new Universe();
-    OBJMGR.Set("universe", universe_);
 }
 
 void UniverseManager::Run() {
