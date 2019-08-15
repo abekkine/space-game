@@ -22,7 +22,8 @@ public:
         params_ = params;
     }
     void Init() {
-        sock_ = CommFactory::getUdpSocket(3201, -1, "");  
+        // sock_ = CommFactory::getUdpSocket(3201, -1, "");
+        sock_ = CommFactory::getSharedMemory("unitest", 256);
     }
 
     void Update() {

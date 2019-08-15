@@ -19,6 +19,7 @@ LIBS  =
 LIBS += -lGL
 LIBS += -lglut
 LIBS += -limgui
+LIBS += -lrt
 
 all: $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(LIBS)

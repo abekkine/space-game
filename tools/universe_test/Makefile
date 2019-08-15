@@ -7,7 +7,7 @@ CXXFLAGS += -Werror -Wfatal-errors
 CXXFLAGS += -I/usr/include/freetype2
 CXXFLAGS += -I../../utility/inc
 CXXFLAGS += -I../../universe/inc
-LIBS=-lglut -lGLU -lGL -lftgl
+LIBS=-lglut -lGLU -lGL -lftgl -lrt
 
 all: $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(LIBS)

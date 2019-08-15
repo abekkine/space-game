@@ -119,7 +119,8 @@ int main(int argc, char ** argv) {
 
     gettimeofday(&t0, 0);
 
-    sock = CommFactory::getUdpSocket(-1, 3201, "127.0.0.1");
+    // sock = CommFactory::getUdpSocket(-1, 3201, "127.0.0.1");
+    sock = CommFactory::getSharedMemory("unitest", 256);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_MULTISAMPLE);

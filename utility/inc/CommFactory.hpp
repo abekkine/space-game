@@ -3,6 +3,7 @@
 
 #include "CommInterface.h"
 #include "UdpSocket.hpp"
+#include "SharedMemory.hpp"
 
 class CommFactory {
 public:
@@ -15,9 +16,18 @@ public:
         CommInterface * com = new UdpSocket();
         if (com->Init(&s)) {
             return com;
-        } else {
-            return 0;
         }
+        return 0;
+    }
+    static CommInterface * getSharedMemory(const std::string name, int size) {
+        SharedMemSettings s;
+        s.name = name;
+        s.size = size;
+        CommInterface * com = new SharedMemory();
+        if (com->Init(&s)) {
+            return com;
+        }
+        return 0;
     }
 };
 
