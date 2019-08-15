@@ -7,12 +7,15 @@
 #include "StarInterface.h"
 #include "StarInfo.h"
 
+#include "PerlinNoise.hpp"
+
 #include <vector>
-#include <noise.h>
 
 class Universe : public UniverseInterface {
 public:
     void GetStars(const double & centerX, const double & centerY, const double & distance, StarCollectionType & stars);
+    void Save();
+    void Load();
 
 private:
     enum ExtentIndexEnum {
@@ -23,31 +26,10 @@ private:
     };
     int32_t extent_indexes_[2 * eiMAX];
 
-public: // setters
-    void setOctaveCount(const double & value);
-    double getOctaveCount();
-    void setFrequency(const double & value);
-    double getFrequency();
-    void setStepSize(const double & value);
-    double getStepSize();
-    void setXPosition(const double & value);
-    double getXPosition();
-    void setYPosition(const double & value);
-    double getYPosition();
-    void setMinValue(const double & value);
-    double getMinValue();
-    void setZIndex(const double & value);
-    double getZIndex();
-
 public:
     Universe();
     ~Universe();
-    void GetParameters(UniverseParameters & params) {
-        params = m_params;
-    }
-    void SetOctaveCount();
-
-    UniverseParameters * getUniverseParams() {
+    UniverseParameters * GetParameters() {
         return &m_params;
     }
 
@@ -57,14 +39,11 @@ private:
     bool GenerateStarAt(const double & x, const double & y, StarInfo * p);
 
 private:
-    noise::module::Perlin m_noise;
-    // noise::module::Billow m_noise;
-    // noise::module::RidgedMulti m_noise;
+    siv::PerlinNoise * m_noise;
     StarCollectionType m_stars;
     // Input parameters
     UniverseParameters m_params;
     // Force star generation after parameter update
-    bool force_update_;
 };
 
 #endif // UNIVERSE_H

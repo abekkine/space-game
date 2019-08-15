@@ -2,84 +2,24 @@
 
 #include <math.h>
 
+#include <iostream>
 #include <random>
 
 extern StarCategory star_categories_[e_NUM_CATEGORIES];
 
 Universe::Universe() {
 
-    force_update_ = false;
+    m_noise = new siv::PerlinNoise(123U);
 
     for (int i=0; i<eiMAX; ++i) {
         extent_indexes_[(i << 1) + 0] = 0;
         extent_indexes_[(i << 1) + 1] = 0;
     }
 
-    m_noise.SetOctaveCount(m_params.octaveCount);
-    m_noise.SetFrequency(m_params.frequency);
-    // m_noise.SetPersistence(0.02);
-
     UpdateCategoryIndex();
 }
 
 Universe::~Universe() {}
-
-void Universe::setOctaveCount(const double & value) {
-    m_params.octaveCount = 1 + static_cast<int>(7.0 * value);
-    m_noise.SetOctaveCount(m_params.octaveCount);
-    force_update_ = true;
-}
-double Universe::getOctaveCount() {
-    return ((double)m_params.octaveCount - 1.0) / 7.0;
-}
-
-void Universe::setFrequency(const double & value) {
-    m_params.frequency = (value * 15.9) + 0.1;
-    m_noise.SetFrequency(m_params.frequency);
-    force_update_ = true;
-}
-double Universe::getFrequency() {
-    return ((m_params.frequency - 0.1) / 15.9);
-}
-
-void Universe::setStepSize(const double & value) {
-    m_params.stepSize = 0.05 + value * 19.95;
-    force_update_ = true;
-}
-double Universe::getStepSize() {
-    return ((m_params.stepSize - 0.05) / 19.95);
-}
-
-void Universe::setXPosition(const double & value) {
-    m_params.x = value * 40.0 - 20.0;
-    force_update_ = true;
-}
-double Universe::getXPosition() {
-    return ((m_params.x + 20.0) / 40.0);
-}
-
-void Universe::setYPosition(const double & value) {
-    m_params.y = value * 40.0 - 20.0;
-    force_update_ = true;
-}
-double Universe::getYPosition() {
-    return ((m_params.y + 20.0) / 40.0);
-}
-
-void Universe::setMinValue(const double & value) {
-    m_params.minValue = value * 0.9;
-    force_update_ = true;
-}
-double Universe::getMinValue() {
-    return (m_params.minValue / 0.9);
-}
-void Universe::setZIndex(const double & value) {
-    m_params.zIndex = value * 20.0 - 10.0;
-    force_update_ = true;
-}
-double Universe::getZIndex() {
-    return ((m_params.zIndex + 10.0)/20.0);
-}
 
 void Universe::UpdateCategoryIndex() {
 #ifndef USE_REAL_ABUNDANCES
@@ -99,9 +39,9 @@ bool Universe::GenerateStarAt(const double & x, const double & y, StarInfo * p) 
     std::mt19937 gen(1000000.0 * p->seed);
     std::uniform_real_distribution<> dis(-1.0, 1.0);
     int category_index;
-    float color_deviation = m_noise.GetValue(x, y, 19.781) * 0.2;
-    p->x = x + m_params.stepSize * dis(gen);
-    p->y = y + m_params.stepSize * dis(gen);
+
+    p->x = x + m_params.stepSize.value * dis(gen);
+    p->y = y + m_params.stepSize.value * dis(gen);
     category_index = GetCategoryIndex(p->seed);
     double rMin = star_categories_[category_index].minRadius;
     double rMax = star_categories_[category_index].maxRadius;
@@ -112,7 +52,6 @@ bool Universe::GenerateStarAt(const double & x, const double & y, StarInfo * p) 
     p->cat_name = star_categories_[category_index].name;
     p->cat_type = star_categories_[category_index].type;
     p->color_ptr = star_categories_[category_index].baseColor;
-    p->color_dev = color_deviation;
 }
 
 void Universe::GetStars(
@@ -121,12 +60,9 @@ void Universe::GetStars(
     const double & distance,
     StarCollectionType & stars) {
 
-    const double ds = m_params.stepSize;
+    const double ds = m_params.stepSize.value;
 
-    if (force_update_) {
-        force_update_ = false;
-    }
-    else {
+    if (!m_params.CheckUpdate()) {
         extent_indexes_[eiSize] = static_cast<int32_t>(floor(0.5 * distance / ds));
         extent_indexes_[eiBaseX] = static_cast<int>(floor(centerX/ds));
         extent_indexes_[eiBaseY] = static_cast<int>(floor(centerY/ds));
@@ -158,19 +94,19 @@ void Universe::GetStars(
     }
 
     m_stars.clear();
+    double f = frame_size / m_params.frequency.value;
     for (double dx=-frame_size; dx<frame_size; dx+=ds) {
         for (double dy=-frame_size; dy<frame_size; dy+=ds) {
             double x = base_x + dx;
             double y = base_y + dy;
-            double value = m_noise.GetValue(x, y, m_params.zIndex);
-            if (value >= -0.5 && value <= 0.5) {
-                value += 0.5;
-                if (value > m_params.minValue) {
-                    StarInfo * p = new StarInfo();
-                    p->seed = value;
-                    GenerateStarAt(x, y, p);
-                    m_stars.push_back(p);
-                }
+
+            double value = m_noise->octaveNoise0_1(x, y, m_params.zIndex.value, m_params.octaveCount.value);
+
+            if (value > m_params.minValue.value) {
+                StarInfo * p = new StarInfo();
+                p->seed = value / (1.0 - m_params.minValue.value);
+                GenerateStarAt(x, y, p);
+                m_stars.push_back(p);
             }
         }
     }
@@ -187,4 +123,12 @@ int Universe::GetCategoryIndex(double value) {
         }
     }
     return ix;
+}
+
+void Universe::Save() {
+    m_params.Save();
+}
+
+void Universe::Load() {
+    m_params.Load();
 }
