@@ -16,6 +16,9 @@ public:
     void GetStars(const double & centerX, const double & centerY, const double & distance, StarCollectionType & stars);
     void Save();
     void Load();
+    void * GetParameters() {
+        return (void *)&m_params;
+    }
 
 private:
     enum ExtentIndexEnum {
@@ -29,9 +32,6 @@ private:
 public:
     Universe();
     ~Universe();
-    UniverseParameters * GetParameters() {
-        return &m_params;
-    }
 
 private:
     void UpdateCategoryIndex();

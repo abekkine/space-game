@@ -7,8 +7,9 @@
 #include "ObjectManager.h"
 #include "CollisionHandler.h"
 #include "GameTimer.hpp"
-#include "UniverseInterface.h"
-#include "Universe.h"
+// #include "UniverseInterface.h"
+// #include "Universe.h"
+#include "UniverseFactory.hpp"
 
 #include <iostream>
 
@@ -66,7 +67,7 @@ void UniverseManager::Init() {
     solar_system_ = SolarSystemFactory::getTestingSystem();
     solar_system_->Init(world_);
     OBJMGR.Set("solar", solar_system_);
-    universe_ = new Universe();
+    universe_ = UniverseFactory::getUniverse("norm");
     OBJMGR.Set("universe", universe_);
 
     // Player creation

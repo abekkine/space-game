@@ -5,7 +5,7 @@
 #include "ParameterControl.hpp"
 #include "TextRendererFactory.hpp"
 #include "StarInterface.h"
-#include "Universe.h"
+#include "UniverseFactory.hpp"
 
 #include <GL/glut.h>
 #include <math.h>
@@ -35,7 +35,7 @@ static const int MAX_BUFFER = 1024;
 Viewport vp_;
 
 // -- universe
-Universe * universe_ = 0;
+UniverseInterface * universe_ = 0;
 
 // -- parameter value controller
 ParameterControl control_;
@@ -104,6 +104,7 @@ void render_world() {
         for (auto p : stars_) {
             p->GetPosition(x, y);
             logSize = 1.0 + log(8.0 * p->GetRadius()) / log(2);
+            if (logSize <= 0.0) logSize = 1.0;
             glPointSize(logSize);
             glBegin(GL_POINTS);
             glColor3fv(p->GetColor());
@@ -246,7 +247,7 @@ void update_selection() {
 
 void init_application() {
 
-    universe_ = new Universe();
+    universe_ = UniverseFactory::getUniverse("norm");
 
     text_ = TextRendererFactory::getTextRenderer();
     text_->AddFont(2, "ubuntu_mono.ttf");
@@ -268,7 +269,7 @@ void init_application() {
         wheel_up
     );
 
-    control_.SetParameters(universe_->GetParameters());
+    control_.SetParameters((UniverseParameters *)universe_->GetParameters());
     control_.Init();
 }
 
