@@ -4,7 +4,7 @@
 #include "Menu.h"
 #include "UniverseManager.h"
 #include "ObjectManager.h"
-#include "GameTimer.hpp"
+#include "Timer.hpp"
 
 Game::Game()
 : kGameLoopSleepDuration(10)
@@ -66,7 +66,7 @@ void Game::Run() {
 
         DISPLAY.PostRender();
 
-        GameTimer::Sleep(kGameLoopSleepDuration);
+        Timer::Sleep(kGameLoopSleepDuration);
     }
 
     universe_mgr_->Exit();

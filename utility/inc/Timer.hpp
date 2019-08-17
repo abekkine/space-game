@@ -1,12 +1,12 @@
-#ifndef GAME_TIMER_H_
-#define GAME_TIMER_H_
+#ifndef TIMER_H_
+#define TIMER_H_
 
 #include <thread>
 
-class GameTimer {
+class Timer {
 public:
-    GameTimer() {}
-    ~GameTimer() {}
+    Timer() {}
+    ~Timer() {}
     void Init() {
         t_begin_ = std::chrono::steady_clock::now();
         t_end_ = t_begin_;
@@ -27,5 +27,5 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> t_end_;
 };
 
-#endif // GAME_TIMER_H_
+#endif // TIMER_H_
 

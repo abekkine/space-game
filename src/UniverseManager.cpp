@@ -6,7 +6,7 @@
 #include "EffectsManager.h"
 #include "ObjectManager.h"
 #include "CollisionHandler.h"
-#include "GameTimer.hpp"
+#include "Timer.hpp"
 // #include "UniverseInterface.h"
 // #include "Universe.h"
 #include "UniverseFactory.hpp"
@@ -112,6 +112,6 @@ void UniverseManager::ThreadLoop() {
             world_->Step(delta_time, 12, 6);
         }
 
-        GameTimer::Sleep(kThreadSleepDuration);
+        Timer::Sleep(kThreadSleepDuration);
     }
 }

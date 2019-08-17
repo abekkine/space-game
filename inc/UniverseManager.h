@@ -2,7 +2,7 @@
 #define UNIVERSE_MANAGER_H_
 
 #include "GameDefinitions.h"
-#include "GameTimer.hpp"
+#include "Timer.hpp"
 
 #include <Box2D.h>
 
@@ -39,7 +39,7 @@ private:
     CollisionHandler * collision_handler_;
     GameDefinitions::GameStateEnum state_;
 
-    GameTimer timer_;
+    Timer timer_;
     bool quit_;
 
     UniverseInterface * universe_;

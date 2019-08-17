@@ -17,6 +17,7 @@ CXXFLAGS += -I.
 CXXFLAGS += -I./inc
 CXXFLAGS += -I./systems/inc
 CXXFLAGS += -I./universe/inc
+CXXFLAGS += -I./utility/inc
 CXXFLAGS += -I./3rd-party
 CXXFLAGS += -I/usr/include/SDL
 CXXFLAGS += -I/usr/include/libnoise

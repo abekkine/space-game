@@ -6,6 +6,7 @@
 #include "TextRendererFactory.hpp"
 #include "StarInterface.h"
 #include "UniverseFactory.hpp"
+#include "Timer.hpp"
 
 #include <memory>
 
@@ -43,6 +44,8 @@ ParameterControl control_;
 
 // -- text
 TextRendererInterface * text_ = 0;
+
+void update_universe();
 
 void right_mouse_down() {
     vp_.PanStart(cursor_);
@@ -107,10 +110,10 @@ void render_world() {
     // TestPattern::World();
     if (universe_ == 0) return;
 
-    WorldPosition center;
-    vp_.GetCenter(center);
-    double size = vp_.GetSize();
-    universe_->UpdateStars(center.x, center.y, size);
+    // WorldPosition center;
+    // vp_.GetCenter(center);
+    // double size = vp_.GetSize();
+    // universe_->UpdateStars(center.x, center.y, size);
     stars_->RunOperation(star_renderer_function);
     render_selection();
 }
@@ -219,10 +222,14 @@ void render_ui() {
     render_star_info();
 }
 
-
-
-void update_selection() {
+void update_universe() {
+    WorldPosition center;
     WorldPosition w_cursor_position;
+
+    vp_.GetCenter(center);
+    double size = vp_.GetSize();
+    universe_->UpdateStars(center.x, center.y, size);
+
     vp_.GetWorldForCursor(cursor_, w_cursor_position);
     const double vicinity = 5.0 * vp_.GetPixelSize();
     selected_star_ = stars_->GetSelection(w_cursor_position.x, w_cursor_position.y, vicinity);
@@ -291,8 +298,21 @@ namespace display {
         glutPostRedisplay();
     }
 
+    Timer updateTimer;
+    double ut_avg = 0.0;
+    int ut_count = 0;
     void update() {
         control_.Update();
+        updateTimer.Init();
+        update_universe();
+        ut_avg += updateTimer.GetElapsed();
+        ++ut_count;
+        if (ut_count >= 100) {
+            std::cout << ut_avg << " -- " << ut_count << '\n';
+            ut_avg = 0.0;
+            ut_count = 0;
+        }
+        Timer::Sleep(50);
     }
 
     void keyboard(unsigned char key, int x, int y) {
@@ -318,9 +338,8 @@ namespace display {
     void motion(int x, int y) {
         cursor_.Set(x, y);
 
-        update_selection();
-
         vp_.UpdateCursor(cursor_);
+        update_universe();
     }
 
     void mouse(int button, int state, int x, int y) {
