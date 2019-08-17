@@ -6,14 +6,14 @@
 #include "StarCategory.h"
 #include "StarInterface.h"
 #include "StarInfo.h"
+#include "StarCollection.hpp"
 
 #include "PerlinNoise.hpp"
 
-#include <vector>
-
 class Universe : public UniverseInterface {
 public:
-    void GetStars(const double & centerX, const double & centerY, const double & distance, StarCollectionType & stars);
+    std::shared_ptr<StarCollection> GetStars();
+    void UpdateStars(const double & centerX, const double & centerY, const double & distance);
     void Save();
     void Load();
     void * GetParameters() {
@@ -40,10 +40,10 @@ private:
 
 private:
     siv::PerlinNoise * m_noise;
-    StarCollectionType m_stars;
     // Input parameters
     UniverseParameters m_params;
     // Force star generation after parameter update
+    std::shared_ptr<StarCollection> m_stars;
 };
 
 #endif // UNIVERSE_H

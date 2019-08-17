@@ -7,19 +7,20 @@
 #include "StarInterface.h"
 #include "UniverseFactory.hpp"
 
+#include <memory>
+
 #include <GL/glut.h>
 #include <math.h>
 
 // Variables
 // -- stars from universe
-StarCollectionType stars_;
+std::shared_ptr<StarCollection> stars_;
 
 // -- cursor position
 ScreenPosition cursor_;
 
 // -- selection
-StarInterface * selected_star_ = 0;
-bool selected_;
+std::shared_ptr<StarInterface> selected_star_ = nullptr;
 
 // -- mouse button & state
 ButtonProcessor right_mouse_processor_;
@@ -75,7 +76,7 @@ void wheel_up() {
 
 void render_selection() {
 
-    if (!selected_) {
+    if (selected_star_ == nullptr) {
         return;
     }
 
@@ -89,6 +90,19 @@ void render_selection() {
     glEnd();
 }
 
+void star_renderer_function(std::shared_ptr<StarInterface> s) {
+    double x, y;
+    double logSize;
+    s->GetPosition(x, y);
+    logSize = 1.0 + log(8.0 * s->GetRadius()) / log(2.0);
+    if (logSize <= 0.0) logSize = 1.0;
+    glPointSize(logSize);
+    glBegin(GL_POINTS);
+    glColor3fv(s->GetColor());
+    glVertex2d(x, y);
+    glEnd();
+}
+
 void render_world() {
     // TestPattern::World();
     if (universe_ == 0) return;
@@ -96,23 +110,9 @@ void render_world() {
     WorldPosition center;
     vp_.GetCenter(center);
     double size = vp_.GetSize();
-    universe_->GetStars(center.x, center.y, size, stars_);
-    if (! stars_.empty()) {
-
-        double x, y;
-        double logSize;
-        for (auto p : stars_) {
-            p->GetPosition(x, y);
-            logSize = 1.0 + log(8.0 * p->GetRadius()) / log(2);
-            if (logSize <= 0.0) logSize = 1.0;
-            glPointSize(logSize);
-            glBegin(GL_POINTS);
-            glColor3fv(p->GetColor());
-            glVertex2d(x, y);
-            glEnd();
-        }
-        render_selection();
-    }
+    universe_->UpdateStars(center.x, center.y, size);
+    stars_->RunOperation(star_renderer_function);
+    render_selection();
 }
 
 void render_position_info() {
@@ -193,7 +193,7 @@ void render_star_info() {
 
     glRasterPos2i(tx, ty); ty += ts;
     text_->Print("Star Info");
-    if (selected_) {
+    if (selected_star_ != nullptr) {
         glRasterPos2i(tx, ty); ty += ts;
         text_->Print("%s [%s]"
             , selected_star_->GetName().c_str()
@@ -219,35 +219,20 @@ void render_ui() {
     render_star_info();
 }
 
-double distance_square(const WorldPosition & p1, const WorldPosition & p2) {
-    const double dx = p1.x - p2.x;
-    const double dy = p1.y - p2.y;
 
-    return sqrt(dx*dx + dy*dy);
-}
 
 void update_selection() {
-
     WorldPosition w_cursor_position;
     vp_.GetWorldForCursor(cursor_, w_cursor_position);
-
-    selected_ = false;
-    for (auto s : stars_) {
-
-        double sx, sy;
-        s->GetPosition(sx, sy);
-        const double distance = distance_square(w_cursor_position, WorldPosition(sx, sy));
-        if (distance < (5.0 * vp_.GetPixelSize())) {
-            selected_star_ = s;
-            selected_ = true;
-            break;
-        }
-    }
+    const double vicinity = 5.0 * vp_.GetPixelSize();
+    selected_star_ = stars_->GetSelection(w_cursor_position.x, w_cursor_position.y, vicinity);
 }
 
 void init_application() {
 
-    universe_ = UniverseFactory::getUniverse("norm");
+    //universe_ = UniverseFactory::getUniverse("norm");
+    universe_ = UniverseFactory::getUniverse("v2");
+    stars_ = universe_->GetStars();
 
     text_ = TextRendererFactory::getTextRenderer();
     text_->AddFont(2, "ubuntu_mono.ttf");

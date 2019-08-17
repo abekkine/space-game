@@ -1,9 +1,9 @@
 #include "Universe.h"
 
-#include <math.h>
-
 #include <iostream>
 #include <random>
+
+#include <math.h>
 
 extern StarCategory star_categories_[e_NUM_CATEGORIES];
 
@@ -17,6 +17,8 @@ Universe::Universe() {
     }
 
     UpdateCategoryIndex();
+
+    m_stars.reset(new StarCollection());
 }
 
 Universe::~Universe() {}
@@ -35,33 +37,35 @@ void Universe::UpdateCategoryIndex() {
 #endif // USE_REAL_ABUNDANCES
 }
 
-bool Universe::GenerateStarAt(const double & x, const double & y, StarInfo * p) {
-    std::mt19937 gen(1000000.0 * p->seed);
-    std::uniform_real_distribution<> dis(-1.0, 1.0);
-    int category_index;
+// bool Universe::GenerateStarAt(const double & x, const double & y, StarInfo * p) {
+//     std::mt19937 gen(1000000.0 * p->seed);
+//     std::uniform_real_distribution<> dis(-1.0, 1.0);
+//     int category_index;
 
-    p->x = x + m_params.stepSize.value * dis(gen);
-    p->y = y + m_params.stepSize.value * dis(gen);
-    category_index = GetCategoryIndex(p->seed);
-    double rMin = star_categories_[category_index].minRadius;
-    double rMax = star_categories_[category_index].maxRadius;
-    double mMin = star_categories_[category_index].minMass;
-    double mMax = star_categories_[category_index].maxMass;
-    p->radius = 0.01 * 0.5 * (rMax + rMin + dis(gen) * (rMax - rMin));
-    p->mass = 0.5 * (mMax + mMin + dis(gen) * (mMax - mMin));
-    p->cat_name = star_categories_[category_index].name;
-    p->cat_type = star_categories_[category_index].type;
-    p->color_ptr = star_categories_[category_index].baseColor;
+//     p->x = x + m_params.stepSize.value * dis(gen);
+//     p->y = y + m_params.stepSize.value * dis(gen);
+//     category_index = GetCategoryIndex(p->seed);
+//     double rMin = star_categories_[category_index].minRadius;
+//     double rMax = star_categories_[category_index].maxRadius;
+//     double mMin = star_categories_[category_index].minMass;
+//     double mMax = star_categories_[category_index].maxMass;
+//     p->radius = 0.01 * 0.5 * (rMax + rMin + dis(gen) * (rMax - rMin));
+//     p->mass = 0.5 * (mMax + mMin + dis(gen) * (mMax - mMin));
+//     p->cat_name = star_categories_[category_index].name;
+//     p->cat_type = star_categories_[category_index].type;
+//     p->color_ptr = star_categories_[category_index].baseColor;
+// }
+
+std::shared_ptr<StarCollection> Universe::GetStars() {
+    return m_stars;
 }
 
-void Universe::GetStars(
+void Universe::UpdateStars(
     const double & centerX,
     const double & centerY,
-    const double & distance,
-    StarCollectionType & stars) {
+    const double & distance) {
 
     const double ds = m_params.stepSize.value;
-
     if (!m_params.CheckUpdate()) {
         extent_indexes_[eiSize] = static_cast<int32_t>(floor(0.5 * distance / ds));
         extent_indexes_[eiBaseX] = static_cast<int>(floor(centerX/ds));
@@ -93,8 +97,8 @@ void Universe::GetStars(
         frame_size = 100.0 * ds;
     }
 
-    m_stars.clear();
     double f = frame_size / m_params.frequency.value;
+    m_stars->Reset();
     for (double dx=-frame_size; dx<frame_size; dx+=ds) {
         for (double dy=-frame_size; dy<frame_size; dy+=ds) {
             double x = base_x + dx;
@@ -103,15 +107,14 @@ void Universe::GetStars(
             double value = m_noise->octaveNoise0_1(x, y, m_params.zIndex.value, m_params.octaveCount.value);
 
             if (value > m_params.minValue.value) {
-                StarInfo * p = new StarInfo();
-                p->seed = value / (1.0 - m_params.minValue.value);
-                GenerateStarAt(x, y, p);
-                m_stars.push_back(p);
+                m_stars->AddStar(x, y, value / (1.0 - m_params.minValue.value));
+                // StarInfo * p = new StarInfo();
+                // p->seed = value / (1.0 - m_params.minValue.value);
+                // GenerateStarAt(x, y, p);
+                // m_stars.push_back(p);
             }
         }
     }
-
-    stars = m_stars;
 }
 
 int Universe::GetCategoryIndex(double value) {

@@ -3,6 +3,7 @@
 #include "DataBus.h"
 #include "DataBusConnection.h"
 #include "ObjectManager.h"
+#include "StarCollection.hpp"
 
 #include <math.h>
 
@@ -23,6 +24,24 @@ void BasicJumpDriveMk1::Init(DataBus * bus) {
     ShipSystemBase::Init(bus);
 
     universe_ = static_cast<UniverseInterface *>(OBJMGR.Get("universe"));
+    stars_ = universe_->GetStars();
+}
+
+void BasicJumpDriveMk1::DetectionUpdate(std::shared_ptr<StarInterface> s) {
+    double c_angle = 0.0;
+    double sx, sy;
+    double dx, dy;
+    float * color;
+    s->GetPosition(sx, sy);
+    color = s->GetColor();
+    dx = sx - position_x_;
+    dy = sy - position_y_;
+    c_angle = atan2(dy, dx);
+    detections_.data[4 * detection_index_ + 0] = c_angle;
+    detections_.data[4 * detection_index_ + 1] = color[0];
+    detections_.data[4 * detection_index_ + 2] = color[1];
+    detections_.data[4 * detection_index_ + 3] = color[2];
+    ++detection_index_;
 }
 
 void BasicJumpDriveMk1::Update(double time_step) {
@@ -34,27 +53,13 @@ void BasicJumpDriveMk1::Update(double time_step) {
     if (universe_ == 0) {
         throw std::string("Universe not defined!");
     }
-    
-    universe_->GetStars(position_x_, position_y_, range_, stars_);
 
-    BD_StarDetectionList detections;
-    detections.num_detections = stars_.size();
-    detections.data = new double[4 * detections.num_detections];
-
-    double c_angle = 0.0;
-    double sx, sy;
-    double dx, dy;
-    float * color;
-    for (int i=0; i<detections.num_detections; ++i) {
-        stars_[i]->GetPosition(sx, sy);
-        color = stars_[i]->GetColor();
-        dx = sx - position_x_;
-        dy = sy - position_y_;
-        c_angle = atan2(dy, dx);
-        detections.data[4 * i + 0] = c_angle;
-        detections.data[4 * i + 1] = color[0];
-        detections.data[4 * i + 2] = color[1];
-        detections.data[4 * i + 3] = color[2];
-    }
-    bus_connection_->Publish(db_StarList, &detections);
+    universe_->UpdateStars(position_x_, position_y_, range_);
+    detections_.num_detections = stars_->GetSize();
+    detections_.data = new double[4 * detections_.num_detections];
+    detection_index_ = 0;
+    stars_->RunOperation(
+        std::bind(&BasicJumpDriveMk1::DetectionUpdate, this, std::placeholders::_1)
+    );
+    bus_connection_->Publish(db_StarList, &detections_);
 }
