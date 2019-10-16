@@ -19,7 +19,6 @@ CXXFLAGS += -I./systems/inc
 CXXFLAGS += -I./universe/inc
 CXXFLAGS += -I./3rd-party
 CXXFLAGS += -I/usr/include/SDL
-CXXFLAGS += -I/usr/include/libnoise
 CXXFLAGS += -I/usr/include/freetype2
 CXXFLAGS += -I/usr/include/Box2D
 
@@ -32,7 +31,6 @@ LIBS += -lSDL_image
 LIBS += -lftgl
 LIBS += -lpthread
 LIBS += -lBox2D
-LIBS += -lnoise
 
 VERSION_CMD = python git_version.py
 
