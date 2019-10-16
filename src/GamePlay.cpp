@@ -56,7 +56,9 @@ void GamePlay::Render() {
     glRotated(ship_angle_, 0.0, 0.0, -1.0);
     glTranslated(-ship_x_, -ship_y_, 0.0);
 
-    background_->Render(ship_x_, ship_y_, ship_angle_);
+    if (debug_scale_ < 2.0) {
+        background_->Render(ship_x_, ship_y_, ship_angle_);
+    }
     universe_mgr_->Render();
 
     glPopMatrix();
@@ -72,11 +74,11 @@ GameDefinitions::GameStateEnum GamePlay::KeyInput(int key, bool action) {
             state = GameDefinitions::gameState_InMenu;
             break;
         case GLFW_KEY_V:
-            if (debug_scale_ > 50.0) {
-                debug_scale_ = 1.0;
+            if (debug_scale_ < 2000.0) {
+                debug_scale_ *= 2.0;
             }
             else {
-                debug_scale_ = 100.0;
+                debug_scale_ = 1.0;
             }
             break;
 
