@@ -9,6 +9,7 @@ OBJS=$(SRCS:%.cpp=%.o)
 # Flags
 CXXFLAGS  = -std=c++11
 CXXFLAGS += -g
+CXXFLAGS += -DENABLE_TEST_SYSTEM
 # CXXFLAGS += -Wall
 # CXXFLAGS += -Wextra
 CXXFLAGS += -Werror
@@ -17,6 +18,7 @@ CXXFLAGS += -I.
 CXXFLAGS += -I./inc
 CXXFLAGS += -I./systems/inc
 CXXFLAGS += -I./universe/inc
+CXXFLAGS += -I./utility/inc
 CXXFLAGS += -I./3rd-party
 CXXFLAGS += -I/usr/include/SDL
 CXXFLAGS += -I/usr/include/freetype2

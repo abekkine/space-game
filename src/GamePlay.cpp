@@ -63,6 +63,8 @@ void GamePlay::Render() {
 
     glPopMatrix();
 
+    // TODO : fix this.
+    DISPLAY.WorldMode(debug_scale_ * speed_scale_);
     ship_->Render();
 }
 GameDefinitions::GameStateEnum GamePlay::KeyInput(int key, bool action) {
@@ -74,11 +76,19 @@ GameDefinitions::GameStateEnum GamePlay::KeyInput(int key, bool action) {
             state = GameDefinitions::gameState_InMenu;
             break;
         case GLFW_KEY_V:
-            if (debug_scale_ < 2000.0) {
-                debug_scale_ *= 2.0;
+            if (action) {
+                if (debug_scale_ < 2000.0) {
+                    debug_scale_ *= 2.0;
+                }
+                else {
+                    debug_scale_ = 1.0;
+                }
             }
-            else {
-                debug_scale_ = 1.0;
+            break;
+
+        case GLFW_KEY_M:
+            if (action) {
+                universe_mgr_->ToggleMap();
             }
             break;
 

@@ -256,7 +256,6 @@ void BasicShipModel::Update(double delta_time) {
 void BasicShipModel::UpdateGravity() {
 
     std::shared_ptr<SolarSystemInterface> s = std::static_pointer_cast<SolarSystemInterface>(OBJMGR.Get("solar"));
-    // SolarSystemInterface* s = static_cast<SolarSystemInterface *>(OBJMGR.Get("solar"));
     if (s == 0) return;
 
     b2Vec2 g;

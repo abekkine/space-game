@@ -30,6 +30,7 @@ GenericHudDevice::GenericHudDevice() {
     vector_scale_ = 0;
     detection_list_.clear();
     star_list_.clear();
+    selected_star_ = -1;
 
     bus_ = 0;
     bus_connection_ = 0;
@@ -152,12 +153,16 @@ void GenericHudDevice::RenderRadarDetections() {
 
 void GenericHudDevice::RenderStarDetections() {
     // Stars
-    float s_color[4] = { 1.0, 0.0, 0.0, 0.5 };
+    float s_color[4] = { 1.0, 0.5, 0.0, 0.3 };
+    float sel_color[4] = { 1.0, 1.0, 1.0, 0.8 };
     glScaled(hud_size_, hud_size_, 1.0);
     std::lock_guard<std::mutex> lock(detection_mutex_);
-    for (auto s : star_list_) {
-
-        RenderArc(s->center, 0.0, s_color, s_color, 0.98);
+    for (int i=0; i<star_list_.size(); ++i) {
+        if (i == selected_star_) {
+            RenderDot(star_list_[i]->center, sel_color, 12.0, 0.98);
+        } else {
+            RenderDot(star_list_[i]->center, s_color, 8.0, 0.98);
+        }
     }
     glPopMatrix();
 }
@@ -217,6 +222,20 @@ void GenericHudDevice::RenderDamageIndicator() {
     glEnd();
 
 }
+
+void GenericHudDevice::RenderDot(
+    double center_angle,
+    float * color,
+    float size,
+    double scale)
+{
+    glPointSize(size);
+    glColor4fv(color);
+    glBegin(GL_POINTS);
+    glVertex2d(scale * cos(center_angle), scale * sin(center_angle));
+    glEnd();
+}
+
 
 void GenericHudDevice::RenderArc(
     double center_angle, double span_angle,
@@ -334,6 +353,7 @@ void GenericHudDevice::dbHandleDetectionList(BusDataInterface *data) {
 void GenericHudDevice::dbHandleStarList(BusDataInterface * data) {
     BD_StarDetectionList *d = static_cast<BD_StarDetectionList *>(data);
     if (d != 0) {
+        selected_star_ = d->selected_index;
         AddStars(d->num_detections, d->data);
     }
 }

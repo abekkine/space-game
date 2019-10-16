@@ -62,6 +62,8 @@ SpaceShip::SpaceShip()
 , station_iface_(0)
 , ship_anchored_(false)
 , destroyed_(false)
+, map_x_(-86.5821)
+, map_y_(-24.8058)
 {
     model_ = std::make_shared<BasicShipModel>();
     OBJMGR.Set("model", model_);
@@ -72,7 +74,7 @@ SpaceShip::SpaceShip()
     hotas_ = SYSTEMSMGR.getHotasSystem();
     engine_ = SYSTEMSMGR.getEngineSystem();
     radar_ = SYSTEMSMGR.getRadarSystem();
-    jump_drive_ = SYSTEMSMGR.getJumpDriveSystem();
+    jump_drive_ = SYSTEMSMGR.getJumpDriveSystem(map_x_, map_y_);
     hull_ = SYSTEMSMGR.getHullSystem();
     sensor_ = SYSTEMSMGR.getSensorSystem();
 
@@ -99,6 +101,15 @@ void SpaceShip::SetPosition(double x, double y) {
 
 b2Vec2 const & SpaceShip::GetPosition() {
     return model_->GetPosition();
+}
+
+void SpaceShip::SetMapPosition(const double & x, const double & y) {
+    map_x_ = x;
+    map_y_ = y;
+}
+void SpaceShip::GetMapPosition(double & x, double & y) {
+    x = map_x_;
+    y = map_y_;
 }
 
 double SpaceShip::GetSpeed() {

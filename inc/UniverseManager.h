@@ -4,6 +4,7 @@
 #include "StorableObject.h"
 #include "GameDefinitions.h"
 #include "GameTimer.hpp"
+#include "UniverseInterface.h"
 
 #include <Box2D.h>
 
@@ -14,7 +15,7 @@ class SolarSystemInterface;
 class SpaceShip;
 class EffectsManager;
 class CollisionHandler;
-class UniverseInterface;
+class MapView;
 
 class UniverseManager : public StorableObject {
 public:
@@ -26,9 +27,11 @@ public:
     void Init();
     void Run();
     void Render();
+    void ToggleMap();
 
 private:
     void ThreadLoop();
+    void UpdateMap();
 
 private:
     const int kThreadSleepDuration;
@@ -45,6 +48,10 @@ private:
     bool quit_;
 
     std::shared_ptr<UniverseInterface> universe_;
+
+    bool show_map_;
+    StarCollectionType map_stars_;
+    MapView * map_;
 };
 
 #endif  // UNIVERSE_MANAGER_H_

@@ -34,7 +34,6 @@ struct BD_Vector : public BusDataInterface {
 
 struct BD_BasicPosition : public BusDataInterface {
     double x, y;
-    double angle;
 };
 
 // data[ 0] -> center, data[   1] -> span,
@@ -51,6 +50,7 @@ struct BD_RadarDetectionList : public BusDataInterface {
 // data[ 4 * i + 1-3 ] -> colors r, g, b
 struct BD_StarDetectionList : public BusDataInterface {
     int num_detections;
+    int selected_index;
     double *data;
 };
 

@@ -17,7 +17,7 @@ public:
     void SetupViewport();
     bool QuitRequested();
     void UiMode();
-    void WorldMode(double speed_factor);
+    void WorldMode(double scale_factor);
     void PreRender();
     void PostRender();
     void RequestQuit();

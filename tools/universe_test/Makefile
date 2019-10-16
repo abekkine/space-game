@@ -1,5 +1,5 @@
 TARGET=universe.bin
-SRCS=$(wildcard *.cpp) ../../universe/src/Universe.cpp
+SRCS=$(wildcard *.cpp) ../../universe/src/Universe.cpp ../../universe/src/StarCategory.cpp
 OBJS=$(SRCS:%.cpp=%.o)
 CXXFLAGS  = -g -std=c++11
 #CXXFLAGS += -Wall -Wextra -Werror -Wfatal-errors

@@ -24,6 +24,7 @@ private:
     void RenderStarDetections();
     void RenderFuelIndicator();
     void RenderDamageIndicator();
+    void RenderDot(double center_angle, float * color, float size, double scale=1.0);
     void RenderArc(double center_angle, double span_angle, float * dot_color, float * arc_color, double scale=1.0);
     void AddDetections(int num_detections, double* detections);
     void AddStars(int num_detections, double* detections);
@@ -60,6 +61,7 @@ private:
     int vector_scale_;
     std::vector<DetectionObject *> detection_list_;
     std::vector<DetectionObject *> star_list_;
+    int selected_star_;
 };
 
 #endif // GENERIC_HUD_DEVICE_H_
