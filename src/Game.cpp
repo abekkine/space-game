@@ -22,7 +22,6 @@ Game::~Game() {
 
     delete game_play_;
     delete menu_;
-    delete universe_mgr_;
 }
 void Game::Init(int argc, char * argv[]) {
     (void)argc;
@@ -31,7 +30,7 @@ void Game::Init(int argc, char * argv[]) {
     DISPLAY.Init();
 
     // Start universe thread.
-    universe_mgr_ = new UniverseManager();
+    universe_mgr_ = std::make_shared<UniverseManager>();
     universe_mgr_->Init();
     OBJMGR.Set("universe_manager", universe_mgr_);
 

@@ -5,6 +5,8 @@
 #include "StarInterface.h"
 #include "UniverseInterface.h"
 
+#include <memory>
+
 class DataBus;
 class DataBusConnection;
 
@@ -17,7 +19,7 @@ public:
 
 private:
     StarCollectionType stars_;
-    UniverseInterface * universe_;
+    std::shared_ptr<UniverseInterface> universe_;
     double position_x_;
     double position_y_;
     double range_;

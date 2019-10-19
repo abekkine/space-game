@@ -1,9 +1,11 @@
 #ifndef EFFECTS_MANAGER_H_
 #define EFFECTS_MANAGER_H_
 
+#include "StorableObject.h"
+
 #include <Box2D.h>
 
-class EffectsManager {
+class EffectsManager : public StorableObject {
 public:
     EffectsManager();
     ~EffectsManager();
@@ -51,4 +53,3 @@ private:
 };
 
 #endif // EFFECTS_MANAGER_H_
-

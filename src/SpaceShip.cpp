@@ -63,7 +63,7 @@ SpaceShip::SpaceShip()
 , ship_anchored_(false)
 , destroyed_(false)
 {
-    model_ = new BasicShipModel();
+    model_ = std::make_shared<BasicShipModel>();
     OBJMGR.Set("model", model_);
 
     data_bus_ = new DataBus();

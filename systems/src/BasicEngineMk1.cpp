@@ -100,7 +100,7 @@ void BasicEngineMk1::Init(DataBus* bus) {
     DB_SUBSCRIBE(BasicEngineMk1, ThrottleCommand);
     DB_SUBSCRIBE(BasicEngineMk1, StabilizeCommand);
 
-    effects_ = static_cast<EffectsManager*>(OBJMGR.Get("effects"));
+    effects_ = std::static_pointer_cast<EffectsManager>(OBJMGR.Get("effects"));
     assert(effects_ != 0 && "effects not defined!");
 }
 
@@ -217,5 +217,3 @@ void BasicEngineMk1::dbHandleStabilizeCommand(BusDataInterface *data) {
     (void)data;
     stabilization_mode_ = true;
 }
-
-

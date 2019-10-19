@@ -22,7 +22,7 @@ void BasicJumpDriveMk1::Init(DataBus * bus) {
 
     ShipSystemBase::Init(bus);
 
-    universe_ = static_cast<UniverseInterface *>(OBJMGR.Get("universe"));
+    universe_ = std::static_pointer_cast<UniverseInterface>(OBJMGR.Get("universe"));
 }
 
 void BasicJumpDriveMk1::Update(double time_step) {

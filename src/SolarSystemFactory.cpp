@@ -3,8 +3,8 @@
 #include "SolarSystemInterface.h"
 #include "TestingSystem.h"
 
-SolarSystemInterface * SolarSystemFactory::getTestingSystem() {
-    SolarSystemInterface * s = 0;
-    s = new TestingSystem();
+std::shared_ptr<SolarSystemInterface> SolarSystemFactory::getTestingSystem() {
+    std::shared_ptr<SolarSystemInterface> s = 0;
+    s = std::make_shared<TestingSystem>();
     return s;
 }

@@ -4,6 +4,7 @@
 #include "GameDefinitions.h"
 
 #include <functional>
+#include <memory>
 
 class GamePlay;
 class Menu;
@@ -23,7 +24,7 @@ private:
     const int kGameLoopSleepDuration;
     std::function<void()> render_function_;
     GameDefinitions::GameStateEnum state_;
-    UniverseManager * universe_mgr_;
+    std::shared_ptr<UniverseManager> universe_mgr_;
     Menu * menu_;
     GamePlay * game_play_;
     std::function<void()> render_states_[GameDefinitions::gameState_SIZE];

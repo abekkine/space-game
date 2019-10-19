@@ -3,6 +3,8 @@
 
 #include "ShipSystemBase.h"
 
+#include <memory>
+
 class ShipModelInterface;
 
 class BasicSensorMk1 : public ShipSystemBase {
@@ -13,7 +15,7 @@ public:
     void Update(double time_step);
 
 private:
-    ShipModelInterface * ship_model_;
+    std::shared_ptr<ShipModelInterface> ship_model_;
 };
 
 #endif // BASIC_SENSOR_MK1_H_

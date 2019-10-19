@@ -31,7 +31,7 @@ void BasicRadarMk1::Init(DataBus * bus) {
         DB_SUBSCRIBE(BasicRadarMk1, ShipPosition);
     }
 
-    SolarSystemInterface * s = static_cast<SolarSystemInterface *>(OBJMGR.Get("solar"));
+    std::shared_ptr<SolarSystemInterface> s = std::static_pointer_cast<SolarSystemInterface>(OBJMGR.Get("solar"));
     if (s == 0) {
         // TODO : Handle properly
         throw;

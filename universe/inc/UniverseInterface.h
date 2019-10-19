@@ -1,13 +1,14 @@
 #ifndef UNIVERSE_INTERFACE_H_
 #define UNIVERSE_INTERFACE_H_
 
+#include "StorableObject.h"
 #include "StarInterface.h"
 
 #include <vector>
 
 typedef std::vector<StarInterface *> StarCollectionType;
 
-class UniverseInterface {
+class UniverseInterface : public StorableObject {
 public:
     virtual ~UniverseInterface() {}
     virtual void GetStars(const double & centerX, const double & centerY, const double & distance, StarCollectionType & stars) = 0;
