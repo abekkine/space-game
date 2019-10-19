@@ -3,6 +3,9 @@
 
 #include "ShipSystemBase.h"
 
+#include <vector>
+#include <memory>
+
 class DataBus;
 class DataBusConnection;
 class Planet;
@@ -18,11 +21,9 @@ public:
     void dbHandleShipPosition(BusDataInterface *data);
 
 private:
-    int num_planets_;
-    Planet* planets_;
+    std::vector<std::shared_ptr<Planet>> planets_;
     double plr_x_;
     double plr_y_;
 };
 
 #endif // BASIC_RADAR_MK1_H_
-

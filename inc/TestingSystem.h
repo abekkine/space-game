@@ -5,6 +5,9 @@
 
 #include <Box2D.h>
 
+#include <vector>
+#include <memory>
+
 class Planet;
 
 class TestingSystem : public SolarSystemInterface {
@@ -15,11 +18,10 @@ public:
     void Init(b2World * world);
     void Update(double delta_time);
     void Render();
+    std::vector<std::shared_ptr<Planet>> GetPlanets();
 
 private:
-    const int kNumPlanets;
-    Planet * planets_;
-
+    std::vector<std::shared_ptr<Planet>> planets_;
 };
 
 #endif // TESTING_SYSTEM_H_

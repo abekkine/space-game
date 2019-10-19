@@ -3,6 +3,7 @@
 #include "DataBus.h"
 #include "DataBusConnection.h"
 #include "Planet.h"
+#include "SolarSystemInterface.h"
 #include "ObjectManager.h"
 
 #include <math.h>
@@ -30,30 +31,33 @@ void BasicRadarMk1::Init(DataBus * bus) {
         DB_SUBSCRIBE(BasicRadarMk1, ShipPosition);
     }
 
-    num_planets_ = *((int *)OBJMGR.Get("nplanets"));
-    assert(num_planets_ != 0 && "nplanets not defined!");
+    SolarSystemInterface * s = static_cast<SolarSystemInterface *>(OBJMGR.Get("solar"));
+    if (s == 0) {
+        // TODO : Handle properly
+        throw;
+    }
 
-    planets_ = static_cast<Planet *>(OBJMGR.Get("planets"));
-    assert(planets_ != 0 && "planets not defined");
+    planets_ = s->GetPlanets();
 }
 
 void BasicRadarMk1::Update(double time_step) {
     (void)time_step;
 
     if (bus_connection_ != 0) {
-        if (planets_ != 0 && num_planets_ > 0) {
+        if (! planets_.empty()) {
             // Used by HUD system.
+            const int numPlanets = planets_.size();
             BD_RadarDetectionList detections;
-            detections.num_detections = num_planets_;
-            detections.data = new double[2*num_planets_];
+            detections.num_detections = numPlanets;
+            detections.data = new double[2*numPlanets];
 
             double c_angle = 0.0;
             double s_angle = 0.0;
             b2Vec2 d;
-            for (int i=0; i<num_planets_; ++i) {
-                d = planets_[i].GetDistance(plr_x_, plr_y_);
+            for (int i=0; i<numPlanets; ++i) {
+                d = planets_[i]->GetDistance(plr_x_, plr_y_);
                 c_angle = atan2(d.y, d.x);
-                s_angle = planets_[i].GetSpanAngle(plr_x_, plr_y_);
+                s_angle = planets_[i]->GetSpanAngle(plr_x_, plr_y_);
                 detections.data[2*i+0] = c_angle;
                 detections.data[2*i+1] = s_angle;
             }
@@ -61,4 +65,3 @@ void BasicRadarMk1::Update(double time_step) {
         }
     }
 }
-
