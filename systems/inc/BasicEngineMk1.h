@@ -5,6 +5,8 @@
 
 #include <Box2D.h>
 
+#include <memory>
+
 class DataBus;
 class BusDataInterface;
 class EffectsManager;
@@ -40,7 +42,7 @@ private:
 private:
     b2Body *platform_body_;
     b2Vec2 thrust_;
-    EffectsManager *effects_;
+    std::shared_ptr<EffectsManager> effects_;
 
     const double kFuelMassPerQuantity;
     // units per second

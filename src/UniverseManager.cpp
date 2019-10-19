@@ -33,9 +33,6 @@ UniverseManager::~UniverseManager() {
     OBJMGR.Remove("solar");
 
     delete collision_handler_;
-    delete solar_system_;
-    delete space_ship_;
-    delete effects_;
     delete world_;
 }
 
@@ -52,12 +49,12 @@ void UniverseManager::Init() {
     b2Vec2 gravity(0.0f, 0.0f);
     world_ = new b2World(gravity);
 
-    effects_ = new EffectsManager();
+    effects_ = std::make_shared<EffectsManager>();
     effects_->Init();
     OBJMGR.Set("effects", effects_);
 
     // Instantiate player ship.
-    space_ship_ = new SpaceShip();
+    space_ship_ = std::make_shared<SpaceShip>();
     space_ship_->SetPosition(0.0, 110.0);
     space_ship_->SetAngle(0.0);
     OBJMGR.Set("ship", space_ship_);
@@ -66,7 +63,7 @@ void UniverseManager::Init() {
     solar_system_ = SolarSystemFactory::getTestingSystem();
     solar_system_->Init(world_);
     OBJMGR.Set("solar", solar_system_);
-    universe_ = new Universe();
+    universe_ = std::make_shared<Universe>();
     OBJMGR.Set("universe", universe_);
 
     // Player creation

@@ -1,12 +1,13 @@
 #ifndef SHIP_MODEL_INTERFACE_H
 #define SHIP_MODEL_INTERFACE_H
 
+#include "StorableObject.h"
 #include "StationInterface.h"
 
 #include <Box2D.h>
 #include <stdint.h>
 
-class ShipModelInterface {
+class ShipModelInterface : public StorableObject {
 public:
     virtual ~ShipModelInterface() {}
 

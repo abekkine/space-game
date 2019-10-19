@@ -27,10 +27,10 @@ void GamePlay::Init() {
     background_ = new Background();
     background_->Init();
 
-    ship_ = static_cast<SpaceShip*>(OBJMGR.Get("ship"));
+    ship_ = std::static_pointer_cast<SpaceShip>(OBJMGR.Get("ship"));
     assert(ship_ != 0 && "ship not defined!");
 
-    universe_mgr_ = static_cast<UniverseManager*>(OBJMGR.Get("universe_manager"));
+    universe_mgr_ = std::static_pointer_cast<UniverseManager>(OBJMGR.Get("universe_manager"));
     assert(universe_mgr_ != 0 && "universe not defined!");
 }
 

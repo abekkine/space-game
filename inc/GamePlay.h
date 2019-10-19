@@ -3,6 +3,8 @@
 
 #include "GameDefinitions.h"
 
+#include <memory>
+
 class SpaceShip;
 class UniverseManager;
 class EffectsManager;
@@ -19,8 +21,8 @@ private:
     double speed_scale_;
     EffectsManager* effects_;
     Background* background_;
-    UniverseManager* universe_mgr_;
-    SpaceShip* ship_;
+    std::shared_ptr<UniverseManager> universe_mgr_;
+    std::shared_ptr<SpaceShip> ship_;
 
 public:
     GamePlay();

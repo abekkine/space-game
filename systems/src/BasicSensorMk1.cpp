@@ -15,7 +15,7 @@ void BasicSensorMk1::Init(DataBus * bus) {
 
     ShipSystemBase::Init(bus);
 
-    ship_model_ = static_cast<ShipModelInterface *>(OBJMGR.Get("model"));
+    ship_model_ = std::static_pointer_cast<ShipModelInterface>(OBJMGR.Get("model"));
 }
 
 void BasicSensorMk1::Update(double time_step) {

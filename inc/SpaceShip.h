@@ -2,8 +2,11 @@
 #define SPACE_SHIP_H_
 
 #include "ContactInterface.h"
+#include "StorableObject.h"
 
 #include <Box2D.h>
+
+#include <memory>
 
 class DataBus;
 class DataBusConnection;
@@ -15,7 +18,7 @@ class StationInterface;
 class ShipModelInterface;
 class ShipSystemBase;
 
-class SpaceShip : public ContactInterface {
+class SpaceShip : public ContactInterface, public StorableObject {
 public: // Contact interface
     void ProcessImpulse(float impulse);             // CI_01
     void BeginContact(ContactInterface* object);    // CI_02
@@ -42,7 +45,7 @@ public:
     void HotasInput(int key, bool action);
 
 private:
-    ShipModelInterface * model_;
+    std::shared_ptr<ShipModelInterface> model_;
     // Ship communication bus
     DataBus * data_bus_;
     // Ship Systems

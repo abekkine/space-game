@@ -1,6 +1,8 @@
 #ifndef SOLAR_SYSTEM_INTERFACE_H_
 #define SOLAR_SYSTEM_INTERFACE_H_
 
+#include "StorableObject.h"
+
 #include <Box2D.h>
 
 #include <vector>
@@ -8,7 +10,7 @@
 
 class Planet;
 
-class SolarSystemInterface {
+class SolarSystemInterface : public StorableObject {
 public:
     virtual ~SolarSystemInterface() {}
     virtual void Init(b2World * world) = 0;

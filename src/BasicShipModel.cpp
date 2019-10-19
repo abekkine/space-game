@@ -11,6 +11,8 @@
 
 #include <assert.h>
 
+#include <memory>
+
 BasicShipModel::BasicShipModel()
 : kBreakForce(500.0)
 , kDefaultSurfaceFriction(0.7)
@@ -253,7 +255,8 @@ void BasicShipModel::Update(double delta_time) {
 
 void BasicShipModel::UpdateGravity() {
 
-    SolarSystemInterface* s = static_cast<SolarSystemInterface *>(OBJMGR.Get("solar"));
+    std::shared_ptr<SolarSystemInterface> s = std::static_pointer_cast<SolarSystemInterface>(OBJMGR.Get("solar"));
+    // SolarSystemInterface* s = static_cast<SolarSystemInterface *>(OBJMGR.Get("solar"));
     if (s == 0) return;
 
     b2Vec2 g;
