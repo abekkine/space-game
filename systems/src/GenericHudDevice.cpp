@@ -364,4 +364,3 @@ void GenericHudDevice::dbHandleShipDamage(BusDataInterface *data) {
         damage_ratio_ = dr->value;
     }
 }
-
