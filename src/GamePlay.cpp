@@ -32,9 +32,6 @@ void GamePlay::Init() {
 
     universe_mgr_ = static_cast<UniverseManager*>(OBJMGR.Get("universe_manager"));
     assert(universe_mgr_ != 0 && "universe not defined!");
-
-    effects_ = static_cast<EffectsManager *>(OBJMGR.Get("effects"));
-    assert(effects_ != 0 && "effects not defined!");
 }
 
 void GamePlay::RefreshPlayerParams() {
@@ -61,7 +58,6 @@ void GamePlay::Render() {
 
     background_->Render(ship_x_, ship_y_, ship_angle_);
     universe_mgr_->Render();
-    effects_->Render();
 
     glPopMatrix();
 

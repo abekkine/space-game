@@ -90,6 +90,8 @@ void UniverseManager::Render() {
     if (quit_) return;
 
     solar_system_->Render();
+
+    effects_->Render();
 }
 
 void UniverseManager::ThreadLoop() {
