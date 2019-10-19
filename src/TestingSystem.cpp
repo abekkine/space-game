@@ -6,23 +6,14 @@
 #include <GLFW/glfw3.h>
 
 TestingSystem::TestingSystem()
-: kNumPlanets(5)
-, planets_(0)
 {}
 
-TestingSystem::~TestingSystem() {
-
-    OBJMGR.Remove("planets");
-    OBJMGR.Remove("nplanets");
-
-    delete [] planets_;
-}
+TestingSystem::~TestingSystem() {}
 
 b2Vec2 TestingSystem::GetGravityAcceleration(b2Vec2 pos) {
     b2Vec2 g(0.0, 0.0);
-    for (int i=0; i<kNumPlanets; ++i) {
-
-        g += planets_[i].GetGravityAcceleration(pos);
+    for (auto p : planets_) {
+        g += p->GetGravityAcceleration(pos);
     }
     return g;
 }
@@ -30,9 +21,8 @@ b2Vec2 TestingSystem::GetGravityAcceleration(b2Vec2 pos) {
 
 void TestingSystem::Init(b2World * world) {
     // Instantiate planets.
-    planets_ = new Planet[kNumPlanets];
-
-    CelestialBodyDefinition u[] = {
+    const int numPlanets = 5;
+    CelestialBodyDefinition u[numPlanets] = {
         {   3,      0.0,      0.0, 0.0,  100.0,  99.7,  0.20,  435.0 }, // Earth
         {  99,    600.0,      0.0, 0.0,   25.0,  24.9,  0.01, 2730.0 }, // Moon
         {  -1, -19900.0, -11500.0, 0.0, 1000.0, 100.0,  1.00, 3984.0 }, // Sun
@@ -40,39 +30,38 @@ void TestingSystem::Init(b2World * world) {
         {  49,  13000.0, -11500.0, 0.0,   50.0,  49.9,  0.15, 3172.0 }  // Mars
     };
 
-    for (int i=0; i<kNumPlanets; ++i) {
-        planets_[i].SetPosition(u[i].x, u[i].y);
-        planets_[i].SetAngle(u[i].angle);
-        planets_[i].SetRadius(u[i].radius);
-        planets_[i].SetCoreRadius(u[i].coreRadius);
-        planets_[i].SetAngularVelocity(u[i].angularVelocity);
-        planets_[i].SetColor(u[i].color);
-        planets_[i].SetSeed(u[i].seed);
-    }
-
-    OBJMGR.Set("planets", planets_);
-    OBJMGR.Set("nplanets", (void *)&kNumPlanets);
-
-    // Planet creation
-    for(int i=0; i<kNumPlanets; ++i) {
-        planets_[i].Init(world);
+    for (int i=0; i<numPlanets; ++i) {
+        std::shared_ptr<Planet> p = std::make_shared<Planet>();
+        p->SetPosition(u[i].x, u[i].y);
+        p->SetAngle(u[i].angle);
+        p->SetRadius(u[i].radius);
+        p->SetCoreRadius(u[i].coreRadius);
+        p->SetAngularVelocity(u[i].angularVelocity);
+        p->SetColor(u[i].color);
+        p->SetSeed(u[i].seed);
+        p->Init(world);
         if (i == 0) {
-            planets_[i].SetStation();
+            p->SetStation();
         }
+        planets_.push_back(p);
     }
 }
 
 void TestingSystem::Update(double delta_time) {
     (void)delta_time;
-    for (int i=0; i<kNumPlanets; ++i) {
-        planets_[i].Update();
+    for (auto p : planets_) {
+        p->Update();
     }
 }
 
 void TestingSystem::Render() {
-    for (int i=0; i<kNumPlanets; ++i) {
+    for (auto p : planets_) {
         glPushMatrix();
-        planets_[i].Render();
+        p->Render();
         glPopMatrix();
     }
+}
+
+std::vector<std::shared_ptr<Planet>> TestingSystem::GetPlanets() {
+    return planets_;
 }
