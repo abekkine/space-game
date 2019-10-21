@@ -8,7 +8,7 @@ struct CelestialBodyDefinition {
     double radius;
     double coreRadius;
     double angularVelocity;
-    double color;
+    float r, g, b;
 };
 
 #endif // CELESTIAL_BODY_DEFINITION_H_

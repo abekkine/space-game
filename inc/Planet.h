@@ -19,7 +19,7 @@ public:
     void SetAngularVelocity(double value);
     void SetRadius(double value);
     void SetCoreRadius(double value);
-    void SetColor(double value);
+    void SetColor(float r, float g, float b);
     void SetStation();
     b2Vec2 GetGravityAcceleration(b2Vec2 pos);
     b2Vec2 GetDistance(double x, double y);

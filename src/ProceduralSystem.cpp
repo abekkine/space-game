@@ -39,10 +39,7 @@ void ProceduralSystem::Init(b2World * world) {
     p->SetCoreRadius(100.0);
     p->SetAngularVelocity(1.0);
     float * pColor = star_->GetColor();
-    float r = 15.0 * pColor[0];
-    float g = 15.0 * pColor[1];
-    float b = 15.0 * pColor[2];
-    p->SetColor(r * 256.0 + g * 16.0 + b);
+    p->SetColor(pColor[0], pColor[1], pColor[2]);
     p->SetSeed(-1);
 
     planets_.push_back(p);

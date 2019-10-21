@@ -23,11 +23,11 @@ void TestingSystem::Init(b2World * world) {
     // Instantiate planets.
     const int numPlanets = 5;
     CelestialBodyDefinition u[numPlanets] = {
-        {   3,      0.0,      0.0, 0.0,  100.0,  99.7,  0.20,  435.0 }, // Earth
-        {  99,    600.0,      0.0, 0.0,   25.0,  24.9,  0.01, 2730.0 }, // Moon
-        {  -1, -19900.0, -11500.0, 0.0, 1000.0, 100.0,  1.00, 3984.0 }, // Sun
-        { 123,  -4900.0, -11500.0, 0.0,   90.0,  89.9,  0.10, 1742.0 }, // Venus
-        {  49,  13000.0, -11500.0, 0.0,   50.0,  49.9,  0.15, 3172.0 }  // Mars
+        {   3,      0.0,      0.0, 0.0,  100.0,  99.7,  0.20, 0.06, 0.73, 0.20 }, // Earth
+        {  99,    600.0,      0.0, 0.0,   25.0,  24.9,  0.01, 0.67, 0.67, 0.67 }, // Moon
+        {  -1, -19900.0, -11500.0, 0.0, 1000.0, 100.0,  1.00, 1.00, 0.60, 0.00 }, // Sun
+        { 123,  -4900.0, -11500.0, 0.0,   90.0,  89.9,  0.10, 0.40, 0.80, 0.93 }, // Venus
+        {  49,  13000.0, -11500.0, 0.0,   50.0,  49.9,  0.15, 0.80, 0.40, 0.27 }  // Mars
     };
 
     for (int i=0; i<numPlanets; ++i) {
@@ -37,7 +37,7 @@ void TestingSystem::Init(b2World * world) {
         p->SetRadius(u[i].radius);
         p->SetCoreRadius(u[i].coreRadius);
         p->SetAngularVelocity(u[i].angularVelocity);
-        p->SetColor(u[i].color);
+        p->SetColor(u[i].r, u[i].g, u[i].b);
         p->SetSeed(u[i].seed);
         p->Init(world);
         if (i == 0) {
