@@ -8,7 +8,12 @@
 
 class MapView {
 public:
-    MapView() {
+    MapView()
+    : kMapSize(400)
+    , kMapX(50), kMapY(50)
+    , kMapRange(10.0)
+    , kMapScale(kMapSize / kMapRange)
+    {
         size_ = 10.0;
         center_ = 0;
     }
@@ -33,10 +38,10 @@ public:
         glColor3f(1.0, 1.0, 1.0);
         glLineWidth(2.0);
         glBegin(GL_LINE_LOOP);
-        glVertex2i(50, 50);
-        glVertex2i(50 + 200, 50);
-        glVertex2i(50 + 200, 50 + 200);
-        glVertex2i(50, 50 + 200);
+        glVertex2i(kMapX, kMapY);
+        glVertex2i(kMapX + kMapSize, kMapY);
+        glVertex2i(kMapX + kMapSize, kMapY + kMapSize);
+        glVertex2i(kMapX, kMapY + kMapSize);
         glEnd();
         if (universe_ != 0) {
             double sx, sy, sr;
@@ -44,11 +49,10 @@ public:
             for (auto s : stars_) {
                 s->GetPosition(sx, sy);
                 sColor = s->GetColor();
-                sr = s->GetRadius();
                 glColor3fv(sColor);
-                glPointSize(sr/500.0);
+                glPointSize(4.0);
                 glBegin(GL_POINTS);
-                glVertex2i(50 + 20.0 * (5 + sx - x_), 50 + 20.0 * (5 + sy - y_));
+                glVertex2i(kMapX + kMapSize - kMapScale * (0.5 * kMapRange + sx - x_), kMapY + kMapScale * (0.5 * kMapRange + sy - y_));
                 glEnd();
             }
         }
@@ -77,6 +81,10 @@ public:
     }
 
 private:
+    const int kMapSize;
+    const int kMapX, kMapY;
+    const double kMapRange;
+    const double kMapScale;
     double x_, y_;
     double size_;
     StarCollectionType stars_;
