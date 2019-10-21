@@ -21,6 +21,9 @@ public:
     void dbHandleShipPosition(BusDataInterface *data);
 
 private:
+    void UpdatePlanets();
+
+private:
     std::vector<std::shared_ptr<Planet>> planets_;
     double plr_x_;
     double plr_y_;
