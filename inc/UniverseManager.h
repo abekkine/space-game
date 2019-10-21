@@ -28,6 +28,7 @@ public:
     void Run();
     void Render();
     void ToggleMap();
+    void SetSolarSystem(StarInterface * star);
 
 private:
     void ThreadLoop();

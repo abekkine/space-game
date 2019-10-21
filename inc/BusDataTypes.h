@@ -1,6 +1,8 @@
 #ifndef BUS_DATA_TYPES_H_
 #define BUS_DATA_TYPES_H_
 
+#include <cstdint>
+
 enum DataChannel {
     db_None = 0,
     db_ShipPosition,
@@ -16,12 +18,18 @@ enum DataChannel {
     db_ThrottleCommand,
     db_SteerCommand,
     db_StabilizeCommand,
+    db_BusCommand,
     // Add more when needed...
     db_All = 255,
 };
 
 struct BusDataInterface {
     virtual ~BusDataInterface() {}
+};
+
+struct BD_BusCommand : public BusDataInterface {
+    uint32_t id;
+    uint32_t param;
 };
 
 struct BD_Scalar : public BusDataInterface {

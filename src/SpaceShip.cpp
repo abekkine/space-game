@@ -6,6 +6,7 @@
 #include "BusDataTypes.h"
 #include "DataBus.h"
 #include "DataBusConnection.h"
+#include "StandardBusCommands.h"
 #include "HotasSystemInterface.h"
 #include "EngineSystemInterface.h"
 #include "HudSystemInterface.h"
@@ -214,6 +215,11 @@ void SpaceShip::HotasInput(int key, bool action) {
     case GLFW_KEY_S: // stop rotation
         if (action == true) {
             hotas_->Stabilize();
+        }
+        break;
+    case GLFW_KEY_J: // send jump request
+        if (action == true) {
+            hotas_->SendCommand(cmd__JUMP);
         }
         break;
     case GLFW_KEY_F:

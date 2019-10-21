@@ -16,6 +16,8 @@ public:
     virtual void Stabilize() = 0;
     // HoSI_04
     virtual void ToggleLandingGear() = 0;
+    // HoSI_05
+    virtual void SendCommand(int command) = 0;
 };
 
 #endif // HOTAS_SYSTEM_INTERFACE_H_
