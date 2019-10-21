@@ -108,7 +108,13 @@ void SpaceShip::SetMapPosition(const double & x, const double & y) {
     map_x_ = x;
     map_y_ = y;
 }
+
+// DEBUG
+extern double dbg_map_x_;
+extern double dbg_map_y_;
 void SpaceShip::GetMapPosition(double & x, double & y) {
+    map_x_ = dbg_map_x_;
+    map_y_ = dbg_map_y_;
     x = map_x_;
     y = map_y_;
 }

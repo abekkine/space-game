@@ -12,6 +12,7 @@
 
 // DEBUG
 double dbg_map_x_ = 0.0, dbg_map_y_ = 0.0;
+double dbg_dst_x_ = 0.0, dbg_dst_y_ = 0.0;
 
 BasicJumpDriveMk1::BasicJumpDriveMk1(const double & x, const double & y)
 : position_x_(x), position_y_(y)
@@ -102,6 +103,9 @@ void BasicJumpDriveMk1::Update(double time_step) {
             destination_star_ = stars_[i];
             destination_x_ = sx;
             destination_y_ = sy;
+            // DEBUG
+            dbg_dst_x_ = sx;
+            dbg_dst_y_ = sy;
         }
         detections.data[4 * i + 0] = c_angle;
         detections.data[4 * i + 1] = color[0];

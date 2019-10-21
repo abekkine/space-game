@@ -28,6 +28,7 @@ Planet::Planet()
 
 Planet::~Planet() {
     delete station_;
+    glDeleteLists(DL_surface_index_, 1);
 }
 
 void Planet::SetSeed(long int seed) {

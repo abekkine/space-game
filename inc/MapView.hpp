@@ -6,6 +6,9 @@
 
 #include <memory>
 
+// DEBUG
+extern double dbg_dst_x_, dbg_dst_y_;
+
 class MapView {
 public:
     MapView()
@@ -56,6 +59,12 @@ public:
                 glEnd();
             }
         }
+        // DEBUG selected
+        glColor4f(1.0, 0.0, 0.0, 0.5);
+        glPointSize(10.0);
+        glBegin(GL_POINTS);
+        glVertex2i(kMapX + kMapSize - kMapScale * (0.5 * kMapRange + dbg_dst_x_ - x_), kMapY + kMapScale * (0.5 * kMapRange + dbg_dst_y_ - y_));
+        glEnd();
         glPopMatrix();
     }
     StarInterface * GetCenterStar() {
