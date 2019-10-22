@@ -39,4 +39,11 @@ void HOTASDevice::Stabilize() {
     bus_connection_->Publish(db_StabilizeCommand, 0);
 }
 
+void HOTASDevice::SendCommand(int command) {
+    BD_BusCommand cmd;
+    cmd.id = command;
+    cmd.param = 0;
+    bus_connection_->Publish(db_BusCommand, &cmd);
+}
+
 void HOTASDevice::ToggleLandingGear() {}

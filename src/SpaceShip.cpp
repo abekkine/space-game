@@ -6,6 +6,7 @@
 #include "BusDataTypes.h"
 #include "DataBus.h"
 #include "DataBusConnection.h"
+#include "StandardBusCommands.h"
 #include "HotasSystemInterface.h"
 #include "EngineSystemInterface.h"
 #include "HudSystemInterface.h"
@@ -62,6 +63,8 @@ SpaceShip::SpaceShip()
 , station_iface_(0)
 , ship_anchored_(false)
 , destroyed_(false)
+, map_x_(-86.5821)
+, map_y_(-24.8058)
 {
     model_ = std::make_shared<BasicShipModel>();
     OBJMGR.Set("model", model_);
@@ -72,7 +75,7 @@ SpaceShip::SpaceShip()
     hotas_ = SYSTEMSMGR.getHotasSystem();
     engine_ = SYSTEMSMGR.getEngineSystem();
     radar_ = SYSTEMSMGR.getRadarSystem();
-    jump_drive_ = SYSTEMSMGR.getJumpDriveSystem();
+    jump_drive_ = SYSTEMSMGR.getJumpDriveSystem(map_x_, map_y_);
     hull_ = SYSTEMSMGR.getHullSystem();
     sensor_ = SYSTEMSMGR.getSensorSystem();
 
@@ -99,6 +102,21 @@ void SpaceShip::SetPosition(double x, double y) {
 
 b2Vec2 const & SpaceShip::GetPosition() {
     return model_->GetPosition();
+}
+
+void SpaceShip::SetMapPosition(const double & x, const double & y) {
+    map_x_ = x;
+    map_y_ = y;
+}
+
+// DEBUG
+extern double dbg_map_x_;
+extern double dbg_map_y_;
+void SpaceShip::GetMapPosition(double & x, double & y) {
+    map_x_ = dbg_map_x_;
+    map_y_ = dbg_map_y_;
+    x = map_x_;
+    y = map_y_;
 }
 
 double SpaceShip::GetSpeed() {
@@ -203,6 +221,11 @@ void SpaceShip::HotasInput(int key, bool action) {
     case GLFW_KEY_S: // stop rotation
         if (action == true) {
             hotas_->Stabilize();
+        }
+        break;
+    case GLFW_KEY_J: // send jump request
+        if (action == true) {
+            hotas_->SendCommand(cmd__JUMP);
         }
         break;
     case GLFW_KEY_F:

@@ -12,6 +12,7 @@ public:
     void SetThrottle(double value);
     void SetSteering(double value);
     void Stabilize();
+    void SendCommand(int command);
     void ToggleLandingGear();
 };
 

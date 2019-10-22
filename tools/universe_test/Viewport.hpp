@@ -16,9 +16,13 @@ public:
         near_ = -1.0;
         far_ = 1.0;
         center_.Set(0.0, 0.0);
-        pixel_size_ = 0.0015;
+        //            vvvvvvvvvvvvv : world size of 10.0
+        pixel_size_ = 1.0 * 3.25521 * 0.0015;
     }
     ~Viewport() {}
+    void SetCenter(const WorldPosition & center) {
+        center_ = center;
+    }
     void GetCenter(WorldPosition & center) {
         center = center_;
     }

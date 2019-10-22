@@ -11,12 +11,14 @@ Universe::Universe() {
 
     m_noise = new siv::PerlinNoise(123U);
 
-    for (int i=0; i<eiMAX; ++i) {
-        extent_indexes_[(i << 1) + 0] = 0;
-        extent_indexes_[(i << 1) + 1] = 0;
-    }
-
+    // DEBUG
+    // for (int i=0; i<eiMAX; ++i) {
+    //     extent_indexes_[(i << 1) + 0] = 0;
+    //     extent_indexes_[(i << 1) + 1] = 0;
+    // }
     UpdateCategoryIndex();
+
+    Load();
 }
 
 Universe::~Universe() {}
@@ -47,7 +49,7 @@ bool Universe::GenerateStarAt(const double & x, const double & y, StarInfo * p) 
     double rMax = star_categories_[category_index].maxRadius;
     double mMin = star_categories_[category_index].minMass;
     double mMax = star_categories_[category_index].maxMass;
-    p->radius = 0.01 * 0.5 * (rMax + rMin + dis(gen) * (rMax - rMin));
+    p->radius = 50.0 * (rMax + rMin + dis(gen) * (rMax - rMin));
     p->mass = 0.5 * (mMax + mMin + dis(gen) * (mMax - mMin));
     p->cat_name = star_categories_[category_index].name;
     p->cat_type = star_categories_[category_index].type;
@@ -61,37 +63,18 @@ void Universe::GetStars(
     StarCollectionType & stars) {
 
     const double ds = m_params.stepSize.value;
-
-    if (!m_params.CheckUpdate()) {
-        extent_indexes_[eiSize] = static_cast<int32_t>(floor(0.5 * distance / ds));
-        extent_indexes_[eiBaseX] = static_cast<int>(floor(centerX/ds));
-        extent_indexes_[eiBaseY] = static_cast<int>(floor(centerY/ds));
-
-        bool update_stars = false;
-        for (int i=0; i<eiMAX; ++i) {
-            if (extent_indexes_[i + 0] ^ extent_indexes_[i + eiMAX]) {
-                update_stars = true;
-                break;
-            }
-        }
-
-        for (int i=0; i<eiMAX; ++i) {
-            extent_indexes_[i + eiMAX] = extent_indexes_[i + 0];
-        }
-
-        if (update_stars == false) {
-            return;
-        }
+    // Limit query distance.
+    double effective_distance;
+    if (distance > 20.0 * ds) {
+        effective_distance = 20.0 * ds;
+    } else {
+        effective_distance = distance;
     }
 
-    double frame_size = ds * static_cast<double>(extent_indexes_[eiSize]);
-    const double base_x = ds * static_cast<double>(extent_indexes_[eiBaseX]);
-    const double base_y = ds * static_cast<double>(extent_indexes_[eiBaseY]);
-
-    // Limit rendering work
-    if ( 2.0 * frame_size / ds > 200.0 ) {
-        frame_size = 100.0 * ds;
-    }
+    // BUG : Star generation needs a fix for panning.
+    const double frame_size = ds * floor(0.5 * effective_distance / ds);
+    const double base_x = ds * floor(centerX / ds);
+    const double base_y = ds * floor(centerY / ds);
 
     m_stars.clear();
     double f = frame_size / m_params.frequency.value;
@@ -131,4 +114,5 @@ void Universe::Save() {
 
 void Universe::Load() {
     m_params.Load();
+    m_params.Update();
 }

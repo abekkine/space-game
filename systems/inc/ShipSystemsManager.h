@@ -44,9 +44,9 @@ public:
         }
         return radar_;
     }
-    ShipSystemBase* getJumpDriveSystem() {
+    ShipSystemBase* getJumpDriveSystem(const double & map_x, const double & map_y) {
         if (jump_drive_ == 0) {
-            jump_drive_ = new BasicJumpDriveMk1();
+            jump_drive_ = new BasicJumpDriveMk1(map_x, map_y);
         }
 
         return jump_drive_;

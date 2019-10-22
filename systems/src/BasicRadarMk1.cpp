@@ -11,6 +11,7 @@
 
 BasicRadarMk1::BasicRadarMk1() {
     name_ = "radar";
+    solar_system_ = 0;
 }
 
 BasicRadarMk1::~BasicRadarMk1() {}
@@ -31,17 +32,15 @@ void BasicRadarMk1::Init(DataBus * bus) {
         DB_SUBSCRIBE(BasicRadarMk1, ShipPosition);
     }
 
-    std::shared_ptr<SolarSystemInterface> s = std::static_pointer_cast<SolarSystemInterface>(OBJMGR.Get("solar"));
-    if (s == 0) {
-        // TODO : Handle properly
-        throw;
-    }
-
-    planets_ = s->GetPlanets();
+    solar_system_ = std::static_pointer_cast<SolarSystemInterface>(OBJMGR.Get("solar"));
 }
 
 void BasicRadarMk1::Update(double time_step) {
     (void)time_step;
+
+    if (solar_system_ != 0) {
+        planets_ = solar_system_->GetPlanets();
+    }
 
     if (bus_connection_ != 0) {
         if (! planets_.empty()) {

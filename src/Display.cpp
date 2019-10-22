@@ -108,14 +108,14 @@ void Display::UiMode() {
     glOrtho(0.0, width_, height_, 0.0, -1.0, 1.0);
     glMatrixMode(GL_MODELVIEW);
 }
-void Display::WorldMode(double speed_factor) {
+void Display::WorldMode(double scale_factor) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(
-        speed_factor * vp_left_,
-        speed_factor * vp_right_,
-        speed_factor * vp_bottom_,
-        speed_factor * vp_top_,
+        scale_factor * vp_left_,
+        scale_factor * vp_right_,
+        scale_factor * vp_bottom_,
+        scale_factor * vp_top_,
         -1.0, 1.0);
     glMatrixMode(GL_MODELVIEW);
 }

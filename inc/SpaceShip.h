@@ -43,6 +43,8 @@ public:
     void RefuelRequest();
     void RepairRequest();
     void HotasInput(int key, bool action);
+    void SetMapPosition(const double & x, const double & y);
+    void GetMapPosition(double & x, double & y);
 
 private:
     std::shared_ptr<ShipModelInterface> model_;
@@ -70,6 +72,8 @@ private:
     bool ship_anchored_;
     // Ship destruction flag.
     bool destroyed_;
+    // Ship's map/universe position
+    double map_x_, map_y_;
 };
 
 #endif // SPACE_SHIP_H_

@@ -53,6 +53,7 @@ float brown_dwarf_base_color[3] = {
 };
 
 StarCategory star_categories_[e_NUM_CATEGORIES] = {
+//      name,           type,               abundance,          baseColor,              minR,   maxR,   minM,   maxM
     {   "Class M",      sst_MainSequence,   0.8,                class_M_base_color,     0.15,   0.6,    0.06,   0.51    },
     {   "Class K",      sst_MainSequence,   0.88,               class_K_base_color,     0.72,   0.85,   0.67,   0.79    },
     {   "White Dwarf",  sst_None,           0.93,               white_dwarf_base_color, 0.001,  0.01,   0.2,    1.4     },

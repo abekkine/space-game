@@ -100,11 +100,9 @@ void render_world() {
     if (! stars_.empty()) {
 
         double x, y;
-        double logSize;
         for (auto p : stars_) {
             p->GetPosition(x, y);
-            logSize = 1.0 + log(8.0 * p->GetRadius()) / log(2);
-            glPointSize(logSize);
+            glPointSize(8.0);
             glBegin(GL_POINTS);
             glColor3fv(p->GetColor());
             glVertex2d(x, y);
@@ -205,7 +203,7 @@ void render_star_info() {
         glRasterPos2i(tx, ty); ty += ts;
         text_->Print("Mass(%.3f)", selected_star_->GetMass());
         glRasterPos2i(tx, ty); ty += ts;
-        text_->Print("Size(%.2f)", selected_star_->GetRadius());
+        text_->Print("SizeX100(%.2f)", selected_star_->GetRadius() * 100.0);
     }
     glPopMatrix();
 }
@@ -251,6 +249,8 @@ void init_application() {
     text_ = TextRendererFactory::getTextRenderer();
     text_->AddFont(2, "ubuntu_mono.ttf");
 
+    // Center position from game.
+    vp_.SetCenter(WorldPosition(-86.5821, -24.8058));
     vp_.SetWindowSize(window_width_, window_height_);
 
     right_mouse_processor_.RegisterHandlers(

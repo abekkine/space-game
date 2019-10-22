@@ -1,6 +1,9 @@
 #ifndef UNIVERSE_PARAMETERS_HPP_
 #define UNIVERSE_PARAMETERS_HPP_
 
+// DEBUG
+#include <iostream>
+
 #define RAW_INT_MAX 0xfffff
 
 #pragma pack(push, 1)
@@ -21,7 +24,6 @@ struct Params {
         yOffset = 1;
         minValue = 1;
         zOffset = 1;
-        Load();
     }
     void Save() {
         FILE * f = fopen("params.bin", "wb");
@@ -46,6 +48,15 @@ struct Params {
         } else {
             throw;
         }
+        // DEBUG
+        std::cout << "UniverseParameters loaded:\n";
+        std::cout << "..octaveCount " << octaveCount << '\n';
+        std::cout << "..frequency   " << frequency << '\n';
+        std::cout << "..stepSize    " << stepSize << '\n';
+        std::cout << "..xOffset     " << xOffset << '\n';
+        std::cout << "..yOffset     " << yOffset << '\n';
+        std::cout << "..minValue    " << minValue << '\n';
+        std::cout << "..zOffset     " << zOffset << '\n';
     }
 };
 #pragma pack(pop)
@@ -92,7 +103,6 @@ private:
 struct UniverseParameters {
 
     Parameter<int> octaveCount;
-    // int octaveCount;
     Parameter<double> frequency;
     Parameter<double> x;
     Parameter<double> y;
@@ -132,7 +142,6 @@ struct UniverseParameters {
     }
     void Load() {
         rawParams.Load();
-        Update();
     }
 
 public:

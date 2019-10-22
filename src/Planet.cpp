@@ -27,7 +27,13 @@ Planet::Planet()
 }
 
 Planet::~Planet() {
-    delete station_;
+    if (station_) {
+        delete station_;
+    }
+    // BUG : Following line intended to discard
+    //     : unused display lists, but causes
+    //     : crash if uncommented.
+    // glDeleteLists(DL_surface_index_, 1);
 }
 
 void Planet::SetSeed(long int seed) {
@@ -93,12 +99,10 @@ void Planet::SetCoreRadius(double value) {
     core_radius_ = value;
 }
 
-void Planet::SetColor(double value) {
-    uint16_t colorbits = static_cast<uint16_t>(value);
-    colorbits &= 0xfff;
-    color_[0] = (colorbits >> 8) / 15.0;
-    color_[1] = ((colorbits >> 4) & 0xf) / 15.0;
-    color_[2] = (colorbits & 0xf) / 15.0;
+void Planet::SetColor(float r, float g, float b) {
+    color_[0] = r;
+    color_[1] = g;
+    color_[2] = b;
 }
 
 void Planet::SetStation() {

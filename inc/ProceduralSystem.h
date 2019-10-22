@@ -1,19 +1,18 @@
-#ifndef TESTING_SYSTEM_H_
-#define TESTING_SYSTEM_H_
+#ifndef PROCEDURAL_SYSTEM_H_
+#define PROCEDURAL_SYSTEM_H_
 
 #include "SolarSystemInterface.h"
 
 #include <Box2D.h>
 
-#include <vector>
-#include <memory>
-
 class Planet;
+class StarInterface;
 
-class TestingSystem : public SolarSystemInterface {
+class ProceduralSystem : public SolarSystemInterface {
 public:
-    TestingSystem(b2World * world);
-    ~TestingSystem();
+    ProceduralSystem(b2World * world);
+    ProceduralSystem();
+    ~ProceduralSystem();
     void SetStar(StarInterface * star);
     b2Vec2 GetGravityAcceleration(b2Vec2 pos);
     void Init();
@@ -22,8 +21,9 @@ public:
     std::vector<std::shared_ptr<Planet>> GetPlanets();
 
 private:
-    b2World * world_;
+    StarInterface * star_;
     std::vector<std::shared_ptr<Planet>> planets_;
+    b2World * world_;
 };
 
-#endif // TESTING_SYSTEM_H_
+#endif // PROCEDURAL_SYSTEM_H_
