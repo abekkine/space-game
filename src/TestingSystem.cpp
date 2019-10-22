@@ -14,6 +14,7 @@ TestingSystem::~TestingSystem() {}
 
 void TestingSystem::SetStar(StarInterface * star) {
     (void)star;
+    Init();
 }
 
 b2Vec2 TestingSystem::GetGravityAcceleration(b2Vec2 pos) {
