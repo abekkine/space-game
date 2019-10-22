@@ -12,15 +12,17 @@ class Planet;
 
 class TestingSystem : public SolarSystemInterface {
 public:
-    TestingSystem();
+    TestingSystem(b2World * world);
     ~TestingSystem();
+    void SetStar(StarInterface * star);
     b2Vec2 GetGravityAcceleration(b2Vec2 pos);
-    void Init(b2World * world);
+    void Init();
     void Update(double delta_time);
     void Render();
     std::vector<std::shared_ptr<Planet>> GetPlanets();
 
 private:
+    b2World * world_;
     std::vector<std::shared_ptr<Planet>> planets_;
 };
 

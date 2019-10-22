@@ -3,18 +3,21 @@
 
 #include "SolarSystemInterface.h"
 #include "ObjectManager.h"
+#include "StarInterface.h"
 
 class EmptySystem : public SolarSystemInterface {
 public:
     EmptySystem()
     {}
     ~EmptySystem() {}
+    void SetStar(StarInterface * star) {
+        (void)star;
+    }
     b2Vec2 GetGravityAcceleration(b2Vec2 pos) {
         b2Vec2 g(0.0, 0.0);
         return g;
     }
-    void Init(b2World * world) {
-        (void)world;
+    void Init() {
     }
     void Update(double delta_time) {
         (void)delta_time;

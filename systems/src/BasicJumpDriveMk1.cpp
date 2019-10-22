@@ -5,6 +5,7 @@
 #include "StandardBusCommands.h"
 #include "ObjectManager.h"
 #include "UniverseInterface.h"
+#include "SolarSystemInterface.h"
 
 #include "UniverseManager.h"
 
@@ -24,6 +25,7 @@ BasicJumpDriveMk1::BasicJumpDriveMk1(const double & x, const double & y)
     name_ = "jumpdrive";
     range_ = 10.0;
     universe_ = 0;
+    solar_system_ = 0;
     destination_star_ = 0;
 }
 
@@ -61,6 +63,7 @@ void BasicJumpDriveMk1::Init(DataBus * bus) {
     }
 
     universe_ = std::static_pointer_cast<UniverseInterface>(OBJMGR.Get("universe"));
+    solar_system_ = std::static_pointer_cast<SolarSystemInterface>(OBJMGR.Get("solar"));
 }
 
 void BasicJumpDriveMk1::Update(double time_step) {
@@ -116,14 +119,11 @@ void BasicJumpDriveMk1::Update(double time_step) {
 }
 
 void BasicJumpDriveMk1::JumpToSystem() {
-    if (destination_star_ != 0) {
-        std::shared_ptr<UniverseManager> u = std::static_pointer_cast<UniverseManager>(OBJMGR.Get("universe_manager"));
-        if (u != 0) {
-            u->SetSolarSystem(destination_star_);
-            position_x_ = destination_x_;
-            position_y_ = destination_y_;
-            dbg_map_x_ = position_x_;
-            dbg_map_y_ = position_y_;
-        }
+    if (destination_star_ != 0 && solar_system_ != 0) {
+        solar_system_->SetStar(destination_star_);
+        position_x_ = destination_x_;
+        position_y_ = destination_y_;
+        dbg_map_x_ = position_x_;
+        dbg_map_y_ = position_y_;
     }
 }

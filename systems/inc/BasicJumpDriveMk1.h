@@ -9,6 +9,7 @@
 class DataBus;
 class DataBusConnection;
 class StarInterface;
+class SolarSystemInterface;
 
 class BasicJumpDriveMk1 : public ShipSystemBase {
 public:
@@ -26,6 +27,7 @@ private:
 private:
     StarCollectionType stars_;
     std::shared_ptr<UniverseInterface> universe_;
+    std::shared_ptr<SolarSystemInterface> solar_system_;
     StarInterface * destination_star_;
     double destination_x_;
     double destination_y_;

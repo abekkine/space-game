@@ -1,14 +1,20 @@
 #include "TestingSystem.h"
 #include "ObjectManager.h"
 #include "Planet.h"
+#include "StarInterface.h"
 #include "CelestialBodyDefinition.h"
 
 #include <GLFW/glfw3.h>
 
-TestingSystem::TestingSystem()
+TestingSystem::TestingSystem(b2World * world)
+: world_(world)
 {}
 
 TestingSystem::~TestingSystem() {}
+
+void TestingSystem::SetStar(StarInterface * star) {
+    (void)star;
+}
 
 b2Vec2 TestingSystem::GetGravityAcceleration(b2Vec2 pos) {
     b2Vec2 g(0.0, 0.0);
@@ -19,7 +25,7 @@ b2Vec2 TestingSystem::GetGravityAcceleration(b2Vec2 pos) {
 }
 
 
-void TestingSystem::Init(b2World * world) {
+void TestingSystem::Init() {
     // Instantiate planets.
     const int numPlanets = 5;
     CelestialBodyDefinition u[numPlanets] = {
@@ -39,7 +45,7 @@ void TestingSystem::Init(b2World * world) {
         p->SetAngularVelocity(u[i].angularVelocity);
         p->SetColor(u[i].r, u[i].g, u[i].b);
         p->SetSeed(u[i].seed);
-        p->Init(world);
+        p->Init(world_);
         if (i == 0) {
             p->SetStation();
         }

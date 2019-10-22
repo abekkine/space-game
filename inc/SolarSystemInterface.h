@@ -9,11 +9,13 @@
 #include <memory>
 
 class Planet;
+class StarInterface;
 
 class SolarSystemInterface : public StorableObject {
 public:
     virtual ~SolarSystemInterface() {}
-    virtual void Init(b2World * world) = 0;
+    virtual void Init() = 0;
+    virtual void SetStar(StarInterface * star) = 0;
     virtual void Render() = 0;
     virtual void Update(double time_step) = 0;
     virtual b2Vec2 GetGravityAcceleration(b2Vec2 pos) = 0;

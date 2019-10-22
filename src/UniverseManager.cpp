@@ -85,16 +85,16 @@ void UniverseManager::Init() {
 
 void UniverseManager::SetSolarSystem(StarInterface * star) {
     #ifdef ENABLE_TEST_SYSTEM
-    solar_system_ = SolarSystemFactory::getTestingSystem();
+    solar_system_ = SolarSystemFactory::getTestingSystem(world_);
     #else
     if (star != 0) {
-        solar_system_ = SolarSystemFactory::getStarSystem(star);
+        solar_system_ = SolarSystemFactory::getStarSystem(world_);
     } else {
-        solar_system_ = SolarSystemFactory::getEmptySystem();
+        solar_system_ = SolarSystemFactory::getEmptySystem(world_);
     }
     #endif
 
-    solar_system_->Init(world_);
+    solar_system_->SetStar(star);
     OBJMGR.Set("solar", solar_system_, true);
 }
 

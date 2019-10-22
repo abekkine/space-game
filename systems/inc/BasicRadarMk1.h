@@ -9,6 +9,7 @@
 class DataBus;
 class DataBusConnection;
 class Planet;
+class SolarSystemInterface;
 
 // Queries planet information and
 // Sends processed detections into data bus.
@@ -21,9 +22,7 @@ public:
     void dbHandleShipPosition(BusDataInterface *data);
 
 private:
-    void UpdatePlanets();
-
-private:
+    std::shared_ptr<SolarSystemInterface> solar_system_;
     std::vector<std::shared_ptr<Planet>> planets_;
     double plr_x_;
     double plr_y_;

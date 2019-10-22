@@ -6,17 +6,12 @@
 #include <GLFW/glfw3.h>
 
 // DEBUG
+#include <stdlib.h>
 #include <iostream>
 
-ProceduralSystem::ProceduralSystem(StarInterface * star)
-: star_(star)
+ProceduralSystem::ProceduralSystem(b2World * world)
+: world_(world)
 {
-    // DEBUG
-    double sx, sy, r, m;
-    star_->GetPosition(sx, sy);
-    r = star_->GetRadius();
-    m = star_->GetMass();
-    std::cout << sx << ", " << sy << ", " << r << ", " << m << '\n';
 }
 
 ProceduralSystem::ProceduralSystem()
@@ -24,15 +19,23 @@ ProceduralSystem::ProceduralSystem()
 
 ProceduralSystem::~ProceduralSystem() {}
 
+void ProceduralSystem::SetStar(StarInterface * star) {
+    star_ = star;
+    planets_.clear();
+
+    Init();
+}
+
 b2Vec2 ProceduralSystem::GetGravityAcceleration(b2Vec2 pos) {
     b2Vec2 g(0.0, 0.0);
     g += planets_[0]->GetGravityAcceleration(pos);
     return g;
 }
 
-void ProceduralSystem::Init(b2World * world) {
+void ProceduralSystem::Init() {
     std::shared_ptr<Planet> p = std::make_shared<Planet>();
-    p->SetPosition(-5000.0, -500.0);
+    double alpha = drand48() * 2.0 * 3.14159;
+    p->SetPosition(5000.0 * cos(alpha), 5000.0 * sin(alpha));
     p->SetAngle(0.0);
     double radius = star_->GetRadius();
     p->SetRadius(radius);
@@ -44,7 +47,7 @@ void ProceduralSystem::Init(b2World * world) {
 
     planets_.push_back(p);
 
-    p->Init(world);
+    p->Init(world_);
 }
 
 void ProceduralSystem::Update(double delta_time) {

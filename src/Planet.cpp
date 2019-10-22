@@ -27,8 +27,13 @@ Planet::Planet()
 }
 
 Planet::~Planet() {
-    delete station_;
-    glDeleteLists(DL_surface_index_, 1);
+    if (station_) {
+        delete station_;
+    }
+    // BUG : Following line intended to discard
+    //     : unused display lists, but causes
+    //     : crash if uncommented.
+    // glDeleteLists(DL_surface_index_, 1);
 }
 
 void Planet::SetSeed(long int seed) {
