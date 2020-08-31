@@ -4,7 +4,11 @@
 #include "Singleton.hpp"
 
 #include <GLFW/glfw3.h>
+#ifdef WIN32
 #include <GLFW/glext.h>
+#else
+#include <GL/glext.h>
+#endif
 
 #include <functional>
 
