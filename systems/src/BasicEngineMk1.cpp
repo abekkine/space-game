@@ -14,7 +14,11 @@ BasicEngineMk1::BasicEngineMk1()
 , thrust_{0.0, 0.0}
 , effects_(0)
 , kFuelMassPerQuantity(0.1)
+#ifndef GODMODE
 , kFuelConsumptionRate(0.001)
+#else
+, kFuelConsumptionRate(0.0)
+#endif
 , kEngineThrustFactor(20.0)
 , fuel_tank_size_(1.0)
 , remaining_fuel_(1.0)
