@@ -54,6 +54,8 @@ bool Universe::GenerateStarAt(const double & x, const double & y, StarInfo * p) 
     p->cat_name = star_categories_[category_index].name;
     p->cat_type = star_categories_[category_index].type;
     p->color_ptr = star_categories_[category_index].baseColor;
+
+    return true;
 }
 
 void Universe::GetStars(
