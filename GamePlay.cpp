@@ -92,6 +92,12 @@ GameDefinitions::GameStateEnum GamePlay::KeyInput(int key, bool action) {
             }
             break;
 
+        case GLFW_KEY_P:
+            if (action) {
+                universe_mgr_->TogglePause();
+            }
+            break;
+
         default:
             ship_->HotasInput(key, action);
             break;

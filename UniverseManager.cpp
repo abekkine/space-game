@@ -23,6 +23,7 @@ UniverseManager::UniverseManager()
 , state_(GameDefinitions::gameState_InMenu)
 , quit_(false)
 , show_map_(false)
+, paused_(false)
 {}
 
 UniverseManager::~UniverseManager() {
@@ -107,6 +108,10 @@ void UniverseManager::ToggleMap() {
     show_map_ = ! show_map_;
 }
 
+void UniverseManager::TogglePause() {
+    paused_ = ! paused_;
+}
+
 void UniverseManager::Render() {
 
     if (quit_) return;
@@ -125,21 +130,23 @@ void UniverseManager::ThreadLoop() {
 
         double delta_time = timer_.GetElapsed();
 
-        space_ship_->Update(delta_time);
+        if (! paused_) {
+            space_ship_->Update(delta_time);
 
-        solar_system_->Update(delta_time);
+            solar_system_->Update(delta_time);
 
-        effects_->Update(delta_time);
+            effects_->Update(delta_time);
 
-        // Advance physics
-        if (state_ != GameDefinitions::gameState_InGame) {
-            world_->Step(0.0, 12, 6);
+            // Advance physics
+            if (state_ != GameDefinitions::gameState_InGame) {
+                world_->Step(0.0, 12, 6);
+            }
+            else {
+                world_->Step(delta_time, 12, 6);
+            }
+
+            UpdateMap();
         }
-        else {
-            world_->Step(delta_time, 12, 6);
-        }
-
-        UpdateMap();
 
         GameTimer::Sleep(kThreadSleepDuration);
     }

@@ -28,6 +28,7 @@ public:
     void Run();
     void Render();
     void ToggleMap();
+    void TogglePause();
     void SetSolarSystem(StarInterface * star);
 
 private:
@@ -51,6 +52,7 @@ private:
     std::shared_ptr<UniverseInterface> universe_;
 
     bool show_map_;
+    bool paused_;
     StarCollectionType map_stars_;
     MapView * map_;
 };
