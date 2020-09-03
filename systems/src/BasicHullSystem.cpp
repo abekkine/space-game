@@ -21,7 +21,9 @@ void BasicHullSystem::SetDestructionCallback(std::function<void()> cb) {
 
 void BasicHullSystem::ApplyImpact(double impulse) {
     if (integrity_ > 0.0 && impulse > kDamageThreshold) {
+        #ifndef GODMODE
         integrity_ -= kResistanceFactor * impulse;
+        #endif
         if (integrity_ <= 0.0) {
             on_destroyed_();
         }

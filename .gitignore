@@ -1,4 +1,5 @@
 .vscode/
+_b*/
 *.bin
 *.o
 # *.gch
