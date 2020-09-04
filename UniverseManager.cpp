@@ -24,7 +24,9 @@ UniverseManager::UniverseManager()
 , quit_(false)
 , show_map_(false)
 , paused_(false)
-{}
+{
+    map_x_ = map_y_ = -1.0;
+}
 
 UniverseManager::~UniverseManager() {
 
@@ -155,5 +157,9 @@ void UniverseManager::ThreadLoop() {
 void UniverseManager::UpdateMap() {
     double map_x, map_y;
     space_ship_->GetMapPosition(map_x, map_y);
-    map_->Update(map_x, map_y);
+    if (map_x != map_x_ || map_y != map_y_) {
+        map_x_ = map_x;
+        map_y_ = map_y;
+        map_->Update(map_x_, map_y_);
+    }
 }

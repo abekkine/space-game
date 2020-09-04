@@ -54,6 +54,7 @@ private:
     bool show_map_;
     bool paused_;
     StarCollectionType map_stars_;
+    double map_x_, map_y_;
     MapView * map_;
 };
 

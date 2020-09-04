@@ -17,7 +17,7 @@ public:
     , kMapRange(10.0)
     , kMapScale(kMapSize / kMapRange)
     {
-        size_ = 10.0;
+        size_ = kMapRange * 1.5;
         center_ = 0;
     }
     ~MapView() {}
@@ -29,15 +29,14 @@ public:
             // TODO : properly handle exception.
             throw;
         }
+        map_stars_.clear();
         x_ = center_x;
         y_ = center_y;
         universe_->GetStars(x_, y_, size_, stars_);
         CalculateCenter();
+        CalculateMapStars();
     }
-    void Render() {
-        DISPLAY.UiMode();
-        glPushMatrix();
-        glLoadIdentity();
+    void RenderMapFrame() {
         glColor3f(1.0, 1.0, 1.0);
         glLineWidth(2.0);
         glBegin(GL_LINE_LOOP);
@@ -46,26 +45,120 @@ public:
         glVertex2i(kMapX + kMapSize, kMapY + kMapSize);
         glVertex2i(kMapX, kMapY + kMapSize);
         glEnd();
+    }
+    void RenderMapBackground() {
+        glColor4f(0.0, 0.0, 0.2, 0.8);
+        glBegin(GL_QUADS);
+        glVertex2i(kMapX, kMapY);
+        glVertex2i(kMapX + kMapSize, kMapY);
+        glVertex2i(kMapX + kMapSize, kMapY + kMapSize);
+        glVertex2i(kMapX, kMapY + kMapSize);
+        glEnd();
+    }
+    void GetMapXY(StarInterface * s, int & x, int & y) {
+        double sx, sy;
+        s->GetPosition(sx, sy);
+        x = starXToMapX(sx - x_);
+        y = starYToMapY(sy - y_);
+    }
+    void RenderMapCenter() {
+        int centerX, centerY;
+        GetMapXY(center_, centerX, centerY);
+        glColor4f(1.0, 1.0, 1.0, 0.3);
+        glLineWidth(0.5);
+        glBegin(GL_LINES);
+        glVertex2i(kMapX, centerY);
+        glVertex2i(kMapX + kMapSize, centerY);
+        glVertex2i(centerX, kMapY);
+        glVertex2i(centerX, kMapY + kMapSize);
+        glEnd();
+    }
+    void RenderStars() {
         if (universe_ != 0) {
             double sx, sy, sr;
             float * sColor;
-            for (auto s : stars_) {
-                s->GetPosition(sx, sy);
+            int sMapX, sMapY;
+            for (auto s : map_stars_) {
+                GetMapXY(s, sMapX, sMapY);
                 sColor = s->GetColor();
                 glColor3fv(sColor);
                 glPointSize(4.0);
                 glBegin(GL_POINTS);
-                glVertex2i(kMapX + kMapSize - kMapScale * (0.5 * kMapRange + sx - x_), kMapY + kMapScale * (0.5 * kMapRange + sy - y_));
+                glVertex2i(sMapX, sMapY);
                 glEnd();
             }
         }
+    }
+    void RenderSelection() {
         // DEBUG selected
+        if (isStarInMap(dbg_dst_x_ - x_, dbg_dst_y_ - y_) == false) {
+            return;
+        }
         glColor4f(1.0, 0.0, 0.0, 0.5);
         glPointSize(10.0);
         glBegin(GL_POINTS);
-        glVertex2i(kMapX + kMapSize - kMapScale * (0.5 * kMapRange + dbg_dst_x_ - x_), kMapY + kMapScale * (0.5 * kMapRange + dbg_dst_y_ - y_));
+        glVertex2i(
+            starXToMapX(dbg_dst_x_ - x_),
+            starYToMapY(dbg_dst_y_ - y_)
+        );
         glEnd();
+    }
+    void Render() {
+        DISPLAY.UiMode();
+        glPushMatrix();
+        glLoadIdentity();
+        RenderMapBackground();
+        RenderMapCenter();
+        RenderStars();
+        RenderSelection();
+        RenderMapFrame();
         glPopMatrix();
+    }
+
+    void CalculateMapLimits() {
+        const double mapLimitRatio = 0.98;
+        star_max_x_ = mapLimitRatio * mapXToStarX(kMapX);
+        star_min_x_ = mapLimitRatio * mapXToStarX(kMapX + kMapSize);
+        star_min_y_ = mapLimitRatio * mapYToStarY(kMapY);
+        star_max_y_ = mapLimitRatio * mapYToStarY(kMapY + kMapSize);
+    }
+    bool isStarInMap(const double & x, const double & y) {
+        if (x > star_min_x_ && x < star_max_x_ &&
+            y > star_min_y_ && y < star_max_y_) {
+            
+            return true;
+        } else {
+            return false;
+        }
+    }
+    void CalculateMapStars() {
+        CalculateMapLimits();
+
+        double sx, sy, sxRel, syRel;
+        for (auto s : stars_) {
+            s->GetPosition(sx, sy);
+            sxRel = sx - x_;
+            syRel = sy - y_;
+            if (isStarInMap(sxRel, syRel)) {
+                map_stars_.push_back(s);
+            }
+        }
+    }
+    int starXToMapX(const double & x) {
+        int mapX = kMapX + 0.5 * kMapSize - kMapScale * x;
+        return mapX;
+    }
+    int starYToMapY(const double & y) {
+        int mapY = kMapY + 0.5 * kMapSize + kMapScale * y;
+        return mapY;
+    }
+    double mapXToStarX(const int x) {
+        double starX = (kMapX + 0.5 * kMapSize - x) / kMapScale;
+        return starX;
+    }
+    double mapYToStarY(const int y) {
+        double starY = (y - kMapY - 0.5 * kMapSize) / kMapScale;
+        return starY;
     }
     StarInterface * GetCenterStar() {
         return center_;
@@ -97,8 +190,11 @@ private:
     double x_, y_;
     double size_;
     StarCollectionType stars_;
+    StarCollectionType map_stars_;
     std::shared_ptr<UniverseInterface> universe_;
     StarInterface * center_;
+    double star_max_x_, star_max_y_;
+    double star_min_x_, star_min_y_;
 };
 
 #endif // MAP_VIEW_HPP_
