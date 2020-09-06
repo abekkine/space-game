@@ -17,8 +17,6 @@
 #include "ObjectManager.h"
 #include "Display.h"
 
-#include <GLFW/glfw3.h>
-
 #include <assert.h>
 
 // Contact interface methods

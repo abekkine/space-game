@@ -2,8 +2,6 @@
 #include "Display.h"
 #include "Text.h"
 
-#include <GLFW/glfw3.h>
-
 #include <iostream>
 
 Menu::Menu()

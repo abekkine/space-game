@@ -3,8 +3,7 @@
 #include "Planet.h"
 #include "StarInterface.h"
 #include "RandomGenerator.hpp"
-
-#include <GLFW/glfw3.h>
+#include "Display.h"
 
 // DEBUG
 #include <stdlib.h>

@@ -3,8 +3,7 @@
 #include "Planet.h"
 #include "StarInterface.h"
 #include "CelestialBodyDefinition.h"
-
-#include <GLFW/glfw3.h>
+#include "Display.h"
 
 TestingSystem::TestingSystem(b2World * world)
 : world_(world)

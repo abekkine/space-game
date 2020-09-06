@@ -3,12 +3,8 @@
 
 #include "Singleton.hpp"
 
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#ifdef WIN32
-#include <GLFW/glext.h>
-#else
-#include <GL/glext.h>
-#endif
 
 #include <functional>
 

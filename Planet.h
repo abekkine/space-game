@@ -1,7 +1,8 @@
 #ifndef PLANET_H_
 #define PLANET_H_
 
-#include <GLFW/glfw3.h>
+#include "Display.h"
+
 #include <Box2D/Box2D.h>
 
 #include <stdint.h>

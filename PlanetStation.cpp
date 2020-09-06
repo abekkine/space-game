@@ -4,8 +4,7 @@
 #include "EngineSystemInterface.h"
 #include "HullSystemInterface.h"
 #include "Text.h"
-
-#include <GLFW/glfw3.h>
+#include "Display.h"
 
 #include <stdio.h>
 

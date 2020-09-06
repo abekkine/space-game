@@ -7,7 +7,6 @@
 #include "EffectsManager.h"
 
 #include <Box2D/Box2D.h>
-#include <GLFW/glfw3.h>
 
 #include <assert.h>
 #include <math.h>

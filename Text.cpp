@@ -1,7 +1,7 @@
 #include "Text.h"
 #include "Font.h"
 
-#include <GLFW/glfw3.h>
+#include "Display.h"
 
 Text::Text()
 : font_(0)

@@ -4,7 +4,6 @@
 #include "DataBus.h"
 #include "Display.h"
 
-#include <GLFW/glfw3.h>
 #include <math.h>
 
 GenericHudDevice::GenericHudDevice() {

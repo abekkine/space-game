@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#include <GLFW/glfw3.h>
+#include "Display.h"
 
 UniverseManager::UniverseManager()
 : kThreadSleepDuration(10)

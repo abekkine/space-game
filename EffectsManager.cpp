@@ -1,6 +1,5 @@
 #include "EffectsManager.h"
-
-#include <GLFW/glfw3.h>
+#include "Display.h"
 
 #include <unistd.h>
 #include <math.h>

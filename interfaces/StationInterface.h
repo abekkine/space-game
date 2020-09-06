@@ -1,12 +1,12 @@
 #ifndef STATION_INTERFACE_H_
 #define STATION_INTERFACE_H_
 
-#include <GLFW/glfw3.h>
-#include <Box2D/Box2D.h>
-
+#include "Display.h"
 #include "EngineSystemInterface.h"
 #include "HullSystemInterface.h"
 #include "ContactInterface.h"
+
+#include <Box2D/Box2D.h>
 
 class StationInterface : public ContactInterface {
 public:

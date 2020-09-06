@@ -1,7 +1,6 @@
 #include "Background.h"
 #include "RandomGenerator.hpp"
-
-#include <GLFW/glfw3.h>
+#include "Display.h"
 
 #include <stdlib.h>
 #include <math.h>
